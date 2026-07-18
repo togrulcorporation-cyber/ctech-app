@@ -74,9 +74,14 @@
     letter-spacing:3px;
     color:#12233B;
     text-transform:uppercase;
+    white-space:nowrap;
   }
 
   .brand-name span { color:#2F6FED; }
+
+  @media (max-width:400px) {
+    .brand-name { font-size:19px; letter-spacing:1.5px; }
+  }
 
   .card {
     background:#FFFFFF;
@@ -97,6 +102,11 @@
     margin:0 0 30px;
     text-align:center;
     letter-spacing:0.3px;
+    white-space:nowrap;
+  }
+
+  @media (max-width:400px) {
+    h1 { font-size:20px; letter-spacing:0.1px; }
   }
 
   .field-label {
@@ -109,7 +119,7 @@
 
   .input-row { position:relative; margin-bottom:20px; }
 
-  .input-row svg {
+  .input-row > svg {
     position:absolute;
     left:16px;
     top:50%;
@@ -191,17 +201,21 @@
   .remember {
     display:flex;
     align-items:center;
-    gap:9px;
+    gap:11px;
     margin-top:20px;
-    font-size:14px;
-    color:#5C7089;
+    font-size:15px;
+    font-weight:600;
+    color:#2F4C6E;
+    cursor:pointer;
+    user-select:none;
   }
 
   .remember input {
-    width:17px;
-    height:17px;
+    width:22px;
+    height:22px;
     accent-color:#4E93FA;
     cursor:pointer;
+    flex-shrink:0;
   }
 
   .footer-note {
@@ -630,6 +644,35 @@
 var API_URL = "https://script.google.com/macros/s/AKfycbxi0k5hC-JTZ-Zm7_Ih-Jakptlck_OUq034wJ2WDouWTrWddMfZ07wOOCJhxLfNSE6H6A/exec";
 
 var currentUser = null;
+
+var SESSION_KEY = "ctech_session";
+var SESSION_DAYS = 14;
+
+function saveSession(user){
+  try{
+    var expires = Date.now() + (SESSION_DAYS * 24 * 60 * 60 * 1000);
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ user:user, expires:expires }));
+  } catch(e){}
+}
+
+function clearSession(){
+  try{ localStorage.removeItem(SESSION_KEY); } catch(e){}
+}
+
+function loadSession(){
+  try{
+    var raw = localStorage.getItem(SESSION_KEY);
+    if(!raw){ return null; }
+    var data = JSON.parse(raw);
+    if(!data.expires || Date.now() > data.expires){
+      clearSession();
+      return null;
+    }
+    return data.user;
+  } catch(e){
+    return null;
+  }
+}
 var clockStarted = false;
 
 function togglePassword(){
@@ -676,6 +719,13 @@ function login(){
     if(result.status=="OK"){
 
       currentUser = result;
+
+      if(document.getElementById("rememberMe").checked){
+        saveSession(result);
+      } else {
+        clearSession();
+      }
+
       showDashboard();
 
     }
@@ -765,6 +815,12 @@ function moduleAlert(moduleName){
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js");
+}
+
+var savedUser = loadSession();
+if(savedUser){
+  currentUser = savedUser;
+  showDashboard();
 }
 
 </script>
