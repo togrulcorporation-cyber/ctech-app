@@ -1,1419 +1,1024 @@
 <!DOCTYPE html>
-<html>
+<html lang="az">
 <head>
-<meta charset="UTF-8">
-<title>CTECH Service Platform</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2F6FED">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CTECH Service">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" href="favicon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<script>
-  (function(){
-    var meta = document.querySelector('meta[name="viewport"]');
-    if(!meta){
-      meta = document.createElement('meta');
-      meta.name = "viewport";
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute("content","width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover");
-  })();
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@600&display=optional" rel="stylesheet">
-<style>
-
-  * { box-sizing:border-box; }
-
-  html, body {
-    height:100%;
-    margin:0;
-    -webkit-text-size-adjust:100%;
-    text-size-adjust:100%;
-  }
-
-  body {
-    min-height:100vh;
-    background:#F4F8FD;
-    background-image:
-      radial-gradient(circle at 12% 8%, rgba(59,130,246,0.10), transparent 45%),
-      radial-gradient(circle at 90% 90%, rgba(78,147,250,0.10), transparent 45%);
-    font-family:'Inter',Arial,sans-serif;
-  }
-
-  /* ===== LOGIN VIEW ===== */
-
-  #loginView {
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:32px 20px calc(32px + env(safe-area-inset-bottom));
-  }
-
-  .route-line {
-    position:fixed;
-    top:0; left:0; width:100%; height:100%;
-    pointer-events:none;
-    opacity:0.5;
-  }
-
-  .wrap { width:100%; max-width:440px; position:relative; z-index:1; }
-
-  .brand { text-align:center; margin-bottom:34px; }
-
-  .brand-name {
-    font-family:'Rajdhani',sans-serif;
-    font-weight:700;
-    font-size:26px;
-    letter-spacing:3px;
-    color:#12233B;
-    text-transform:uppercase;
-    white-space:nowrap;
-  }
-
-  .brand-name span { color:#2F6FED; }
-
-  @media (max-width:400px) {
-    .brand-name { font-size:19px; letter-spacing:1.5px; }
-  }
-
-  .card {
-    background:#FFFFFF;
-    border:1px solid #E1EAF6;
-    border-radius:22px;
-    position:relative;
-    box-shadow:0 30px 70px rgba(30,68,130,0.12);
-    overflow:hidden;
-  }
-
-  .card-top { padding:38px 34px 36px; }
-
-  h1 {
-    font-family:'Rajdhani',sans-serif;
-    font-weight:600;
-    font-size:27px;
-    color:#12233B;
-    margin:0 0 30px;
-    text-align:center;
-    letter-spacing:0.3px;
-    white-space:nowrap;
-  }
-
-  @media (max-width:400px) {
-    h1 { font-size:20px; letter-spacing:0.1px; }
-  }
-
-  .field-label {
-    font-size:13px;
-    color:#5C7089;
-    margin-bottom:9px;
-    display:block;
-    font-weight:500;
-  }
-
-  .input-row { position:relative; margin-bottom:20px; }
-
-  .input-row > svg {
-    position:absolute;
-    left:16px;
-    top:50%;
-    transform:translateY(-50%);
-    opacity:0.6;
-    pointer-events:none;
-  }
-
-  .toggle-eye {
-    position:absolute;
-    right:8px;
-    top:50%;
-    transform:translateY(-50%);
-    cursor:pointer;
-    background:#EEF3FB;
-    border:none;
-    border-radius:8px;
-    width:34px;
-    height:34px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:background 0.15s;
-  }
-
-  .toggle-eye:hover { background:#DDE9FB; }
-  .toggle-eye:active { transform:translateY(-50%) scale(0.94); }
-
-  #email, #password {
-    width:100%;
-    padding:15px 15px 15px 46px;
-    background:#F8FAFD;
-    border:1.5px solid #DCE6F5;
-    border-radius:12px;
-    font-size:16px;
-    color:#12233B;
-    outline:none;
-    transition:border-color 0.15s, background 0.15s;
-    font-family:'Inter',sans-serif;
-    box-sizing:border-box;
-  }
-
-  #password { padding-right:52px; }
-
-  input::-ms-reveal, input::-ms-clear { display:none; }
-
-  input::-webkit-credentials-auto-fill-button {
-    visibility:hidden;
-    display:none !important;
-    pointer-events:none;
-    position:absolute;
-    right:0;
-  }
-
-  #loginView input::placeholder { color:#9AACC4; }
-
-  #loginView input:focus { border-color:#4E93FA; background:#FFFFFF; }
-
-  button.primary {
-    width:100%;
-    background:linear-gradient(135deg,#4E93FA,#2F6FED);
-    color:#FFFFFF;
-    border:none;
-    padding:17px;
-    border-radius:12px;
-    font-size:16px;
-    font-weight:700;
-    font-family:'Inter',sans-serif;
-    cursor:pointer;
-    letter-spacing:0.3px;
-    box-shadow:0 12px 28px rgba(47,111,237,0.3);
-    transition:transform 0.05s, box-shadow 0.15s, opacity 0.15s;
-    margin-top:6px;
-  }
-
-  button.primary:hover { box-shadow:0 14px 32px rgba(47,111,237,0.42); }
-  button.primary:active { transform:scale(0.98); }
-  button.primary:disabled { opacity:0.6; cursor:default; }
-
-  .remember {
-    display:flex;
-    align-items:center;
-    gap:11px;
-    margin-top:20px;
-    font-size:15px;
-    font-weight:600;
-    color:#2F4C6E;
-    cursor:pointer;
-    user-select:none;
-  }
-
-  .remember input {
-    width:22px;
-    height:22px;
-    accent-color:#4E93FA;
-    cursor:pointer;
-    flex-shrink:0;
-  }
-
-  .footer-note {
-    text-align:center;
-    margin-top:24px;
-    font-size:12px;
-    color:#8CA0BC;
-  }
-
-  /* ===== DASHBOARD VIEW ===== */
-
-  #dashboardView { display:none; position:relative; }
-
-  .profile-row {
-    display:flex;
-    justify-content:flex-end;
-    padding:14px 24px 4px;
-  }
-
-  .profile-chip {
-    display:flex;
-    align-items:center;
-    gap:10px;
-    background:#F7FAFD;
-    border:1px solid #E1EAF6;
-    border-radius:16px;
-    padding:7px 16px 7px 7px;
-    box-shadow:0 6px 16px rgba(30,68,130,0.06);
-    max-width:78vw;
-  }
-
-  .profile-avatar {
-    width:38px;
-    height:38px;
-    border-radius:11px;
-    background:linear-gradient(135deg,#4E93FA,#2F6FED);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#FFFFFF;
-    flex-shrink:0;
-  }
-
-  .profile-text { display:flex; flex-direction:column; min-width:0; }
-
-  .profile-name {
-    font-size:13px;
-    color:#12233B;
-    font-weight:700;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-
-  .profile-role {
-    font-size:11px;
-    color:#7C93B0;
-    font-weight:500;
-    white-space:nowrap;
-  }
-
-  .header {
-    min-height:64px;
-    background:#FFFFFF;
-    border-bottom:1px solid #E1EAF6;
-    display:flex;
-    align-items:center;
-    padding:12px 20px;
-    padding-top:calc(12px + env(safe-area-inset-top));
-  }
-
-  .header-left { flex:1; display:flex; align-items:center; justify-content:flex-start; gap:8px; padding-left:6px; }
-
-  .menu-wrap { position:relative; display:inline-flex; }
-  .header-right { flex:1; display:flex; align-items:center; justify-content:flex-end; }
-
-  .icon-btn {
-    width:46px;
-    height:46px;
-    border-radius:12px;
-    border:none;
-    background:#F0F5FC;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    color:#12233B;
-    transition:background 0.15s;
-    flex-shrink:0;
-  }
-
-  .icon-btn:hover { background:#DDE9FB; }
-  .icon-btn:active { transform:scale(0.95); }
-
-  .menu-panel {
-    display:none;
-    position:absolute;
-    top:52px;
-    left:50%;
-    transform:translateX(-50%);
-    background:#FFFFFF;
-    border:1px solid #E1EAF6;
-    border-radius:14px;
-    padding:6px;
-    gap:6px;
-    flex-direction:column;
-    box-shadow:0 16px 32px rgba(30,68,130,0.16);
-    z-index:30;
-    min-width:64px;
-  }
-
-  .menu-panel.open { display:flex; }
-
-  .menu-item {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:5px;
-    background:none;
-    border:none;
-    border-radius:9px;
-    padding:12px 6px;
-    cursor:pointer;
-    color:#12233B;
-    transition:background 0.15s;
-  }
-
-  .menu-item:hover { background:#F0F5FC; }
-  .menu-item:active { transform:scale(0.97); }
-
-  .menu-item span {
-    font-size:10px;
-    font-weight:600;
-    color:#3A4A5E;
-    white-space:nowrap;
-  }
-
-  .modal-overlay {
-    display:none;
-    position:fixed;
-    top:0; left:0; width:100%; height:100%;
-    background:rgba(18,35,59,0.45);
-    z-index:50;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-  }
-
-  .modal-overlay.open { display:flex; }
-
-  .modal-box {
-    background:#FFFFFF;
-    border-radius:20px;
-    max-width:440px;
-    width:100%;
-    max-height:80vh;
-    overflow-y:auto;
-    padding:28px 26px;
-    box-shadow:0 30px 70px rgba(0,0,0,0.25);
-  }
-
-  .modal-brand {
-    text-align:center;
-    padding-bottom:16px;
-    margin-bottom:18px;
-    border-bottom:1px solid #E1EAF6;
-  }
-
-  .modal-brand-text {
-    font-family:'Rajdhani',sans-serif;
-    font-weight:700;
-    font-size:17px;
-    letter-spacing:2px;
-    color:#12233B;
-    text-transform:uppercase;
-  }
-
-  .modal-brand-text span { color:#2F6FED; }
-
-  .modal-title {
-    font-family:'Inter',sans-serif;
-    font-weight:700;
-    font-size:18px;
-    color:#12233B;
-    margin-bottom:14px;
-    text-align:center;
-  }
-
-  .modal-text {
-    font-size:14px;
-    color:#3A4A5E;
-    line-height:1.65;
-    margin-bottom:12px;
-    text-align:justify;
-    text-justify:inter-word;
-  }
-
-  .modal-text strong { color:#12233B; }
-
-  .modal-subtitle {
-    font-size:13px;
-    font-weight:700;
-    color:#12233B;
-    text-transform:uppercase;
-    letter-spacing:0.5px;
-    margin:18px 0 12px;
-  }
-
-  .modal-steps {
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    margin-bottom:16px;
-  }
-
-  .modal-step {
-    display:flex;
-    align-items:flex-start;
-    gap:12px;
-  }
-
-  .modal-step-num {
-    width:24px;
-    height:24px;
-    border-radius:8px;
-    background:#E6F1FB;
-    color:#1B4A8A;
-    font-family:'Inter',sans-serif;
-    font-size:12px;
-    font-weight:700;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
-    margin-top:1px;
-  }
-
-  .modal-step-text {
-    font-size:14px;
-    color:#3A4A5E;
-    line-height:1.55;
-    padding-top:2px;
-    text-align:justify;
-    text-justify:inter-word;
-  }
-
-  .modal-close {
-    margin-top:8px;
-    width:100%;
-    background:#F0F5FC;
-    border:1px solid #E1EAF6;
-    border-radius:12px;
-    padding:13px;
-    font-size:15px;
-    font-weight:600;
-    color:#12233B;
-    cursor:pointer;
-  }
-
-  .brand-mini {
-    font-family:'Rajdhani',sans-serif;
-    font-weight:700;
-    font-size:16px;
-    letter-spacing:1.5px;
-    color:#12233B;
-    text-transform:uppercase;
-    white-space:nowrap;
-    justify-self:center;
-  }
-
-  .brand-mini span { color:#2F6FED; }
-
-  .clock-box {
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-family:'IBM Plex Mono',monospace;
-    font-weight:600;
-    font-size:15px;
-    color:#12233B;
-    background:#F0F5FC;
-    border:1.5px solid #DCE6F5;
-    padding:8px 16px;
-    border-radius:10px;
-    flex-shrink:0;
-  }
-
-  .clock-sep { color:#B9C6DA; font-weight:400; }
-
-  .status-dot {
-    width:6px;
-    height:6px;
-    border-radius:50%;
-    background:#3FCB78;
-    box-shadow:0 0 0 0 rgba(63,203,120,0.6);
-    animation:pulse 2s infinite;
-    flex-shrink:0;
-  }
-
-  @keyframes pulse {
-    0% { box-shadow:0 0 0 0 rgba(63,203,120,0.5); }
-    70% { box-shadow:0 0 0 6px rgba(63,203,120,0); }
-    100% { box-shadow:0 0 0 0 rgba(63,203,120,0); }
-  }
-
-  .welcome { max-width:920px; margin:0 auto; padding:24px 20px 0; text-align:center; }
-
-  .welcome-box {
-    display:inline-block;
-    border:1px solid #E1EAF6;
-    background:#FFFFFF;
-    border-radius:16px;
-    padding:14px 28px;
-    box-shadow:0 12px 28px rgba(30,68,130,0.06);
-  }
-
-  .welcome-name {
-    font-family:'Inter',sans-serif;
-    font-weight:700;
-    font-size:18px;
-    color:#2F4C6E;
-  }
-
-  .welcome-sub { font-size:13px; color:#5C7089; margin-top:3px; }
-
-  .container { max-width:920px; margin:0 auto; padding:28px 20px 50px; }
-
-  .primary-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
-
-  .card-big {
-    background:#FFFFFF;
-    border:1px solid #E1EAF6;
-    border-radius:20px;
-    padding:22px 20px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    cursor:pointer;
-    box-shadow:0 20px 45px rgba(30,68,130,0.08);
-    transition:transform 0.15s, box-shadow 0.15s;
-    min-height:140px;
-  }
-
-  .card-big:hover { transform:translateY(-4px); box-shadow:0 26px 55px rgba(30,68,130,0.14); }
-  .card-big:active { transform:translateY(-1px) scale(0.99); }
-
-  .card-icon-big {
-    width:64px;
-    height:64px;
-    border-radius:16px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-
-  .icon-bus { background:#E6F1FB; color:#2F6FED; }
-  .icon-tvm { background:#FDF1E3; color:#D97706; }
-
-  .card-title-big {
-    font-family:'Rajdhani',sans-serif;
-    font-weight:700;
-    font-size:24px;
-    letter-spacing:0.5px;
-    color:#12233B;
-  }
-
-  .card-sub-big { font-size:13px; color:#5C7089; }
-
-  .dash-divider {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-    margin:26px 0 22px;
-  }
-
-  .dash-badge {
-    background:#E6F1FB;
-    color:#1B4A8A;
-    border:1px solid #CFE0F7;
-    padding:8px 24px;
-    border-radius:999px;
-    font-family:'Rajdhani',sans-serif;
-    font-weight:700;
-    font-size:14px;
-    letter-spacing:2px;
-  }
-
-  .dash-connector {
-    width:54px;
-    height:26px;
-    background:linear-gradient(to bottom, #CFE0F7, rgba(207,224,247,0));
-    clip-path:polygon(15% 0%, 85% 0%, 62% 100%, 38% 100%);
-  }
-
-  .secondary-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-
-  .card-small {
-    background:#FFFFFF;
-    border:1px solid #E1EAF6;
-    border-radius:16px;
-    padding:18px 16px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    cursor:pointer;
-    transition:transform 0.15s, box-shadow 0.15s;
-  }
-
-  .card-small:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(30,68,130,0.10); }
-
-  .card-icon-small {
-    width:38px;
-    height:38px;
-    border-radius:10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
-  }
-
-  .card-title-small { font-size:14px; font-weight:600; color:#12233B; }
-  .card-sub-small { font-size:12px; color:#5C7089; margin-top:1px; }
-
-  @media (max-width:520px) {
-    .primary-row { grid-template-columns:1fr; }
-    .secondary-row { grid-template-columns:1fr; }
-    .card-title-big { font-size:21px; }
-    .brand-mini { display:none; }
-  }
-  .banner-wrap {
-    margin-top:28px;
-    border-radius:20px;
-    overflow:hidden;
-    border:1px solid #E1EAF6;
-    box-shadow:0 20px 45px rgba(30,68,130,0.08);
-  }
-
-  .banner-img {
-    width:100%;
-    display:block;
-    object-fit:cover;
-  }
-
-  .footer-note-dash {
-    text-align:center;
-    padding:6px 0 30px;
-    font-size:12px;
-    color:#8CA0BC;
-  }
-
-  .loading-overlay {
-    display:none;
-    position:fixed;
-    top:0; left:0; width:100%; height:100%;
-    background:rgba(244,248,253,0.88);
-    z-index:60;
-    align-items:center;
-    justify-content:center;
-  }
-
-  .loading-overlay.open { display:flex; }
-
-  .loading-box {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:16px;
-  }
-
-  .spinner {
-    width:56px;
-    height:56px;
-    border:5px solid #DCE6F5;
-    border-top-color:#2F6FED;
-    border-radius:50%;
-    animation:spin 0.8s linear infinite;
-  }
-
-  @keyframes spin { to { transform:rotate(360deg); } }
-
-  .result-icon {
-    width:64px;
-    height:64px;
-    border-radius:50%;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    animation:popIn 0.35s ease;
-  }
-
-  .result-icon.show { display:flex; }
-
-  @keyframes popIn {
-    0% { transform:scale(0.4); opacity:0; }
-    100% { transform:scale(1); opacity:1; }
-  }
-
-  .result-icon.success { background:#3FCB78; }
-  .result-icon.fail { background:#E24B4A; }
-
-  .loading-text {
-    font-size:13px;
-    color:#5C7089;
-    font-weight:600;
-  }
-
-  /* ===== TÜND REJİM (yalnız dashboard + modal sahələri) ===== */
-
-  body.dark-mode #dashboardView {
-    background:#0F1826;
-    min-height:100vh;
-  }
-
-  body.dark-mode .header {
-    background:#141F30;
-    border-bottom-color:#243247;
-  }
-
-  body.dark-mode .brand-mini,
-  body.dark-mode .profile-name,
-  body.dark-mode .welcome-name,
-  body.dark-mode .card-title-big,
-  body.dark-mode .card-title-small,
-  body.dark-mode .modal-title,
-  body.dark-mode .modal-brand-text,
-  body.dark-mode .modal-subtitle,
-  body.dark-mode .menu-item {
-    color:#E8EEF5;
-  }
-
-  body.dark-mode .icon-btn {
-    background:#1C2A3D;
-    color:#E8EEF5;
-  }
-
-  body.dark-mode .icon-btn:hover { background:#25374F; }
-
-  body.dark-mode .clock-box {
-    background:#1C2A3D;
-    border-color:#2A3B52;
-    color:#E8EEF5;
-  }
-
-  body.dark-mode .clock-sep { color:#5C7089; }
-
-  body.dark-mode .profile-chip {
-    background:#1C2A3D;
-    border-color:#2A3B52;
-  }
-
-  body.dark-mode .profile-role,
-  body.dark-mode .welcome-sub,
-  body.dark-mode .card-sub-big,
-  body.dark-mode .card-sub-small,
-  body.dark-mode .modal-text,
-  body.dark-mode .modal-step-text,
-  body.dark-mode .menu-item span,
-  body.dark-mode .footer-note-dash {
-    color:#93A4BC;
-  }
-
-  body.dark-mode .welcome-box,
-  body.dark-mode .card-big,
-  body.dark-mode .card-small,
-  body.dark-mode .menu-panel,
-  body.dark-mode .modal-box {
-    background:#16212E;
-    border-color:#243247;
-  }
-
-  body.dark-mode .dash-badge {
-    background:#1C2A3D;
-    border-color:#2A3B52;
-    color:#8FB4EA;
-  }
-
-  body.dark-mode .modal-brand { border-bottom-color:#243247; }
-
-  body.dark-mode .modal-step-num {
-    background:#1C2A3D;
-    color:#8FB4EA;
-  }
-
-  body.dark-mode .modal-close {
-    background:#1C2A3D;
-    border-color:#2A3B52;
-    color:#E8EEF5;
-  }
-
-  body.dark-mode .menu-item:hover { background:#1C2A3D; }
-
-  body.dark-mode .banner-wrap { border-color:#243247; }
-
-  body.dark-mode .modal-text strong {
-    color:#E8EEF5;
-  }
-
-  body.dark-mode .dash-connector {
-    background:linear-gradient(to bottom, #2A3B52, rgba(42,59,82,0));
-  }
-
-  body.dark-mode .modal-overlay { background:rgba(6,12,20,0.7); }
-
-  body.dark-mode .loading-overlay { background:rgba(15,24,38,0.9); }
-
-  body.dark-mode .loading-text { color:#93A4BC; }
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTECH Technical Service Platform</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Core+Sans&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #F4F7FC;
+            --bg-card: #FFFFFF;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --accent-color: #2F6FED;
+            --accent-hover: #1E56C8;
+            --border-color: #E2E8F0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --card-radius: 16px;
+        }
+
+        /* Tünd Rejim (Dark Mode) - Tünd Mavi / Qara Çalar */
+        body.dark-mode {
+            --bg-primary: #0B132B;
+            --bg-card: #1C2541;
+            --text-main: #F1F5F9;
+            --text-muted: #94A3B8;
+            --border-color: rgba(255, 255, 255, 0.12); /* Belirginlik qatan incə ağ xətt */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Typography overrides based on architecture guidelines */
+        .brand-logo, .nav-title, .section-title {
+            font-family: 'Rajdhani', sans-serif;
+            text-transform: uppercase;
+        }
+
+        /* Login Screen Styles - Dark mode təsir etmir */
+        #login-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 20px;
+            background-color: #F4F7FC !important;
+            color: #1E293B !important;
+        }
+
+        .login-card {
+            background: #FFFFFF;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header h2 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #2F6FED;
+            letter-spacing: 1px;
+        }
+
+        .login-header p {
+            color: #64748B;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #CBD5E1;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #1E293B;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #2F6FED;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94A3B8;
+        }
+
+        .login-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748B;
+            cursor: pointer;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background-color: #2F6FED;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-login:hover {
+            background-color: #1E56C8;
+        }
+
+        /* Main Dashboard Layout */
+        #dashboard-page {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .main-header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent-color);
+            letter-spacing: 0.5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Tema düyməsi və tarix sahəsi arasında nizamlı məsafə */
+        }
+
+        /* Estetik və Simmetrik Tema Düyməsi */
+        .theme-toggle-btn {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            height: 38px; /* Tarix çərçivəsi ilə tam eyni hündürlük */
+            width: 42px;
+            border-radius: 10px; /* Eyni künc radiusu */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .datetime-display {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 0 16px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10B981;
+            border-radius: 50%;
+        }
+
+        /* Main Content Grid */
+        .content-container {
+            padding: 32px 24px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        .welcome-widget {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .welcome-widget h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .welcome-widget p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .service-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 40px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.3s;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-color);
+        }
+
+        .icon-box {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-box.bus { background-color: #E0E7FF; color: #3B82F6; }
+        .icon-box.tvm { background-color: #FFEDD5; color: #F97316; }
+        
+        body.dark-mode .icon-box.bus { background-color: rgba(59, 130, 246, 0.2); }
+        body.dark-mode .icon-box.tvm { background-color: rgba(249, 115, 22, 0.2); }
+
+        .service-card h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .service-card p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Section Dividers */
+        .section-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 32px 0 20px 0;
+            position: relative;
+        }
+
+        .divider-badge {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+            z-index: 2;
+        }
+
+        .divider-arrow {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid var(--border-color);
+            margin-top: -1px;
+            z-index: 1;
+        }
+
+        .sub-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .sub-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sub-card:hover {
+            border-color: var(--accent-color);
+            background-color: rgba(47, 111, 237, 0.02);
+        }
+
+        .sub-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-primary);
+            color: var(--accent-color);
+        }
+
+        .sub-info h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .sub-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Modals and App Windows (Tünd rejimdə kənarları ağ xətt ilə bəlirlənir) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .app-window {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalEntry 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalEntry {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .window-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: rgba(47, 111, 237, 0.03);
+        }
+
+        .window-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-color);
+            letter-spacing: 0.5px;
+        }
+
+        .close-window {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .window-body {
+            padding: 24px;
+            overflow-y: auto;
+            max-height: 70vh;
+        }
+
+        /* Custom Alert Infrastructure */
+        .alert-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15,23,42,0.4);
+            backdrop-filter: blur(2px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .alert-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 360px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .alert-msg { font-size: 14px; margin-bottom: 20px; font-weight: 500; }
+        .alert-btn {
+            background: var(--accent-color);
+            color: white; border: none; padding: 10px 24px;
+            border-radius: 6px; cursor: pointer; font-weight: 600;
+        }
+
+        /* Sidebar Menu Layout */
+        .sidebar {
+            position: fixed;
+            top: 0; left: -280px; bottom: 0;
+            width: 280px;
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            z-index: 150;
+            transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar.open { left: 0; }
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .profile-chip {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(47, 111, 237, 0.02);
+        }
+        .profile-name { font-weight: 600; font-size: 15px; }
+        .profile-role { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .sidebar-menu { padding: 16px 8px; flex: 1; }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .menu-item:hover { background-color: var(--bg-primary); }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 140;
+        }
+
+        /* About Page Step Design */
+        .step-list {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .step-item {
+            display: flex;
+            gap: 16px;
+        }
+        .step-num {
+            width: 28px;
+            height: 28px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-color);
+            flex-shrink: 0;
+        }
+        .step-text h5 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+        .step-text p { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+
+        @media (max-width: 768px) {
+            .service-grid, .sub-grid { grid-template-columns: 1fr; }
+            .main-header { padding: 12px 16px; }
+        }
+    </style>
 </head>
-
 <body>
 
-<!-- ===== LOGIN VIEW ===== -->
-
-<div id="loginView">
-
-  <svg class="route-line" viewBox="0 0 800 800" preserveAspectRatio="none">
-    <polyline points="0,650 180,650 260,570 500,570 580,490 800,490" fill="none" stroke="#4E93FA" stroke-width="1.5" stroke-dasharray="2 8"/>
-    <polyline points="800,150 620,150 540,230 300,230 220,310 0,310" fill="none" stroke="#8FB8FB" stroke-width="1.5" stroke-dasharray="2 8"/>
-  </svg>
-
-  <div class="wrap">
-
-    <div class="brand">
-      <div class="brand-name">CTECH <span>SOLUTIONS</span> MMC</div>
-    </div>
-
-    <div class="card">
-
-      <div class="card-top">
-
-        <h1>Technical Service Platform</h1>
-
-        <span class="field-label">Email ünvanı</span>
-        <div class="input-row">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C7089" stroke-width="2"><path d="M3 6l9 7 9-7M3 6v12h18V6H3z"/></svg>
-          <input id="email" type="email" placeholder="ad.soyad@ctech.az" autocomplete="email">
+    <!-- A: LOGİN SƏHİFƏSİ -->
+    <div id="login-page">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>CTECH SOLUTIONS</h2>
+                <p>Texniki Servis Platforması</p>
+            </div>
+            <form id="auth-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>E-poçt ünvanı</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="login-email" class="form-control" required placeholder="name@ctech.az">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Şifrə</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="login-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="login-remember">
+                        Girişi yadda saxla
+                    </label>
+                </div>
+                <button type="submit" class="btn-login">Daxil ol</button>
+            </form>
         </div>
+    </div>
 
-        <span class="field-label">Şifrə</span>
-        <div class="input-row">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C7089" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-          <input id="password" type="password" placeholder="Şifrəni daxil edin" autocomplete="current-password">
-          <button type="button" class="toggle-eye" onclick="togglePassword()" aria-label="Şifrəni göstər">
-            <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C7089" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
+    <!-- B: DASHBOARD SƏHİFƏSİ -->
+    <div id="dashboard-page">
+        <header class="main-header">
+            <div class="header-left">
+                <button class="menu-toggle" onclick="toggleSidebar(true)">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <span class="brand-logo">CTECH</span>
+            </div>
+            <div class="header-right">
+                <!-- Estetik Düymə: Tarix çərçivəsinin tam solunda və simmetrik ölçüdə -->
+                <button class="theme-toggle-btn" onclick="toggleThemeMode()" title="Tema rejimini dəyiş">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                </button>
+                <div class="datetime-display">
+                    <div class="status-dot"></div>
+                    <span id="live-clock">00.00.0000 | 00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-container">
+            <div class="welcome-widget">
+                <h1 id="user-welcome-title">Xoş gəlmisiniz</h1>
+                <p>Bugün hansı bölmə ilə işləyirsiniz?</p>
+            </div>
+
+            <!-- Əsas Servis Kartları (Hər rola görünür) -->
+            <div class="service-grid">
+                <div class="service-card" onclick="openModuleWindow('BUS Service')">
+                    <div class="icon-box bus">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7h8M6 21h12a2 2 0 002-2V8a2 2 0 00-2-2H6a2 2 0 00-2 2v11a2 2 0 002 2zm2-5h8M9 21v-3h6v3"/></svg>
+                    </div>
+                    <h3>BUS SERVICE</h3>
+                    <p>Avtobus texniki servis əməliyyatları</p>
+                </div>
+                <div class="service-card" onclick="openModuleWindow('TVM Service')">
+                    <div class="icon-box tvm">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22V12m0 0V2m0 10h10M12 12H2"/></svg>
+                    </div>
+                    <h3>TVM SERVICE</h3>
+                    <p>Bilet satış aparatları texniki servis</p>
+                </div>
+            </div>
+
+            <!-- DASHBOARDS BÖLMƏSİ (Team Leader və Admin) -->
+            <div id="section-dashboards" style="display:none;">
+                <div class="section-divider">
+                    <div class="divider-badge">DASHBOARDS</div>
+                    <div class="divider-arrow"></div>
+                </div>
+                <div class="sub-grid">
+                    <div class="sub-card" onclick="openModuleWindow('TVM Dashboard')">
+                        <div class="sub-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 002-2h2a2 2 0 002 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 002-2h2a2 2 0 002 2v14a2 2 0 00-2 2h-2a2 2 0 00-2-2z"/></svg>
+                        </div>
+                        <div class="sub-info">
+                            <h4>TVM Dashboard</h4>
+                            <p>Statistika və hesabatlar</p>
+                        </div>
+                    </div>
+                    <div class="sub-card" onclick="openModuleWindow('BUS Dashboard')">
+                        <div class="sub-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                        </div>
+                        <div class="sub-info">
+                            <h4>BUS Dashboard</h4>
+                            <p>Statistika və hesabatlar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HESABATLAR BÖLMƏSİ (Team Leader və Admin) -->
+            <div id="section-reports" style="display:none;">
+                <div class="section-divider">
+                    <div class="divider-badge">HESABATLAR</div>
+                    <div class="divider-arrow"></div>
+                </div>
+                <div class="sub-grid">
+                    <div class="sub-card" onclick="openModuleWindow('BUS/TVM Real-Time Report')">
+                        <div class="sub-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="sub-info">
+                            <h4>BUS/TVM Real-Time Report</h4>
+                            <p>Canlı servis qeydləri cədvəli</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <button class="primary" onclick="login()" id="loginBtn">Daxil ol</button>
-
-        <label class="remember">
-          <input type="checkbox" id="rememberMe">
-          Girişi yadda saxla
-        </label>
-
-      </div>
-
     </div>
 
-    <div class="footer-note">© 2026 Ctech Solutions MMC</div>
-
-  </div>
-
-</div>
-
-<!-- ===== DASHBOARD VIEW ===== -->
-
-<div id="dashboardView">
-
-  <div class="header">
-
-    <div class="header-left">
-      <div class="menu-wrap">
-        <button class="icon-btn" onclick="toggleMenu()" aria-label="Menyu">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-        </button>
-
-        <div class="menu-panel" id="menuPanel">
-          <button class="menu-item" onclick="goHome()">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-            <span>Ana səhifə</span>
-          </button>
-          <button class="menu-item" onclick="showAbout()">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r="0.6" fill="currentColor" stroke="none"/></svg>
-            <span>Haqqında</span>
-          </button>
-          <button class="menu-item" id="adminMenuItem" onclick="moduleAlert('Admin-Panel')" style="display:none;">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            <span>Admin Panel</span>
-          </button>
-          <button class="menu-item" onclick="signOut()">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-            <span>Çıxış</span>
-          </button>
+    <!-- C: SİDEBAR MENYU -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+    <aside id="app-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="brand-logo">CTECH NAV</span>
+            <button class="menu-toggle" onclick="toggleSidebar(false)">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
         </div>
-      </div>
-    </div>
-
-    <div class="brand-mini">CTECH <span>SOLUTIONS</span> MMC</div>
-
-    <div class="header-right">
-      <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Gecə rejimi">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
-      <div class="clock-box">
-        <div class="status-dot"></div>
-        <span id="clockDate">--.--.----</span>
-        <span class="clock-sep">|</span>
-        <span id="clock">--:--</span>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="profile-row">
-    <div class="profile-chip">
-      <div class="profile-avatar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>
-      </div>
-      <div class="profile-text">
-        <div class="profile-name" id="profileName">-</div>
-        <div class="profile-role" id="profileRole">-</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="welcome">
-    <div class="welcome-box">
-      <div class="welcome-name" id="welcomeName">Xoş gəlmisiniz</div>
-      <div class="welcome-sub">Bugün hansı bölmə ilə işləyirsiniz?</div>
-    </div>
-  </div>
-
-  <div class="container">
-
-    <div class="primary-row">
-
-      <div class="card-big" onclick="moduleAlert('BUS-Services')">
-        <div class="card-icon-big icon-bus">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><path d="M3 16v1.5a1 1 0 0 0 1 1h1"/><path d="M21 16v1.5a1 1 0 0 1-1 1h-1"/><path d="M6 5v6M12 5v6M18 5v6"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg>
+        <div class="profile-chip">
+            <div id="profile-user-name" class="profile-name">İstifadəçi Adı</div>
+            <div id="profile-user-role" class="profile-role">Vəzifə</div>
         </div>
-        <div class="card-title-big">BUS SERVICE</div>
-        <div class="card-sub-big">Avtobus texniki servis əməliyyatları</div>
-      </div>
+        <nav class="sidebar-menu">
+            <a class="menu-item" onclick="toggleSidebar(false)">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Ana Səhifə
+            </a>
+            <a class="menu-item" onclick="openAboutModal()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Haqqında
+            </a>
+            <a id="menu-admin-panel" class="menu-item" style="display:none;" onclick="moduleAlert('Admin Panel tezliklə aktiv olacaq.')">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Admin Panel
+            </a>
+            <a class="menu-item" onclick="handleLogout()" style="color:#EF4444; margin-top: 20px;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                Çıxış
+            </a>
+        </nav>
+    </aside>
 
-      <div class="card-big" onclick="moduleAlert('TVM-Services')">
-        <div class="card-icon-big icon-tvm">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="16.5" rx="1.5"/><rect x="8" y="4.5" width="8" height="6" rx="0.5"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="15.3" x2="13" y2="15.3"/><path d="M9 21.5h6l-1-2.8h-4z"/></svg>
+    <!-- D: MODAL PƏNCƏRƏLƏR (MƏHDUDİYYƏTLİ ALL-IN-ONE) -->
+    <div id="module-window-overlay" class="modal-overlay">
+        <div class="app-window">
+            <div class="window-header">
+                <span id="module-window-title" class="window-title">Modul</span>
+                <button class="close-window" onclick="closeModuleWindow()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="window-body">
+                <p id="module-window-status">Bu modul üçün infrastruktur işləri davam edir. Tezliklə istifadəyə veriləcəkdir.</p>
+            </div>
         </div>
-        <div class="card-title-big">TVM SERVICE</div>
-        <div class="card-sub-big">Bilet satış aparatları texniki servis</div>
-      </div>
-
     </div>
 
-    <div id="managementSection">
-
-      <div class="dash-divider">
-        <div class="dash-badge">DASHBOARDS</div>
-        <div class="dash-connector"></div>
-      </div>
-
-      <div class="secondary-row">
-
-        <div class="card-small" onclick="moduleAlert('Dashboard-BUS')">
-          <div class="card-icon-small icon-bus">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
-          </div>
-          <div>
-            <div class="card-title-small">Dashboard BUS</div>
-            <div class="card-sub-small">Statistika və hesabatlar</div>
-          </div>
+    <!-- E: ABOUT MODAL -->
+    <div id="about-modal" class="modal-overlay">
+        <div class="app-window">
+            <div class="window-header">
+                <span class="window-title">HAQQINDA</span>
+                <button class="close-window" onclick="closeAboutModal()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="window-body">
+                <h4 style="margin-bottom: 8px;">CTECH Technical Service Platform v1.0</h4>
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Bu sistem CTECH Solutions MMC üçün özəl olaraq hazırlanmış, BUS və TVM texniki servis xidmətlərini mərkəzləşdirilmiş idarə edən SPA arxitekturalı proqram təminatıdır.</p>
+                
+                <h5>İnkişaf Mərhələləri</h5>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-num">1</div>
+                        <div class="step-text">
+                            <h5>Arxitektura Dəyişikliyi</h5>
+                            <p>Brauzer zoom və PWA problemlərini tam həll etmək üçün frontend GitHub Pages platformasına köçürüldü.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">2</div>
+                        <div class="step-text">
+                            <h5>Rol İdarəetmə Sistemi</h5>
+                            <p>İstifadəçilərin rollarına əsasən dinamik səhifə məhdudiyyətləri və səlahiyyətləndirmə tam tətbiq edildi.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">3</div>
+                        <div class="step-text">
+                            <h5>İnterfeys Nizamlamaları</h5>
+                            <p>Azərbaycan dilində olan simvolların vizual təhlükəsizliyi üçün şrift sistemləri optimallaşdırıldı, tünd rejim strukturu quruldu.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="card-small" onclick="moduleAlert('Dashboard-TVM')">
-          <div class="card-icon-small icon-tvm">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
-          </div>
-          <div>
-            <div class="card-title-small">Dashboard TVM</div>
-            <div class="card-sub-small">Statistika və hesabatlar</div>
-          </div>
+    <!-- F: CUSTOM ALERT -->
+    <div id="custom-alert" class="alert-overlay">
+        <div class="alert-box">
+            <p id="custom-alert-text" class="alert-msg">Mesaj</p>
+            <button class="alert-btn" onclick="closeAlert()">OK</button>
         </div>
-
-      </div>
-
-      <div class="dash-divider">
-        <div class="dash-badge">HESABATLAR</div>
-        <div class="dash-connector"></div>
-      </div>
-
-      <div class="secondary-row">
-
-        <div class="card-small" onclick="moduleAlert('BUS-Real-Time-Report')">
-          <div class="card-icon-small icon-bus">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
-          </div>
-          <div>
-            <div class="card-title-small">BUS Real-Time Report</div>
-            <div class="card-sub-small">Canlı cədvəl və Excel ixracı</div>
-          </div>
-        </div>
-
-        <div class="card-small" onclick="moduleAlert('TVM-Real-Time-Report')">
-          <div class="card-icon-small icon-tvm">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
-          </div>
-          <div>
-            <div class="card-title-small">TVM Real-Time Report</div>
-            <div class="card-sub-small">Canlı cədvəl və Excel ixracı</div>
-          </div>
-        </div>
-
-      </div>
-
     </div>
 
-    <div class="banner-wrap">
-      <img class="banner-img" src="data:image/webp;base64,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" alt="İctimai nəqliyyat">
-    </div>
-
-  </div>
-
-  <div class="footer-note-dash">© 2026 Ctech Solutions MMC</div>
-
-</div>
-
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-box">
-    <div class="spinner" id="loadingSpinner"></div>
-    <div class="result-icon success" id="successIcon">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>
-    </div>
-    <div class="result-icon fail" id="failIcon">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-    </div>
-    <div class="loading-text" id="loadingText">Yoxlanılır...</div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="aboutModal">
-  <div class="modal-box">
-
-    <div class="modal-brand">
-      <div class="modal-brand-text">CTECH <span>SOLUTIONS</span> MMC</div>
-    </div>
-
-    <div class="modal-title">Texniki Servis Platforma haqqında</div>
-
-    <div class="modal-text">Texniki Servis Platforması, CTECH Solutions MMC-nin ictimai nəqliyyatda (BUS and METRO) istifadə olunan <strong>nağdsız ödəniş sistemi avadanlıqları</strong> və <strong>bilet satış avtomatları (TVM)</strong> üzrə texniki xidmət proseslərini vahid rəqəmsal sistemdə idarə etmək məqsədilə hazırlanıb.</div>
-
-    <div class="modal-text">Sahədə iş görən texniklərin gördükləri işləri sürətli və standart formada qeydə almasını, bu məlumatların isə real vaxt rejimində hesabat və statistikaya çevrilməsini təmin edir.</div>
-
-    <div class="modal-subtitle">İstifadə qaydası</div>
-
-    <div class="modal-steps">
-      <div class="modal-step">
-        <div class="modal-step-num">1</div>
-        <div class="modal-step-text">Aid olduğunuz bölməni seçin — BUS Service və ya TVM Service.</div>
-      </div>
-      <div class="modal-step">
-        <div class="modal-step-num">2</div>
-        <div class="modal-step-text">Xidmət göstərdiyiniz obyekti müəyyən edin və aşkar olunan problemi qeyd edin.</div>
-      </div>
-      <div class="modal-step">
-        <div class="modal-step-num">3</div>
-        <div class="modal-step-text">Mövcud şablonlardan uyğun olanı seçərək formu doldurun.</div>
-      </div>
-      <div class="modal-step">
-        <div class="modal-step-num">4</div>
-        <div class="modal-step-text">"Göndər" düyməsi ilə məlumatı sistemə ötürün — qeydiyyat avtomatik təsdiqlənir.</div>
-      </div>
-    </div>
-
-    <div class="modal-text">Daxil etdiyiniz hər məlumat Dashboard bölmələrində strukturlaşdırılmış hesabata çevrilir və komanda rəhbərliyi tərəfindən izlənilir.</div>
-
-    <div class="modal-text">Sualınız və ya təklifiniz olarsa, birbaşa rəhbərliyinizlə əlaqə saxlayın.</div>
-
-    <button class="modal-close" onclick="hideAbout()">Bağla</button>
-  </div>
-</div>
-
-<script>
-
-var API_URL = "https://script.google.com/macros/s/AKfycbxi0k5hC-JTZ-Zm7_Ih-Jakptlck_OUq034wJ2WDouWTrWddMfZ07wOOCJhxLfNSE6H6A/exec";
-
-var currentUser = null;
-
-var SESSION_KEY = "ctech_session";
-var SESSION_DAYS = 14;
-
-function saveSession(user){
-  try{
-    var expires = Date.now() + (SESSION_DAYS * 24 * 60 * 60 * 1000);
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ user:user, expires:expires }));
-  } catch(e){}
-}
-
-function clearSession(){
-  try{ localStorage.removeItem(SESSION_KEY); } catch(e){}
-}
-
-function loadSession(){
-  try{
-    var raw = localStorage.getItem(SESSION_KEY);
-    if(!raw){ return null; }
-    var data = JSON.parse(raw);
-    if(!data.expires || Date.now() > data.expires){
-      clearSession();
-      return null;
-    }
-    return data.user;
-  } catch(e){
-    return null;
-  }
-}
-var clockStarted = false;
-
-function togglePassword(){
-  var pw = document.getElementById("password");
-  var icon = document.getElementById("eyeIcon");
-  if(pw.type === "password"){
-    pw.type = "text";
-    icon.innerHTML = '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.9 19.9 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.9 19.9 0 0 1-2.16 3.19M1 1l22 22"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/>';
-  } else {
-    pw.type = "password";
-    icon.innerHTML = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
-  }
-}
-
-function showLoading(){
-  document.getElementById("loadingSpinner").style.display = "block";
-  document.getElementById("successIcon").classList.remove("show");
-  document.getElementById("failIcon").classList.remove("show");
-  document.getElementById("loadingText").innerHTML = "Yoxlanılır...";
-  document.getElementById("loadingOverlay").classList.add("open");
-}
-
-function showLoadingSuccess(callback){
-  document.getElementById("loadingSpinner").style.display = "none";
-  document.getElementById("successIcon").classList.add("show");
-  document.getElementById("loadingText").innerHTML = "Uğurlu!";
-  setTimeout(function(){
-    document.getElementById("loadingOverlay").classList.remove("open");
-    callback();
-  }, 700);
-}
-
-function showLoadingFail(message){
-  document.getElementById("loadingSpinner").style.display = "none";
-  document.getElementById("failIcon").classList.add("show");
-  document.getElementById("loadingText").innerHTML = "Uğursuz";
-  setTimeout(function(){
-    document.getElementById("loadingOverlay").classList.remove("open");
-    var btn = document.getElementById("loginBtn");
-    btn.disabled = false;
-    btn.innerHTML = "Daxil ol";
-    alert(message);
-  }, 700);
-}
-
-function login(){
-
-  var email = document.getElementById("email").value;
-  var password = document.getElementById("password").value;
-  var btn = document.getElementById("loginBtn");
-
-  if(email==""){
-    alert("Email daxil edin");
-    return;
-  }
-
-  if(password==""){
-    alert("Şifrəni daxil edin");
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = "Yoxlanılır...";
-  showLoading();
-
-  fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ action:"checkUser", email:email, password:password })
-  })
-
-  .then(function(response){ return response.json(); })
-
-  .then(function(result){
-
-    if(result.status=="OK"){
-
-      currentUser = result;
-
-      if(document.getElementById("rememberMe").checked){
-        saveSession(result);
-      } else {
-        clearSession();
-      }
-
-      showLoadingSuccess(function(){
-        showDashboard();
-      });
-
-    }
-    else if(result.status=="WRONG_PASSWORD"){
-
-      showLoadingFail("Şifrə yanlışdır");
-
-    }
-    else{
-
-      if(result.debug){
-        showLoadingFail("DENIED\n\n" + result.debug);
-      } else {
-        showLoadingFail("Bu hesab üçün giriş icazəsi yoxdur");
-      }
-
-    }
-
-  })
-
-  .catch(function(error){
-
-    showLoadingFail("XƏTA: " + error.message);
-
-  });
-
-}
-
-document.getElementById("password").addEventListener("keydown", function(e){
-  if(e.key==="Enter"){ login(); }
-});
-
-function showDashboard(){
-
-  document.getElementById("loginView").style.display = "none";
-  document.getElementById("dashboardView").style.display = "block";
-
-  document.getElementById("welcomeName").innerHTML = "Xoş gəlmisiniz";
-  document.getElementById("profileName").innerHTML = currentUser.name;
-  document.getElementById("profileRole").innerHTML = currentUser.role || "";
-
-  applyAccessLevel();
-
-  if(!clockStarted){
-    clockStarted = true;
-    updateClock();
-    setInterval(updateClock,1000);
-  }
-
-}
-
-function getAccessLevel(role){
-  var r = (role || "").toLowerCase();
-  if(r.indexOf("admin") !== -1){ return "admin"; }
-  if(r.indexOf("team") !== -1 || r.indexOf("leader") !== -1 || r.indexOf("rəhbər") !== -1){ return "leader"; }
-  return "technician";
-}
-
-function applyAccessLevel(){
-
-  var level = getAccessLevel(currentUser.role);
-
-  var managementSection = document.getElementById("managementSection");
-  var adminMenuItem = document.getElementById("adminMenuItem");
-
-  if(level === "admin"){
-    managementSection.style.display = "block";
-    adminMenuItem.style.display = "flex";
-  }
-  else if(level === "leader"){
-    managementSection.style.display = "block";
-    adminMenuItem.style.display = "none";
-  }
-  else{
-    managementSection.style.display = "none";
-    adminMenuItem.style.display = "none";
-  }
-
-}
-
-function updateClock(){
-  var now = new Date();
-
-  var parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone:"Asia/Baku",
-    day:"2-digit",
-    month:"2-digit",
-    year:"numeric",
-    hour:"2-digit",
-    minute:"2-digit",
-    hour12:false
-  }).formatToParts(now);
-
-  var map = {};
-  parts.forEach(function(p){ map[p.type] = p.value; });
-
-  var dateStr = map.day + "." + map.month + "." + map.year;
-  var timeStr = map.hour + ":" + map.minute;
-
-  document.getElementById("clockDate").innerHTML = dateStr;
-  document.getElementById("clock").innerHTML = timeStr;
-}
-
-function goHome(){
-  document.getElementById("loginView").style.display = "none";
-  document.getElementById("dashboardView").style.display = "block";
-  closeMenu();
-}
-
-function toggleMenu(){
-  document.getElementById("menuPanel").classList.toggle("open");
-}
-
-function closeMenu(){
-  document.getElementById("menuPanel").classList.remove("open");
-}
-
-document.addEventListener("click", function(e){
-  var panel = document.getElementById("menuPanel");
-  if(!panel) return;
-  var isClickInside = panel.contains(e.target) || e.target.closest(".icon-btn");
-  if(!isClickInside){
-    closeMenu();
-  }
-});
-
-function showAbout(){
-  closeMenu();
-  document.getElementById("aboutModal").classList.add("open");
-}
-
-function hideAbout(){
-  document.getElementById("aboutModal").classList.remove("open");
-}
-
-function signOut(){
-  closeMenu();
-  clearSession();
-  currentUser = null;
-
-  document.getElementById("email").value = "";
-  document.getElementById("password").value = "";
-
-  var btn = document.getElementById("loginBtn");
-  btn.disabled = false;
-  btn.innerHTML = "Daxil ol";
-
-  document.getElementById("dashboardView").style.display = "none";
-  document.getElementById("loginView").style.display = "flex";
-}
-
-function moduleAlert(moduleName){
-  alert(moduleName + " modulu tezliklə hazır olacaq");
-}
-
-var MOON_PATH = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-var SUN_PATH = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
-
-function applyTheme(isDark){
-  var icon = document.getElementById("themeIcon");
-  if(isDark){
-    document.body.classList.add("dark-mode");
-    icon.innerHTML = SUN_PATH;
-  } else {
-    document.body.classList.remove("dark-mode");
-    icon.innerHTML = MOON_PATH;
-  }
-}
-
-function toggleTheme(){
-  var isDark = !document.body.classList.contains("dark-mode");
-  applyTheme(isDark);
-  try{ localStorage.setItem("ctech_theme", isDark ? "dark" : "light"); } catch(e){}
-}
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
-}
-
-var savedUser = loadSession();
-if(savedUser){
-  currentUser = savedUser;
-  showDashboard();
-}
-
-try{
-  var savedTheme = localStorage.getItem("ctech_theme");
-  if(savedTheme === "dark"){ applyTheme(true); }
-} catch(e){}
-
-</script>
-
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbxi0k5hC-JTZ-Zm7_Ih-Jakptlck_OUq034wJ2WDouWTrWddMfZ07wOOCJhxLfNSE6H6A/exec";
+        
+        let currentUser = null;
+
+        // Tətbiq açıldıqda yoxlamalar
+        window.addEventListener('DOMContentLoaded', () => {
+            initClock();
+            checkSavedSession();
+        });
+
+        function initClock() {
+            setInterval(() => {
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                
+                document.getElementById('live-clock').textContent = `${day}.${month}.${year} | ${hours}:${minutes}`;
+            }, 1000);
+        }
+
+        // Tünd/Gündüz Rejim İdarəçisi (Gecə rejimi aktiv olanda kart kənarları aydınlaşır)
+        function toggleThemeMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('login-password');
+            passInput.type = passInput.type === 'password' ? 'text' : 'password';
+        }
+
+        function toggleSidebar(show) {
+            const sidebar = document.getElementById('app-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (show) {
+                sidebar.classList.add('open');
+                overlay.style.display = 'block';
+            } else {
+                sidebar.classList.remove('open');
+                overlay.style.display = 'none';
+            }
+        }
+
+        function moduleAlert(msg) {
+            document.getElementById('custom-alert-text').textContent = msg;
+            document.getElementById('custom-alert').style.display = 'flex';
+        }
+
+        function closeAlert() {
+            document.getElementById('custom-alert').style.display = 'none';
+        }
+
+        function openAboutModal() {
+            toggleSidebar(false);
+            document.getElementById('about-modal').style.display = 'flex';
+        }
+
+        function closeAboutModal() {
+            document.getElementById('about-modal').style.display = 'none';
+        }
+
+        // Modul Pəncərələrinin Açılması (Təsir sahələri daxilində)
+        function openModuleWindow(title) {
+            document.getElementById('module-window-title').textContent = title;
+            document.getElementById('module-window-status').textContent = `[${title}] pəncərəsinin inteqrasiya və verilənlər bazası strukturu hazırda qurulur.`;
+            document.getElementById('module-window-overlay').style.display = 'flex';
+        }
+
+        function closeModuleWindow() {
+            document.getElementById('module-window-overlay').style.display = 'none';
+        }
+
+        // Sessiya Yoxlanışı
+        function checkSavedSession() {
+            const savedData = localStorage.getItem('ctech_session');
+            if (savedData) {
+                try {
+                    const session = JSON.parse(savedData);
+                    if (new Date().getTime() < session.expiry) {
+                        executeSessionLogin(session.user);
+                        return;
+                    }
+                } catch(e) {
+                    localStorage.removeItem('ctech_session');
+                }
+            }
+            // Sessiya yoxdursa login göstər
+            document.getElementById('login-page').style.display = 'flex';
+            document.getElementById('dashboard-page').style.display = 'none';
+        }
+
+        // Giriş Prosesi
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const remember = document.getElementById('login-remember').checked;
+
+            // Sadələşdirilmiş loader animasiyası əvəzi
+            const btn = document.querySelector('.btn-login');
+            btn.disabled = true;
+            btn.textContent = "Yoxlanılır...";
+
+            // API Sorğusu
+            fetch(API_URL, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify({
+                    action: 'login',
+                    email: email,
+                    password: password
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'OK') {
+                    const userObj = {
+                        name: data.name,
+                        role: data.role.toLowerCase(),
+                        email: data.email
+                    };
+
+                    if (remember) {
+                        const expiryTime = new Date().getTime() + (14 * 24 * 60 * 60 * 1000); // 14 gün
+                        localStorage.setItem('ctech_session', JSON.stringify({ user: userObj, expiry: expiryTime }));
+                    }
+
+                    executeSessionLogin(userObj);
+                } else {
+                    moduleAlert("Xəta: E-poçt və ya şifrə yanlışdır, yaxud hesabınız aktiv deyil.");
+                    btn.disabled = false;
+                    btn.textContent = "Daxil ol";
+                }
+            })
+            .catch(err => {
+                moduleAlert("Sistem xətası baş verdi. Şəbəkə bağlantısını yoxlayın.");
+                btn.disabled = false;
+                btn.textContent = "Daxil ol";
+            });
+        }
+
+        function executeSessionLogin(user) {
+            currentUser = user;
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('dashboard-page').style.display = 'flex';
+            
+            // Profil məlumatları
+            document.getElementById('user-welcome-title').textContent = `Xoş gəlmisiniz, ${user.name}`;
+            document.getElementById('profile-user-name').textContent = user.name;
+            
+            // Rol Təyinatı
+            let displayRole = "Texnik";
+            if (user.role.includes("admin")) displayRole = "Admin";
+            else if (user.role.includes("team") || user.role.includes("leader")) displayRole = "Team Leader";
+            
+            document.getElementById('profile-user-role').textContent = displayRole;
+
+            // Rol Hüquqlarının Tətbiqi (Səlahiyyətləndirmə)
+            if (displayRole === "Admin") {
+                document.getElementById('section-dashboards').style.display = 'block';
+                document.getElementById('section-reports').style.display = 'block';
+                document.getElementById('menu-admin-panel').style.display = 'flex';
+            } else if (displayRole === "Team Leader") {
+                document.getElementById('section-dashboards').style.display = 'block';
+                document.getElementById('section-reports').style.display = 'block';
+                document.getElementById('menu-admin-panel').style.display = 'none';
+            } else {
+                // Texnik
+                document.getElementById('section-dashboards').style.display = 'none';
+                document.getElementById('section-reports').style.display = 'none';
+                document.getElementById('menu-admin-panel').style.display = 'none';
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('ctech_session');
+            currentUser = null;
+            toggleSidebar(false);
+            
+            // Formu təmizlə
+            document.getElementById('auth-form').reset();
+            const btn = document.querySelector('.btn-login');
+            btn.disabled = false;
+            btn.textContent = "Daxil ol";
+
+            document.getElementById('dashboard-page').style.display = 'none';
+            document.getElementById('login-page').style.display = 'flex';
+        }
+    </script>
 </body>
 </html>
