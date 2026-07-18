@@ -72,5 +72,11 @@
   <button onclick="location.replace('https://script.google.com/macros/s/AKfycbxi0k5hC-JTZ-Zm7_Ih-Jakptlck_OUq034wJ2WDouWTrWddMfZ07wOOCJhxLfNSE6H6A/exec')">Daxil ol</button>
 </div>
 
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+</script>
+
 </body>
 </html>
