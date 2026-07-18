@@ -19,22 +19,36 @@
 
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  html, body { height:100%; overflow:hidden; background:#F4F8FD; }
-  iframe {
-    width:100%;
+  html, body {
     height:100%;
-    border:none;
-    display:block;
+    background:#F4F8FD;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:Arial,sans-serif;
+  }
+  .badge {
+    width:72px;
+    height:72px;
+    border-radius:18px;
+    background:linear-gradient(135deg,#4E93FA,#2F6FED);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-size:26px;
+    letter-spacing:1px;
   }
 </style>
 </head>
 <body>
 
-<iframe
-  src="https://script.google.com/macros/s/AKfycbxi0k5hC-JTZ-Zm7_lh-Jakptlck_OUq034wJ2WDouWTrWddMfZ07wOOCJhxLfNSE6H6A/exec"
-  allow="clipboard-write"
-  title="CTECH Technical Service Platform">
-</iframe>
+<div class="badge">CT</div>
+
+<script>
+  window.location.replace("https://script.google.com/macros/s/AKfycbxi0k5hC-JTZ-Zm7_lh-Jakptlck_OUq034wJ2WDouWTrWddMfZ07wOOCJhxLfNSE6H6A/exec");
+</script>
 
 </body>
 </html>
