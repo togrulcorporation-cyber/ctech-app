@@ -726,6 +726,107 @@
     font-weight:600;
   }
 
+  /* ===== TÜND REJİM (yalnız dashboard + modal sahələri) ===== */
+
+  body.dark-mode #dashboardView {
+    background:#0F1826;
+    min-height:100vh;
+  }
+
+  body.dark-mode .header {
+    background:#141F30;
+    border-bottom-color:#243247;
+  }
+
+  body.dark-mode .brand-mini,
+  body.dark-mode .profile-name,
+  body.dark-mode .welcome-name,
+  body.dark-mode .card-title-big,
+  body.dark-mode .card-title-small,
+  body.dark-mode .modal-title,
+  body.dark-mode .modal-brand-text,
+  body.dark-mode .modal-subtitle,
+  body.dark-mode .menu-item {
+    color:#E8EEF5;
+  }
+
+  body.dark-mode .icon-btn {
+    background:#1C2A3D;
+    color:#E8EEF5;
+  }
+
+  body.dark-mode .icon-btn:hover { background:#25374F; }
+
+  body.dark-mode .clock-box {
+    background:#1C2A3D;
+    border-color:#2A3B52;
+    color:#E8EEF5;
+  }
+
+  body.dark-mode .clock-sep { color:#5C7089; }
+
+  body.dark-mode .profile-chip {
+    background:#1C2A3D;
+    border-color:#2A3B52;
+  }
+
+  body.dark-mode .profile-role,
+  body.dark-mode .welcome-sub,
+  body.dark-mode .card-sub-big,
+  body.dark-mode .card-sub-small,
+  body.dark-mode .modal-text,
+  body.dark-mode .modal-step-text,
+  body.dark-mode .menu-item span,
+  body.dark-mode .footer-note-dash {
+    color:#93A4BC;
+  }
+
+  body.dark-mode .welcome-box,
+  body.dark-mode .card-big,
+  body.dark-mode .card-small,
+  body.dark-mode .menu-panel,
+  body.dark-mode .modal-box {
+    background:#16212E;
+    border-color:#243247;
+  }
+
+  body.dark-mode .dash-badge {
+    background:#1C2A3D;
+    border-color:#2A3B52;
+    color:#8FB4EA;
+  }
+
+  body.dark-mode .modal-brand { border-bottom-color:#243247; }
+
+  body.dark-mode .modal-step-num {
+    background:#1C2A3D;
+    color:#8FB4EA;
+  }
+
+  body.dark-mode .modal-close {
+    background:#1C2A3D;
+    border-color:#2A3B52;
+    color:#E8EEF5;
+  }
+
+  body.dark-mode .menu-item:hover { background:#1C2A3D; }
+
+  body.dark-mode .banner-wrap { border-color:#243247; }
+
+  body.dark-mode .modal-text strong {
+    color:#E8EEF5;
+  }
+
+  body.dark-mode .dash-connector {
+    background:linear-gradient(to bottom, #2A3B52, rgba(42,59,82,0));
+  }
+
+  body.dark-mode .modal-overlay { background:rgba(6,12,20,0.7); }
+
+  body.dark-mode .loading-overlay { background:rgba(15,24,38,0.9); }
+
+  body.dark-mode .loading-text { color:#93A4BC; }
+
 </style>
 </head>
 
@@ -820,6 +921,9 @@
     <div class="brand-mini">CTECH <span>SOLUTIONS</span> MMC</div>
 
     <div class="header-right">
+      <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Gecə rejimi">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
       <div class="clock-box">
         <div class="status-dot"></div>
         <span id="clockDate">--.--.----</span>
@@ -909,22 +1013,22 @@
 
       <div class="secondary-row">
 
-        <div class="card-small" onclick="moduleAlert('BUS-Real-Time-Raport')">
+        <div class="card-small" onclick="moduleAlert('BUS-Real-Time-Report')">
           <div class="card-icon-small icon-bus">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
           </div>
           <div>
-            <div class="card-title-small">BUS Real-Time Raport</div>
+            <div class="card-title-small">BUS Real-Time Report</div>
             <div class="card-sub-small">Canlı cədvəl və Excel ixracı</div>
           </div>
         </div>
 
-        <div class="card-small" onclick="moduleAlert('TVM-Real-Time-Raport')">
+        <div class="card-small" onclick="moduleAlert('TVM-Real-Time-Report')">
           <div class="card-icon-small icon-tvm">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
           </div>
           <div>
-            <div class="card-title-small">TVM Real-Time Raport</div>
+            <div class="card-title-small">TVM Real-Time Report</div>
             <div class="card-sub-small">Canlı cədvəl və Excel ixracı</div>
           </div>
         </div>
@@ -1274,6 +1378,26 @@ function moduleAlert(moduleName){
   alert(moduleName + " modulu tezliklə hazır olacaq");
 }
 
+var MOON_PATH = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+var SUN_PATH = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
+
+function applyTheme(isDark){
+  var icon = document.getElementById("themeIcon");
+  if(isDark){
+    document.body.classList.add("dark-mode");
+    icon.innerHTML = SUN_PATH;
+  } else {
+    document.body.classList.remove("dark-mode");
+    icon.innerHTML = MOON_PATH;
+  }
+}
+
+function toggleTheme(){
+  var isDark = !document.body.classList.contains("dark-mode");
+  applyTheme(isDark);
+  try{ localStorage.setItem("ctech_theme", isDark ? "dark" : "light"); } catch(e){}
+}
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js");
 }
@@ -1283,6 +1407,11 @@ if(savedUser){
   currentUser = savedUser;
   showDashboard();
 }
+
+try{
+  var savedTheme = localStorage.getItem("ctech_theme");
+  if(savedTheme === "dark"){ applyTheme(true); }
+} catch(e){}
 
 </script>
 
