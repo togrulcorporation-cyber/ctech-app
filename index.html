@@ -148,7 +148,7 @@
   .toggle-eye:hover { background:#DDE9FB; }
   .toggle-eye:active { transform:translateY(-50%) scale(0.94); }
 
-  #loginView input[type="email"], #loginView input[type="password"] {
+  #email, #password {
     width:100%;
     padding:15px 15px 15px 46px;
     background:#F8FAFD;
@@ -159,9 +159,10 @@
     outline:none;
     transition:border-color 0.15s, background 0.15s;
     font-family:'Inter',sans-serif;
+    box-sizing:border-box;
   }
 
-  #loginView input[type="password"] { padding-right:52px; }
+  #password { padding-right:52px; }
 
   input::-ms-reveal, input::-ms-clear { display:none; }
 
