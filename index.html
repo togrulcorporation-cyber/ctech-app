@@ -319,9 +319,9 @@
     transform:translateX(-50%);
     background:#FFFFFF;
     border:1px solid #E1EAF6;
-    border-radius:12px;
-    padding:5px;
-    gap:2px;
+    border-radius:14px;
+    padding:6px;
+    gap:6px;
     flex-direction:column;
     box-shadow:0 16px 32px rgba(30,68,130,0.16);
     z-index:30;
@@ -334,11 +334,11 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:3px;
+    gap:5px;
     background:none;
     border:none;
     border-radius:9px;
-    padding:8px 6px;
+    padding:12px 6px;
     cursor:pointer;
     color:#12233B;
     transition:background 0.15s;
@@ -378,12 +378,31 @@
     box-shadow:0 30px 70px rgba(0,0,0,0.25);
   }
 
+  .modal-brand {
+    text-align:center;
+    padding-bottom:16px;
+    margin-bottom:18px;
+    border-bottom:1px solid #E1EAF6;
+  }
+
+  .modal-brand-text {
+    font-family:'Rajdhani',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:2px;
+    color:#12233B;
+    text-transform:uppercase;
+  }
+
+  .modal-brand-text span { color:#2F6FED; }
+
   .modal-title {
     font-family:'Inter',sans-serif;
     font-weight:700;
     font-size:18px;
     color:#12233B;
     margin-bottom:14px;
+    text-align:center;
   }
 
   .modal-text {
@@ -394,6 +413,51 @@
   }
 
   .modal-text strong { color:#12233B; }
+
+  .modal-subtitle {
+    font-size:13px;
+    font-weight:700;
+    color:#12233B;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    margin:18px 0 12px;
+  }
+
+  .modal-steps {
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-bottom:16px;
+  }
+
+  .modal-step {
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+  }
+
+  .modal-step-num {
+    width:24px;
+    height:24px;
+    border-radius:8px;
+    background:#E6F1FB;
+    color:#1B4A8A;
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    margin-top:1px;
+  }
+
+  .modal-step-text {
+    font-size:14px;
+    color:#3A4A5E;
+    line-height:1.55;
+    padding-top:2px;
+  }
 
   .modal-close {
     margin-top:8px;
@@ -784,17 +848,42 @@
 
 <div class="modal-overlay" id="aboutModal">
   <div class="modal-box">
-    <div class="modal-title">CTECH Texniki Servis Platforması haqqında</div>
-    <div class="modal-text">Bu tətbiq CTECH Solutions MMC-nin <strong>avtobus (BUS)</strong> və <strong>bilet satış aparatları (TVM)</strong> üzrə texniki xidmət işlərini rəqəmsallaşdırmaq üçün hazırlanıb.</div>
-    <div class="modal-text"><strong>Texniklər üçün istifadə qaydası:</strong></div>
-    <div class="modal-text">
-      1. Aid olduğunuz bölməni seçin — BUS Service və ya TVM Service.<br>
-      2. Xidmət göstərdiyiniz obyekti, problemi və görülən işi qeyd edin.<br>
-      3. Mövcud şablonlardan uyğun olanı seçib formu doldurun.<br>
-      4. "Göndər" düyməsi ilə məlumatı sistemə ötürün.
+
+    <div class="modal-brand">
+      <div class="modal-brand-text">CTECH <span>SOLUTIONS</span> MMC</div>
     </div>
-    <div class="modal-text">Doldurduğunuz məlumatlar avtomatik olaraq Dashboard bölmələrində statistikaya çevrilir və rəhbərlik tərəfindən izlənilir.</div>
-    <div class="modal-text">Sualınız olarsa, birbaşa rəhbərliyinizlə əlaqə saxlayın.</div>
+
+    <div class="modal-title">Texniki Servis Platforma haqqında</div>
+
+    <div class="modal-text">Texniki Servis Platforma, CTECH Solutions MMC-nin ictimai nəqliyyatda istismar olunan <strong>avtobus (BUS)</strong> və <strong>bilet satış avtomatları (TVM)</strong> üzrə texniki xidmət proseslərini vahid rəqəmsal sistemdə idarə etmək məqsədilə hazırlanıb.</div>
+
+    <div class="modal-text">Sahədə iş görən texniklərin gördükləri işləri sürətli və standart formada qeydə almasını, bu məlumatların isə real vaxt rejimində hesabat və statistikaya çevrilməsini təmin edir.</div>
+
+    <div class="modal-subtitle">İstifadə qaydası</div>
+
+    <div class="modal-steps">
+      <div class="modal-step">
+        <div class="modal-step-num">1</div>
+        <div class="modal-step-text">Aid olduğunuz bölməni seçin — BUS Service və ya TVM Service.</div>
+      </div>
+      <div class="modal-step">
+        <div class="modal-step-num">2</div>
+        <div class="modal-step-text">Xidmət göstərdiyiniz obyekti müəyyən edin və aşkar olunan problemi qeyd edin.</div>
+      </div>
+      <div class="modal-step">
+        <div class="modal-step-num">3</div>
+        <div class="modal-step-text">Mövcud şablonlardan uyğun olanı seçərək formu doldurun.</div>
+      </div>
+      <div class="modal-step">
+        <div class="modal-step-num">4</div>
+        <div class="modal-step-text">"Göndər" düyməsi ilə məlumatı sistemə ötürün — qeydiyyat avtomatik təsdiqlənir.</div>
+      </div>
+    </div>
+
+    <div class="modal-text">Daxil etdiyiniz hər məlumat Dashboard bölmələrində strukturlaşdırılmış hesabata çevrilir və komanda rəhbərliyi tərəfindən izlənilir.</div>
+
+    <div class="modal-text">Sualınız və ya təklifiniz olarsa, birbaşa rəhbərliyinizlə əlaqə saxlayın.</div>
+
     <button class="modal-close" onclick="hideAbout()">Bağla</button>
   </div>
 </div>
