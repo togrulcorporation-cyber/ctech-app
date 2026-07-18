@@ -27,28 +27,50 @@
     justify-content:center;
     font-family:Arial,sans-serif;
   }
+  .wrap {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:22px;
+  }
   .badge {
-    width:72px;
-    height:72px;
-    border-radius:18px;
+    width:88px;
+    height:88px;
+    border-radius:22px;
     background:linear-gradient(135deg,#4E93FA,#2F6FED);
     color:#fff;
     display:flex;
     align-items:center;
     justify-content:center;
     font-weight:bold;
-    font-size:26px;
+    font-size:32px;
     letter-spacing:1px;
+  }
+  .title {
+    font-size:15px;
+    color:#12233B;
+    font-weight:600;
+    letter-spacing:0.5px;
+  }
+  button {
+    background:linear-gradient(135deg,#4E93FA,#2F6FED);
+    color:#fff;
+    border:none;
+    padding:14px 40px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
   }
 </style>
 </head>
 <body>
 
-<div class="badge">CT</div>
-
-<script>
-  window.location.replace("https://script.google.com/macros/s/AKfycbxi0k5hC-JTZ-Zm7_Ih-Jakptlck_OUq034wJ2WDouWTrWddMfZ07wOOCJhxLfNSE6H6A/exec");
-</script>
+<div class="wrap">
+  <div class="badge">CT</div>
+  <div class="title">CTECH Technical Service Platform</div>
+  <button onclick="location.replace('https://script.google.com/macros/s/AKfycbxi0k5hC-JTZ-Zm7_Ih-Jakptlck_OUq034wJ2WDouWTrWddMfZ07wOOCJhxLfNSE6H6A/exec')">Daxil ol</button>
+</div>
 
 </body>
 </html>
