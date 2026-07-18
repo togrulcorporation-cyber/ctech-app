@@ -805,6 +805,10 @@
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r="0.6" fill="currentColor" stroke="none"/></svg>
             <span>Haqqında</span>
           </button>
+          <button class="menu-item" id="adminMenuItem" onclick="moduleAlert('Admin-Panel')" style="display:none;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Admin Panel</span>
+          </button>
           <button class="menu-item" onclick="signOut()">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
             <span>Çıxış</span>
@@ -867,31 +871,64 @@
 
     </div>
 
-    <div class="dash-divider">
-      <div class="dash-badge">DASHBOARDS</div>
-      <div class="dash-connector"></div>
-    </div>
+    <div id="managementSection">
 
-    <div class="secondary-row">
-
-      <div class="card-small" onclick="moduleAlert('Dashboard-BUS')">
-        <div class="card-icon-small icon-bus">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
-        </div>
-        <div>
-          <div class="card-title-small">Dashboard BUS</div>
-          <div class="card-sub-small">Statistika və hesabatlar</div>
-        </div>
+      <div class="dash-divider">
+        <div class="dash-badge">DASHBOARDS</div>
+        <div class="dash-connector"></div>
       </div>
 
-      <div class="card-small" onclick="moduleAlert('Dashboard-TVM')">
-        <div class="card-icon-small icon-tvm">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+      <div class="secondary-row">
+
+        <div class="card-small" onclick="moduleAlert('Dashboard-BUS')">
+          <div class="card-icon-small icon-bus">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+          </div>
+          <div>
+            <div class="card-title-small">Dashboard BUS</div>
+            <div class="card-sub-small">Statistika və hesabatlar</div>
+          </div>
         </div>
-        <div>
-          <div class="card-title-small">Dashboard TVM</div>
-          <div class="card-sub-small">Statistika və hesabatlar</div>
+
+        <div class="card-small" onclick="moduleAlert('Dashboard-TVM')">
+          <div class="card-icon-small icon-tvm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+          </div>
+          <div>
+            <div class="card-title-small">Dashboard TVM</div>
+            <div class="card-sub-small">Statistika və hesabatlar</div>
+          </div>
         </div>
+
+      </div>
+
+      <div class="dash-divider">
+        <div class="dash-badge">HESABATLAR</div>
+        <div class="dash-connector"></div>
+      </div>
+
+      <div class="secondary-row">
+
+        <div class="card-small" onclick="moduleAlert('BUS-Real-Time-Raport')">
+          <div class="card-icon-small icon-bus">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
+          </div>
+          <div>
+            <div class="card-title-small">BUS Real-Time Raport</div>
+            <div class="card-sub-small">Canlı cədvəl və Excel ixracı</div>
+          </div>
+        </div>
+
+        <div class="card-small" onclick="moduleAlert('TVM-Real-Time-Raport')">
+          <div class="card-icon-small icon-tvm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
+          </div>
+          <div>
+            <div class="card-title-small">TVM Real-Time Raport</div>
+            <div class="card-sub-small">Canlı cədvəl və Excel ixracı</div>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -1123,10 +1160,41 @@ function showDashboard(){
   document.getElementById("profileName").innerHTML = currentUser.name;
   document.getElementById("profileRole").innerHTML = currentUser.role || "";
 
+  applyAccessLevel();
+
   if(!clockStarted){
     clockStarted = true;
     updateClock();
     setInterval(updateClock,1000);
+  }
+
+}
+
+function getAccessLevel(role){
+  var r = (role || "").toLowerCase();
+  if(r.indexOf("admin") !== -1){ return "admin"; }
+  if(r.indexOf("team") !== -1 || r.indexOf("leader") !== -1 || r.indexOf("rəhbər") !== -1){ return "leader"; }
+  return "technician";
+}
+
+function applyAccessLevel(){
+
+  var level = getAccessLevel(currentUser.role);
+
+  var managementSection = document.getElementById("managementSection");
+  var adminMenuItem = document.getElementById("adminMenuItem");
+
+  if(level === "admin"){
+    managementSection.style.display = "block";
+    adminMenuItem.style.display = "flex";
+  }
+  else if(level === "leader"){
+    managementSection.style.display = "block";
+    adminMenuItem.style.display = "none";
+  }
+  else{
+    managementSection.style.display = "none";
+    adminMenuItem.style.display = "none";
   }
 
 }
