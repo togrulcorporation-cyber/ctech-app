@@ -331,9 +331,9 @@
   }
 
   .welcome-name {
-    font-family:'Rajdhani',sans-serif;
-    font-weight:600;
-    font-size:19px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:18px;
     color:#2F4C6E;
   }
 
@@ -402,6 +402,13 @@
     font-weight:700;
     font-size:14px;
     letter-spacing:2px;
+  }
+
+  .dash-connector {
+    width:54px;
+    height:26px;
+    background:linear-gradient(to bottom, #CFE0F7, rgba(207,224,247,0));
+    clip-path:polygon(15% 0%, 85% 0%, 62% 100%, 38% 100%);
   }
 
   .secondary-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
@@ -581,15 +588,7 @@
 
     <div class="dash-divider">
       <div class="dash-badge">DASHBOARDS</div>
-      <svg width="22" height="34" viewBox="0 0 22 34" fill="none">
-        <defs>
-          <linearGradient id="arrowFade" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#4E93FA"/>
-            <stop offset="100%" stop-color="#4E93FA" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <path d="M11 1v22M4 17l7 9 7-9" stroke="url(#arrowFade)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <div class="dash-connector"></div>
     </div>
 
     <div class="secondary-row">
