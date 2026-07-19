@@ -256,6 +256,7 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
   border:1.5px solid #DCE6F5;
   border-radius:10px;
   font-size:14px;
+  font-weight:400;
   color:#12233B;
   font-family:'Inter',sans-serif;
   outline:none;
@@ -292,6 +293,7 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
   border:1.5px solid #DCE6F5;
   border-radius:10px;
   font-size:14px;
+  font-weight:400;
   color:#9AACC4;
   font-family:'Inter',sans-serif;
   text-align:left;
@@ -306,7 +308,9 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
   word-break:break-word;
   line-height:1.35;
 }
+.bs-picker-btn span { font-size:14px; font-weight:400; font-family:'Inter',sans-serif; }
 .bs-picker-btn.filled { color:#12233B; }
+.bs-picker-btn.filled span { color:#12233B; font-weight:400; }
 .bs-picker-btn:focus { border-color:#4E93FA; outline:none; }
 .bs-picker-btn svg { flex-shrink:0; margin-left:6px; }
 
@@ -552,8 +556,8 @@ body.dark-mode .bs-label { color:#8CA0BC; }
 body.dark-mode .bs-input, body.dark-mode .bs-select, body.dark-mode .bs-picker-btn, body.dark-mode .bs-textarea {
   background:#1C2A3D; border-color:#4A6182; color:#E8EEF5;
 }
-body.dark-mode .bs-picker-btn span { color:#5C7089; }
-body.dark-mode .bs-picker-btn span.filled { color:#E8EEF5 !important; font-weight:600; }
+body.dark-mode .bs-picker-btn span { color:#5C7089; font-size:14px; font-weight:400; }
+body.dark-mode .bs-picker-btn span.filled { color:#E8EEF5 !important; font-weight:400 !important; }
 body.dark-mode .bs-input::placeholder, body.dark-mode .bs-textarea::placeholder { color:#5C7089; }
 body.dark-mode .bs-picker-btn span.filled { color:#E8EEF5 !important; }
 body.dark-mode #bs_time_lbl.filled,
@@ -587,6 +591,9 @@ body.dark-mode .bs-confirm-box { background:#16212E; }
 body.dark-mode .bs-confirm-title { color:#E8EEF5; }
 body.dark-mode .bs-confirm-text { color:#8CA0BC; }
 body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
+body.dark-mode #busOpenOverlay { background:rgba(15,24,38,0.95) !important; }
+body.dark-mode #busOpenOverlay div[style*="color:#2F4C6E"] { color:#8FB4EA !important; }
+body.dark-mode #busOpenOverlay div[style*="color:#8CA0BC"] { color:#5C7089 !important; }
 body.dark-mode .bs-time-colon { color:#E8EEF5 !important; }
 body.dark-mode #bs_time_dd, body.dark-mode #bs_start_dd, body.dark-mode #bs_end_dd { color:#E8EEF5; }
 body.dark-mode #bs_time_dd div[style*="color:#8CA0BC"],
@@ -701,7 +708,7 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
 
   <div class="container">
     <div class="primary-row">
-      <div class="card-big" onclick="openBusService()">
+      <div class="card-big" onclick="startBusService()">
         <div class="card-icon-big icon-bus">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><path d="M3 16v1.5a1 1 0 0 0 1 1h1"/><path d="M21 16v1.5a1 1 0 0 1-1 1h-1"/><path d="M6 5v6M12 5v6M18 5v6"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg>
         </div>
@@ -763,6 +770,13 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
   <div class="footer-note-dash">© 2026 Ctech Solutions MMC</div>
 </div>
 
+<!-- BUS Service açılış overlay -->
+<div id="busOpenOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(244,248,253,0.95);z-index:55;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <div style="width:60px;height:60px;border:5px solid #DCE6F5;border-top-color:#2F6FED;border-radius:50%;animation:spin .8s linear infinite;"></div>
+  <div style="font-size:15px;font-weight:600;color:#2F4C6E;font-family:'Inter',sans-serif;">BUS Service yüklənir...</div>
+  <div style="font-size:12px;color:#8CA0BC;">Məlumatlar hazırlanır</div>
+</div>
+
 <!-- ===== BUS SERVICE VIEW ===== -->
 <div id="busServiceView">
 
@@ -782,11 +796,11 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
     <!-- Tarix / Saat -->
     <div class="bs-section">
       <div class="bs-section-title">Müraciət məlumatları</div>
-      <div class="bs-row" style="flex-wrap:nowrap;align-items:flex-start;">
-        <div class="bs-field" style="flex:1.4;min-width:0;">
+      <div class="bs-row" style="flex-wrap:nowrap;align-items:flex-start;gap:8px;">
+        <div class="bs-field" style="flex:0 0 auto;width:150px;min-width:0;">
           <label class="bs-label">Tarix *</label>
           <div style="position:relative;">
-            <input type="date" id="bs_date" class="bs-input" style="padding-right:8px;padding-left:10px;font-size:13px;">
+            <input type="date" id="bs_date" class="bs-input" style="padding:10px 6px;font-size:12px;width:100%;">
           </div>
         </div>
         <div class="bs-field" style="flex:1;min-width:0;">
@@ -1495,6 +1509,39 @@ function fillAllDDs(data){
 }
 
 // ── Form açılışı ─────────────────────────────────────
+function startBusService(){
+  // Overlay göstər
+  var ov = document.getElementById("busOpenOverlay");
+  ov.style.display = "flex";
+  // Arxa planda data yüklə, sonra formu aç
+  preloadBusData(function(){
+    ov.style.display = "none";
+    openBusService();
+  });
+}
+
+function preloadBusData(callback){
+  fetch(API_URL, {
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({action:"getFormData"})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status === "OK"){
+      bsFormData = d;
+      var tid = d.nextTicketId || "BUS-00001";
+      bsNextTicketId = tid;
+    }
+    // Minimum 1.5 saniyə göstər ki texnik görüb qəbul etsin
+    setTimeout(callback, 1500);
+  })
+  .catch(function(){
+    // Xəta olsa da davam et
+    setTimeout(callback, 1500);
+  });
+}
+
 function openBusService(){
   var now = new Date();
   var bParts = new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Baku",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
@@ -1540,9 +1587,14 @@ function openBusService(){
   document.getElementById("busServiceView").style.display = "block";
   document.getElementById("busServiceView").scrollTop = 0;
 
-  document.getElementById("bsTicketRow").innerHTML = '<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
-
-  loadBusFormData();
+  // Ticket ID göstər
+  if(bsNextTicketId){
+    document.getElementById("bsTicketRow").innerHTML =
+      '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + bsNextTicketId + '</span>';
+  } else {
+    document.getElementById("bsTicketRow").innerHTML = '<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
+    loadBusFormData();
+  }
 }
 
 // ── API: form data yüklə ─────────────────────────────
