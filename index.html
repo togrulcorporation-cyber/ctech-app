@@ -97,7 +97,7 @@ button.primary:disabled { opacity:.6; cursor:default; }
 .modal-close { margin-top:8px; width:100%; background:#F0F5FC; border:1px solid #E1EAF6; border-radius:12px; padding:13px; font-size:15px; font-weight:600; color:#12233B; cursor:pointer; }
 .brand-mini { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:16px; letter-spacing:1.5px; color:#12233B; text-transform:uppercase; white-space:nowrap; justify-self:center; }
 .brand-mini span { color:#2F6FED; }
-.clock-box { display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; color:#12233B; background:#F0F5FC; border:1.5px solid #DCE6F5; padding:0 16px; height:46px; box-sizing:border-box; border-radius:12px; flex-shrink:0; }
+.clock-box { display:flex; align-items:center; gap:8px; font-family:IBM Plex Mono,monospace; font-weight:600; font-size:15px; color:#12233B; background:#F0F5FC; border:1.5px solid #DCE6F5; padding:0 16px; height:46px; box-sizing:border-box; border-radius:12px; flex-shrink:0; }
 .clock-sep { color:#B9C6DA; font-weight:400; }
 .status-dot { width:6px; height:6px; border-radius:50%; background:#3FCB78; box-shadow:0 0 0 0 rgba(63,203,120,.6); animation:pulse 2s infinite; flex-shrink:0; }
 @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(63,203,120,.5);} 70%{box-shadow:0 0 0 6px rgba(63,203,120,0);} 100%{box-shadow:0 0 0 0 rgba(63,203,120,0);} }
@@ -424,7 +424,7 @@ input[type="time"]::-webkit-datetime-edit-ampm-field { display:none !important; 
   color:#12233B;
   scroll-snap-align:start;
   transition:background .1s;
-  font-family:'IBM Plex Mono',monospace;
+  font-family:IBM Plex Mono,monospace;
 }
 .bs-t-item:hover { background:#F0F5FC; }
 .bs-t-item.sel { background:#E6F1FB; color:#2F6FED; font-weight:700; }
@@ -735,7 +735,7 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
           <label class="bs-label">Saat *</label>
           <div class="bs-inline-dd" id="bs_time_wrap" style="position:relative;">
             <button type="button" class="bs-picker-btn" id="bs_time_btn" onclick="toggleTimeDD()">
-              <span id="bs_time_lbl" style="font-family:'IBM Plex Mono',monospace;">--:--</span>
+              <span id="bs_time_lbl" style="font-family:IBM Plex Mono,monospace;">--:--</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </button>
             <div id="bs_time_dd" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#fff;border:1.5px solid #DCE6F5;border-radius:12px;box-shadow:0 8px 24px rgba(18,35,59,.12);overflow:hidden;">
@@ -1372,7 +1372,7 @@ function openBusService(){
   document.getElementById("busServiceView").style.display = "block";
   document.getElementById("busServiceView").scrollTop = 0;
 
-  document.getElementById("bsTicketRow").innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;background:#E6F1FB;border:1.5px solid #CFE0F7;border-radius:8px;padding:5px 12px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;color:#1B4A8A;">🎫 yüklənir...</span>';
+  document.getElementById("bsTicketRow").innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;background:#E6F1FB;border:1.5px solid #CFE0F7;border-radius:8px;padding:5px 12px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:13px;color:#1B4A8A;">🎫 yüklənir...</span>';
 
   loadBusFormData();
 }
@@ -1391,7 +1391,7 @@ function loadBusFormData(){
     var tid = d.nextTicketId || "BUS-00001";
     bsNextTicketId = tid;
     document.getElementById("bsTicketRow").innerHTML =
-      '<span style="display:inline-flex;align-items:center;gap:6px;background:#E6F1FB;border:1.5px solid #CFE0F7;border-radius:8px;padding:5px 12px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;color:#1B4A8A;">🎫 ' + tid + '</span>';
+      '<span style="display:inline-flex;align-items:center;gap:6px;background:#E6F1FB;border:1.5px solid #CFE0F7;border-radius:8px;padding:5px 12px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:13px;color:#1B4A8A;">🎫 ' + tid + '</span>';
   })
   .catch(function(){
     bsFormData = {
@@ -1406,7 +1406,7 @@ function loadBusFormData(){
       leaders:["Mustafa Salmanov","Ramil İbrahimov","Elvin Şamilov","Vüsal Məmmədov","Toğrul Əliyev","Nazim Dinavasov"]
     };
     document.getElementById("bsTicketRow").innerHTML =
-      '<span style="display:inline-flex;align-items:center;gap:6px;background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:8px;padding:5px 12px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;color:#92400E;">⚠️ Offline</span>';
+      '<span style="display:inline-flex;align-items:center;gap:6px;background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:8px;padding:5px 12px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:13px;color:#92400E;">⚠️ Offline</span>';
   });
 }
 
