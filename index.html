@@ -1549,13 +1549,15 @@ document.addEventListener("DOMContentLoaded", function(){
   plateEl.addEventListener("paste", function(){ setTimeout(function(){ plateEl.dispatchEvent(new Event("input")); },0); });
 });
 
-// ── Enter → Tab ──────────────────────────────────────
+// ── Enter → Tab (yalnız BUS Service formasında) ─────
 document.addEventListener("keydown", function(e){
   if(e.key !== "Enter") return;
   var view = document.getElementById("busServiceView");
   if(!view || view.style.display === "none") return;
+  // Yalnız busServiceView daxilindəki elementlərdə işləsin
   var active = document.activeElement;
-  if(!active || active.tagName === "BUTTON" || active.tagName === "TEXTAREA") return;
+  if(!active || !view.contains(active)) return;
+  if(active.tagName === "BUTTON" || active.tagName === "TEXTAREA") return;
   e.preventDefault();
   var focusable = Array.from(view.querySelectorAll('input:not([type="hidden"]), select, textarea, button:not([tabindex="-1"])')).filter(function(el){ return !el.disabled && el.offsetParent !== null; });
   var idx = focusable.indexOf(active);
