@@ -21,6 +21,7 @@
   })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@600&display=optional" rel="stylesheet">
 <style>
 
@@ -793,6 +794,14 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
   color:#2F6FED;
   border-right:2px solid #C8D8EE;
   z-index:1;
+  width:100px;
+  min-width:100px;
+  max-width:100px;
+}
+.rpt-table th:first-child {
+  width:100px;
+  min-width:100px;
+  max-width:100px;
 }
 
 .rpt-table tbody tr:nth-child(even) td:first-child { background:#E8F3FF; }
@@ -2231,32 +2240,63 @@ function onColFilter(input){
 
 function exportToExcel(){
   if(rptFiltered.length === 0){ alert("Export üçün məlumat yoxdur"); return; }
+  if(typeof XLSX === "undefined"){ alert("Excel kitabxanası yüklənməyib, bir az gözləyin"); return; }
+
   var cols = rptColumns;
 
-  // CSV formatında hazırla (Excel açar)
-  var bom = "\uFEFF"; // UTF-8 BOM - Azərbaycan hərfləri üçün
-  var csv = bom + cols.map(function(c){ return '"'+c+'"'; }).join(",") + "\n";
+  // Məlumatları array of arrays formatına çevir
+  var wsData = [];
 
+  // Başlıq sətri
+  wsData.push(cols);
+
+  // Data sətirləri
   rptFiltered.forEach(function(row){
-    csv += cols.map(function(c){
-      var v = (row[c] || "").replace(/"/g,'""');
-      return '"' + v + '"';
-    }).join(",") + "\n";
+    var r = cols.map(function(c){ return row[c] || ""; });
+    wsData.push(r);
   });
 
-  var blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement("a");
-  a.href = url;
+  // Worksheet yarat
+  var ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Sütun enləri
+  var colWidths = cols.map(function(c){
+    var max = c.length;
+    rptFiltered.forEach(function(row){
+      var v = (row[c] || "").length;
+      if(v > max) max = v;
+    });
+    return { wch: Math.min(max + 2, 40) };
+  });
+  ws["!cols"] = colWidths;
+
+  // Başlıq sətri stili (qalın)
+  var range = XLSX.utils.decode_range(ws["!ref"]);
+  for(var C = range.s.c; C <= range.e.c; C++){
+    var cell = ws[XLSX.utils.encode_cell({r:0, c:C})];
+    if(!cell) continue;
+    cell.s = {
+      font: { bold:true, color:{rgb:"1B4A8A"} },
+      fill: { fgColor:{rgb:"E6F1FB"} },
+      alignment: { horizontal:"center" },
+      border: {
+        bottom: { style:"medium", color:{rgb:"C8D8EE"} }
+      }
+    };
+  }
+
+  // Workbook yarat
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "BUS Report");
+
+  // Fayl adı
   var today = new Date();
   var dd = String(today.getDate()).padStart(2,"0");
   var mm = String(today.getMonth()+1).padStart(2,"0");
   var yyyy = today.getFullYear();
-  a.download = "BUS_Report_" + dd + "." + mm + "." + yyyy + ".csv";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  var fname = "BUS_Report_" + dd + "." + mm + "." + yyyy + ".xlsx";
+
+  XLSX.writeFile(wb, fname);
 }
 
 </script>
