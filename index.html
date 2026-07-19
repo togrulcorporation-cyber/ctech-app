@@ -126,7 +126,7 @@ button.primary:disabled { opacity:.6; cursor:default; }
 .card-sub-small { font-size:12px; color:#5C7089; margin-top:1px; }
 @media(max-width:520px){ .primary-row{grid-template-columns:1fr;} .secondary-row{grid-template-columns:1fr;} .card-title-big{font-size:21px;} .brand-mini{display:none;} }
 .banner-wrap { margin-top:28px; border-radius:20px; overflow:hidden; border:1px solid #E1EAF6; box-shadow:0 20px 45px rgba(30,68,130,.08); }
-.banner-img { width:100%; display:block; object-fit:cover; }
+.banner-img { width:100%; display:block; object-fit:cover; min-height:160px; object-position:center; }
 .footer-note-dash { text-align:center; padding:6px 0 30px; font-size:12px; color:#8CA0BC; }
 .loading-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(244,248,253,.88); z-index:60; align-items:center; justify-content:center; }
 .loading-overlay.open { display:flex; }
@@ -325,13 +325,19 @@ button.primary:disabled { opacity:.6; cursor:default; }
 }
 .bs-textarea:focus { border-color:#4E93FA; background:#fff; }
 
-/* Saat inputu - 24h məcburi (AM/PM gizlət) */
-input[type="time"]::-webkit-datetime-edit-ampm-field { display:none !important; }
-input[type="time"] { -webkit-appearance:none; }
+/* Tarix inputu - AZ format göstəriş */
+input[type="date"] { position:relative; }
+input[type="date"]::-webkit-datetime-edit { display:flex; }
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus { background:#2F6FED; color:#fff; border-radius:2px; }
+/* Saat inputu artıq custom picker ilə əvəz edildi */
+input[type="time"]::-webkit-datetime-edit-ampm-field { display:none !important; width:0; }
+#busServiceView input[type="time"] { -webkit-appearance:none; }
 
 /* Submit button */
 .bs-submit {
-  padding:20px 0 8px;
+  padding:16px 0 4px;
   display:flex;
   justify-content:center;
 }
@@ -339,7 +345,7 @@ input[type="time"] { -webkit-appearance:none; }
   background:linear-gradient(135deg,#4E93FA,#2F6FED);
   color:#fff;
   border:none;
-  padding:13px 48px;
+  padding:13px 64px;
   border-radius:12px;
   font-size:15px;
   font-weight:700;
@@ -347,98 +353,81 @@ input[type="time"] { -webkit-appearance:none; }
   cursor:pointer;
   box-shadow:0 8px 20px rgba(47,111,237,.28);
   transition:opacity .15s,transform .05s;
-  min-width:180px;
+  min-width:220px;
 }
 .bs-submit-btn:active { transform:scale(.98); }
 .bs-submit-btn:disabled { opacity:.6; cursor:default; }
 
-/* Bottom Sheet Picker */
-#bsPickerOverlay {
+/* ── Inline Dropdown Picker ─────────────────────────────────── */
+.bs-inline-dd { position:relative; }
+
+.bs-dd-list {
   display:none;
-  position:fixed;
-  top:0; left:0; width:100%; height:100%;
-  background:rgba(18,35,59,.45);
-  z-index:80;
-  align-items:flex-end;
-  justify-content:center;
-}
-#bsPickerOverlay.open { display:flex; }
-
-#bsPickerSheet {
+  position:absolute;
+  top:calc(100% + 4px);
+  left:0; right:0;
+  z-index:50;
   background:#FFFFFF;
-  width:100%;
-  max-width:480px;
-  border-radius:20px 20px 0 0;
-  padding:16px;
-  max-height:55vh;
-  display:flex;
-  flex-direction:column;
-}
-@media(min-width:640px){
-  #bsPickerOverlay { align-items:center; }
-  #bsPickerSheet { border-radius:16px; max-height:60vh; }
-}
-.bs-picker-handle {
-  width:36px; height:4px;
-  background:#DCE6F5;
-  border-radius:2px;
-  margin:0 auto 14px;
-}
-.bs-picker-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:10px;
-}
-.bs-picker-title { font-weight:700; font-size:15px; color:#12233B; }
-.bs-picker-close { background:none; border:none; cursor:pointer; color:#5C7089; padding:4px; }
-
-.bs-picker-search { display:none; }
-
-#bsPickerList {
+  border:1.5px solid #DCE6F5;
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(18,35,59,.13);
   overflow-y:auto;
-  flex:1;
+  max-height:220px;
 }
-.bs-picker-item {
+.bs-dd-list.open { display:block; }
+
+.bs-dd-item {
   display:flex;
   align-items:center;
   gap:10px;
-  padding:11px 4px;
-  border-bottom:1px solid #F0F5FC;
+  padding:11px 14px;
+  border-bottom:1px solid #F4F8FD;
   cursor:pointer;
   font-size:13px;
   color:#12233B;
   line-height:1.4;
   transition:background .1s;
 }
-.bs-picker-item:hover { background:#F8FAFD; }
-.bs-picker-item.selected { color:#2F6FED; }
-.bs-picker-check {
-  width:20px; height:20px;
+.bs-dd-item:last-child { border-bottom:none; }
+.bs-dd-item:hover { background:#F0F5FC; }
+.bs-dd-item.selected { color:#2F6FED; font-weight:600; }
+.bs-dd-check {
+  width:18px; height:18px;
   border:2px solid #DCE6F5;
-  border-radius:5px;
+  border-radius:4px;
   flex-shrink:0;
   display:flex;
   align-items:center;
   justify-content:center;
 }
-.bs-picker-item.selected .bs-picker-check {
-  background:#2F6FED;
-  border-color:#2F6FED;
-}
-.bs-picker-done {
-  margin-top:12px;
+.bs-dd-item.selected .bs-dd-check { background:#2F6FED; border-color:#2F6FED; }
+.bs-dd-done {
   width:100%;
+  padding:10px;
   background:#2F6FED;
   color:#fff;
   border:none;
-  padding:13px;
-  border-radius:12px;
-  font-size:15px;
+  font-size:13px;
   font-weight:700;
   font-family:'Inter',sans-serif;
   cursor:pointer;
+  position:sticky;
+  bottom:0;
 }
+
+/* Saat picker sütun itemləri */
+.bs-t-item {
+  padding:9px 0;
+  text-align:center;
+  cursor:pointer;
+  font-size:14px;
+  color:#12233B;
+  scroll-snap-align:start;
+  transition:background .1s;
+  font-family:'IBM Plex Mono',monospace;
+}
+.bs-t-item:hover { background:#F0F5FC; }
+.bs-t-item.sel { background:#E6F1FB; color:#2F6FED; font-weight:700; }
 
 /* Confirm Exit Dialog */
 #bsConfirmOverlay {
@@ -519,6 +508,7 @@ body.dark-mode .banner-wrap { border-color:#4A6182; }
 body.dark-mode .modal-text strong { color:#E8EEF5; }
 body.dark-mode .dash-connector { background:linear-gradient(to bottom,#2A3B52,rgba(42,59,82,0)); }
 body.dark-mode #busServiceView { background:#0F1826; }
+body.dark-mode #busServiceView button[onclick="attemptBusHome()"] { color:#E8EEF5; }
 body.dark-mode .bs-header { background:#141F30; border-bottom-color:#4A6182; }
 body.dark-mode .bs-logo { color:#E8EEF5; }
 body.dark-mode .bs-section { background:#16212E; border-color:#4A6182; }
@@ -531,7 +521,15 @@ body.dark-mode .bs-input::placeholder, body.dark-mode .bs-textarea::placeholder 
 body.dark-mode .bs-picker-btn { color:#5C7089; }
 body.dark-mode .bs-picker-btn.filled { color:#E8EEF5; }
 body.dark-mode .bs-ticket-row { color:#5C7089; }
-body.dark-mode #bsPickerSheet { background:#16212E; }
+body.dark-mode .bs-dd-list { background:#16212E; border-color:#4A6182; }
+body.dark-mode .bs-dd-item { color:#E8EEF5; border-bottom-color:#1C2A3D; }
+body.dark-mode .bs-dd-item:hover { background:#1C2A3D; }
+body.dark-mode .bs-dd-item.selected { color:#8FB4EA; }
+body.dark-mode .bs-dd-check { border-color:#4A6182; }
+body.dark-mode #bs_time_dd { background:#16212E; border-color:#4A6182; }
+body.dark-mode .bs-t-item { color:#E8EEF5; }
+body.dark-mode .bs-t-item:hover { background:#1C2A3D; }
+body.dark-mode .bs-t-item.sel { background:#1C2A3D; color:#8FB4EA; }
 body.dark-mode .bs-picker-title { color:#E8EEF5; }
 body.dark-mode .bs-picker-search { background:#1C2A3D; border-color:#4A6182; color:#E8EEF5; }
 body.dark-mode .bs-picker-item { color:#E8EEF5; border-bottom-color:#1C2A3D; }
@@ -719,7 +717,7 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
     <div class="bs-logo">CTECH <span>SOLUTIONS</span> MMC</div>
     <div></div>
   </div>
-  <div style="text-align:center;padding:6px 16px 0;font-size:11px;color:#8CA0BC;font-family:'IBM Plex Mono',monospace;font-weight:600;" id="bsTicketRow"></div>
+  <div id="bsTicketRow" style="padding:8px 16px 0;"></div>
 
   <div class="bs-body">
 
@@ -730,13 +728,25 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
         <div class="bs-field">
           <label class="bs-label">Tarix *</label>
           <div style="position:relative;">
-            <input type="date" id="bs_date" class="bs-input" style="padding-right:32px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AACC4" stroke-width="2" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <input type="date" id="bs_date" class="bs-input" style="padding-right:36px;padding-left:12px;">
           </div>
         </div>
         <div class="bs-field">
           <label class="bs-label">Saat *</label>
-          <input type="time" id="bs_time" class="bs-input" step="60" lang="az">
+          <div class="bs-inline-dd" id="bs_time_wrap" style="position:relative;">
+            <button type="button" class="bs-picker-btn" id="bs_time_btn" onclick="toggleTimeDD()">
+              <span id="bs_time_lbl" style="font-family:'IBM Plex Mono',monospace;">--:--</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div id="bs_time_dd" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#fff;border:1.5px solid #DCE6F5;border-radius:12px;box-shadow:0 8px 24px rgba(18,35,59,.12);overflow:hidden;">
+              <div style="display:flex;height:180px;">
+                <div id="bs_h_list" style="flex:1;overflow-y:auto;border-right:1px solid #F0F5FC;scroll-snap-type:y mandatory;"></div>
+                <div style="display:flex;align-items:center;justify-content:center;padding:0 4px;font-size:18px;font-weight:700;color:#12233B;">:</div>
+                <div id="bs_m_list" style="flex:1;overflow-y:auto;scroll-snap-type:y mandatory;"></div>
+              </div>
+              <button type="button" onclick="confirmTime()" style="width:100%;padding:10px;background:#2F6FED;color:#fff;border:none;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Təsdiqlə</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="bs-field">
@@ -759,15 +769,18 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
         </div>
         <div class="bs-field">
           <label class="bs-label">BUS ID *</label>
-          <input type="text" id="bs_busid" class="bs-input" placeholder="ID">
+          <input type="text" id="bs_busid" class="bs-input" placeholder="ID" inputmode="numeric" pattern="[0-9]*">
         </div>
       </div>
       <div class="bs-field">
         <label class="bs-label">Daşıyıcı şirkət *</label>
-        <button type="button" class="bs-picker-btn" id="bs_carrier_btn" onclick="openPicker('carrier')">
-          <span id="bs_carrier_lbl">Seçin</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <div class="bs-inline-dd" id="dd_carrier">
+          <button type="button" class="bs-picker-btn" id="bs_carrier_btn" onclick="toggleDD('carrier')">
+            <span id="bs_carrier_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_carrier_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_carrier_list"></div>
+        </div>
       </div>
       <div class="bs-row">
         <div class="bs-field">
@@ -776,18 +789,24 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
         </div>
         <div class="bs-field">
           <label class="bs-label">Marka/Modeli *</label>
-          <button type="button" class="bs-picker-btn" id="bs_brand_btn" onclick="openPicker('brand')">
-            <span id="bs_brand_lbl">Seçin</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
+          <div class="bs-inline-dd" id="dd_brand">
+            <button type="button" class="bs-picker-btn" id="bs_brand_btn" onclick="toggleDD('brand')">
+              <span id="bs_brand_lbl" style="color:#9AACC4;">Seçin</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_brand_arrow"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="bs-dd-list" id="dd_brand_list"></div>
+          </div>
         </div>
       </div>
       <div class="bs-field">
         <label class="bs-label">Sistem *</label>
-        <button type="button" class="bs-picker-btn" id="bs_system_btn" onclick="openPicker('system')">
-          <span id="bs_system_lbl">Seçin</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <div class="bs-inline-dd" id="dd_system">
+          <button type="button" class="bs-picker-btn" id="bs_system_btn" onclick="toggleDD('system')">
+            <span id="bs_system_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_system_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_system_list"></div>
+        </div>
       </div>
     </div>
 
@@ -796,17 +815,23 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
       <div class="bs-section-title">Servis məlumatları</div>
       <div class="bs-field">
         <label class="bs-label">Müraciət / Problem *</label>
-        <button type="button" class="bs-picker-btn" id="bs_problem_btn" onclick="openPicker('problem')">
-          <span id="bs_problem_lbl">Seçin</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <div class="bs-inline-dd" id="dd_problem">
+          <button type="button" class="bs-picker-btn" id="bs_problem_btn" onclick="toggleDD('problem')">
+            <span id="bs_problem_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_problem_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_problem_list"></div>
+        </div>
       </div>
       <div class="bs-field">
         <label class="bs-label">Həll / Açıqlama</label>
-        <button type="button" class="bs-picker-btn" id="bs_solution_btn" onclick="openPicker('solution')">
-          <span id="bs_solution_lbl">Seçin (çoxlu seçim)</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <div class="bs-inline-dd" id="dd_solution">
+          <button type="button" class="bs-picker-btn" id="bs_solution_btn" onclick="toggleDD('solution')">
+            <span id="bs_solution_lbl" style="color:#9AACC4;">Seçin (çoxlu seçim)</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_solution_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_solution_list"></div>
+        </div>
         <div class="bs-chips" id="bs_solution_chips"></div>
       </div>
       <!-- Note: yalnız "Digər" seçiləndə görünür -->
@@ -818,9 +843,9 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
 
     <!-- Cihaz dəyişimi -->
     <div class="bs-section">
-      <div class="bs-section-title">Cihaz dəyişimi</div>
+      <div class="bs-section-title">Servis Kategoriyası</div>
       <div class="bs-field">
-        <label class="bs-label">Dəyişdirilən cihaz növü</label>
+        <label class="bs-label">Servis Kategoriyası</label>
         <select id="bs_equipment" class="bs-select">
           <option value="">Seçin</option>
         </select>
@@ -852,10 +877,13 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
       </div>
       <div class="bs-field">
         <label class="bs-label">Servis verilən ünvan</label>
-        <button type="button" class="bs-picker-btn" id="bs_location_btn" onclick="openPicker('location')">
-          <span id="bs_location_lbl">Seçin</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <div class="bs-inline-dd" id="dd_location">
+          <button type="button" class="bs-picker-btn" id="bs_location_btn" onclick="toggleDD('location')">
+            <span id="bs_location_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_location_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_location_list"></div>
+        </div>
       </div>
       <div class="bs-field" id="bs_location_note_wrap" style="display:none;">
         <label class="bs-label">Ünvan qeydi *</label>
@@ -868,24 +896,33 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
       <div class="bs-section-title">Texnik heyət</div>
       <div class="bs-field">
         <label class="bs-label">1. Texnik *</label>
-        <button type="button" class="bs-picker-btn" id="bs_tech1_btn" onclick="openPicker('tech1')">
-          <span id="bs_tech1_lbl">Seçin</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <div class="bs-inline-dd" id="dd_tech1">
+          <button type="button" class="bs-picker-btn" id="bs_tech1_btn" onclick="toggleDD('tech1')">
+            <span id="bs_tech1_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_tech1_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_tech1_list"></div>
+        </div>
       </div>
       <div class="bs-field">
         <label class="bs-label">2. Texnik</label>
-        <button type="button" class="bs-picker-btn" id="bs_tech2_btn" onclick="openPicker('tech2')">
-          <span id="bs_tech2_lbl">Seçin (könüllü)</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <div class="bs-inline-dd" id="dd_tech2">
+          <button type="button" class="bs-picker-btn" id="bs_tech2_btn" onclick="toggleDD('tech2')">
+            <span id="bs_tech2_lbl" style="color:#9AACC4;">Seçin (könüllü)</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_tech2_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_tech2_list"></div>
+        </div>
       </div>
       <div class="bs-field">
         <label class="bs-label">Qrup rəhbəri *</label>
-        <button type="button" class="bs-picker-btn" id="bs_leader_btn" onclick="openPicker('leader')">
-          <span id="bs_leader_lbl">Seçin</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <div class="bs-inline-dd" id="dd_leader">
+          <button type="button" class="bs-picker-btn" id="bs_leader_btn" onclick="toggleDD('leader')">
+            <span id="bs_leader_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_leader_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_leader_list"></div>
+        </div>
       </div>
     </div>
 
@@ -897,21 +934,7 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
 
 </div><!-- /#busServiceView -->
 
-<!-- Bottom Sheet Picker -->
-<div id="bsPickerOverlay">
-  <div id="bsPickerSheet">
-    <div class="bs-picker-handle"></div>
-    <div class="bs-picker-header">
-      <span class="bs-picker-title" id="bsPickerTitle"></span>
-      <button class="bs-picker-close" onclick="closePicker()" aria-label="Bağla">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <input type="text" class="bs-picker-search" id="bsPickerSearch" placeholder="Axtar..." oninput="filterPickerList()">
-    <div id="bsPickerList"></div>
-    <button type="button" class="bs-picker-done" id="bsPickerDone" onclick="closePicker()" style="display:none;">Təsdiqlə</button>
-  </div>
-</div>
+<!-- Inline pickers are rendered inside each .bs-inline-dd -->
 
 <!-- Exit Confirm Dialog -->
 <div id="bsConfirmOverlay">
@@ -1054,309 +1077,344 @@ if("serviceWorker" in navigator){ navigator.serviceWorker.register("service-work
 var savedUser=loadSession(); if(savedUser){currentUser=savedUser;showDashboard();}
 try{ var savedTheme=localStorage.getItem("ctech_theme"); if(savedTheme==="dark"){applyTheme(true);} }catch(e){}
 
-// ─────────────────────────────────────────────
-// BUS SERVICE LOGIC
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════
+// BUS SERVICE — İNLİNE DROPDOWN SİSTEMİ
+// ═══════════════════════════════════════════════════
 
 var bsFormData = {};
-var bsPickerConfig = {};
 var bsFormDirty = false;
 var bsNextTicketId = "";
-
 var bsSelected = {
   carrier:"", brand:"", problem:"", solution:[], system:"", location:"", tech1:"", tech2:"", leader:""
 };
+var activeDDKey = null; // hal-hazırda açıq olan dropdown
 
-// Enter → növbəti focusable elementə keçir (Tab kimi)
-document.addEventListener("keydown", function(e){
-  if(e.key !== "Enter") return;
-  var view = document.getElementById("busServiceView");
-  if(!view || view.style.display === "none") return;
-  var active = document.activeElement;
-  if(!active || active.tagName === "BUTTON" || active.tagName === "TEXTAREA") return;
-  e.preventDefault();
-  var focusable = Array.from(view.querySelectorAll(
-    'input:not([type="hidden"]), select, textarea, button:not([tabindex="-1"])'
-  )).filter(function(el){ return !el.disabled && el.offsetParent !== null; });
-  var idx = focusable.indexOf(active);
-  if(idx !== -1 && idx < focusable.length - 1){
-    focusable[idx + 1].focus();
+// ── Dropdown meta ────────────────────────────────────
+var ddMeta = {
+  carrier:  { lbl:"bs_carrier_lbl",  list:"dd_carrier_list",  multi:false, onSelect: null },
+  brand:    { lbl:"bs_brand_lbl",    list:"dd_brand_list",    multi:false, onSelect: null },
+  system:   { lbl:"bs_system_lbl",   list:"dd_system_list",   multi:false, onSelect: null },
+  problem:  { lbl:"bs_problem_lbl",  list:"dd_problem_list",  multi:false, onSelect: onProblemSelect },
+  solution: { lbl:"bs_solution_lbl", list:"dd_solution_list", multi:true,  onSelect: onSolutionSelect },
+  location: { lbl:"bs_location_lbl", list:"dd_location_list", multi:false, onSelect: onLocationSelect },
+  tech1:    { lbl:"bs_tech1_lbl",    list:"dd_tech1_list",    multi:false, onSelect: null },
+  tech2:    { lbl:"bs_tech2_lbl",    list:"dd_tech2_list",    multi:false, onSelect: null },
+  leader:   { lbl:"bs_leader_lbl",   list:"dd_leader_list",   multi:false, onSelect: null }
+};
+
+// ── DD aç/qapat ─────────────────────────────────────
+function toggleDD(key){
+  if(activeDDKey && activeDDKey !== key){ closeDD(activeDDKey); }
+  var listEl = document.getElementById("dd_" + key + "_list");
+  var arrow  = document.getElementById("dd_" + key + "_arrow");
+  if(!listEl) return;
+  var isOpen = listEl.classList.contains("open");
+  if(isOpen){
+    closeDD(key);
+  } else {
+    renderDD(key);
+    listEl.classList.add("open");
+    if(arrow) arrow.style.transform = "rotate(180deg)";
+    activeDDKey = key;
+  }
+}
+
+function closeDD(key){
+  var listEl = document.getElementById("dd_" + key + "_list");
+  var arrow  = document.getElementById("dd_" + key + "_arrow");
+  if(listEl) listEl.classList.remove("open");
+  if(arrow)  arrow.style.transform = "";
+  if(activeDDKey === key) activeDDKey = null;
+}
+
+function closeAllDD(){
+  Object.keys(ddMeta).forEach(function(k){ closeDD(k); });
+  var td = document.getElementById("bs_time_dd");
+  if(td) td.style.display = "none";
+}
+
+// Forma dışına tıklayınca kapat
+document.addEventListener("click", function(e){
+  if(!e.target.closest(".bs-inline-dd") && !e.target.closest("#bs_time_wrap")){
+    closeAllDD();
   }
 });
 
-// Tarix inputu: yalnız rəqəm qəbul edir, GG.AA.İİİİ formatını avtomatik tamamlayır
-document.addEventListener("DOMContentLoaded", function(){
-  var dateEl = document.getElementById("bs_date");
-  if(!dateEl) return;
-  dateEl.addEventListener("input", function(e){
-    var v = e.target.value.replace(/\D/g,"");
-    if(v.length > 8) v = v.slice(0,8);
-    var out = "";
-    if(v.length > 4) out = v.slice(0,2)+"."+v.slice(2,4)+"."+v.slice(4);
-    else if(v.length > 2) out = v.slice(0,2)+"."+v.slice(2);
-    else out = v;
-    e.target.value = out;
-    bsFormDirty = true;
+// ── DD siyahısını render et ──────────────────────────
+function renderDD(key){
+  var meta = ddMeta[key];
+  var listEl = document.getElementById(meta.list);
+  if(!listEl) return;
+  var items = getListForKey(key);
+  listEl.innerHTML = "";
+
+  items.forEach(function(item){
+    var div = document.createElement("div");
+    div.className = "bs-dd-item";
+    var isMulti = meta.multi;
+    var isSelected = isMulti
+      ? (bsSelected[key].indexOf(item) !== -1)
+      : (bsSelected[key] === item);
+    if(isSelected) div.classList.add("selected");
+
+    if(isMulti){
+      div.innerHTML = '<div class="bs-dd-check">'
+        + (isSelected ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>' : '')
+        + '</div><span>' + item + '</span>';
+    } else {
+      div.innerHTML = (isSelected
+        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2F6FED" stroke-width="2.5"><path d="M4 12l6 6L20 6"/></svg>'
+        : '<div style="width:14px;"></div>')
+        + '<span>' + item + '</span>';
+    }
+    div.addEventListener("click", function(e){ e.stopPropagation(); selectDDItem(key, item); });
+    listEl.appendChild(div);
   });
-});
 
+  // Multi-select üçün "Təsdiqlə" düyməsi
+  if(meta.multi){
+    var done = document.createElement("button");
+    done.type = "button";
+    done.className = "bs-dd-done";
+    done.textContent = "Təsdiqlə";
+    done.addEventListener("click", function(e){ e.stopPropagation(); closeDD(key); });
+    listEl.appendChild(done);
+  }
+}
+
+function getListForKey(key){
+  var map = {
+    carrier: bsFormData.carriers || [],
+    brand:   bsFormData.busModels || [],
+    system:  bsFormData.systems || [],
+    problem: bsFormData.busProblems || [],
+    solution:bsFormData.solutions || [],
+    location:bsFormData.locations || [],
+    tech1:   bsFormData.technicians || [],
+    tech2:   bsFormData.technicians || [],
+    leader:  bsFormData.leaders || []
+  };
+  return map[key] || [];
+}
+
+// ── Seçim et ────────────────────────────────────────
+function selectDDItem(key, item){
+  var meta = ddMeta[key];
+  bsFormDirty = true;
+
+  if(meta.multi){
+    var arr = bsSelected[key];
+    var idx = arr.indexOf(item);
+    if(idx !== -1) arr.splice(idx, 1); else arr.push(item);
+    renderDD(key); // checkboxları yenilə
+    updateMultiLabel(key);
+    if(meta.onSelect) meta.onSelect(item);
+  } else {
+    bsSelected[key] = item;
+    var lblEl = document.getElementById(meta.lbl);
+    if(lblEl){ lblEl.textContent = item; lblEl.style.color = "var(--text-primary, #12233B)"; }
+    if(meta.onSelect) meta.onSelect(item);
+    closeDD(key);
+  }
+}
+
+function updateMultiLabel(key){
+  var arr = bsSelected[key];
+  var meta = ddMeta[key];
+  var lblEl = document.getElementById(meta.lbl);
+  if(lblEl){
+    lblEl.textContent = arr.length ? arr.length + " seçim" : "Seçin (çoxlu seçim)";
+    lblEl.style.color = arr.length ? "var(--text-primary, #12233B)" : "#9AACC4";
+  }
+}
+
+// ── Xüsusi onSelect callback-lər ────────────────────
+function onProblemSelect(item){
+  var isDigar = item.toLowerCase().indexOf("digər") !== -1;
+  document.getElementById("bs_note_wrap").style.display = isDigar ? "block" : "none";
+  if(!isDigar) document.getElementById("bs_note").value = "";
+}
+
+function onSolutionSelect(item){
+  updateSolutionChips();
+  // Həll/Açıqlama-da "Digər" seçiləndə note açılsın
+  var arr = bsSelected.solution;
+  var hasDigar = arr.some(function(s){ return s.toLowerCase().indexOf("digər") !== -1; });
+  document.getElementById("bs_note_wrap").style.display = hasDigar ? "block" : "none";
+}
+
+function onLocationSelect(item){
+  var isDigar = item.toLowerCase().indexOf("digər") !== -1;
+  document.getElementById("bs_location_note_wrap").style.display = isDigar ? "block" : "none";
+  if(!isDigar) document.getElementById("bs_location_note").value = "";
+}
+
+function updateSolutionChips(){
+  var arr = bsSelected.solution;
+  var chips = document.getElementById("bs_solution_chips");
+  chips.innerHTML = "";
+  arr.forEach(function(a){
+    var c = document.createElement("span");
+    c.className = "bs-chip";
+    c.textContent = a.length > 32 ? a.slice(0,32)+"…" : a;
+    chips.appendChild(c);
+  });
+}
+
+// ── Saat picker ──────────────────────────────────────
+var selHour = -1, selMin = -1;
+
+function toggleTimeDD(){
+  var dd = document.getElementById("bs_time_dd");
+  if(dd.style.display === "none" || !dd.style.display){
+    buildTimeDD();
+    dd.style.display = "block";
+    closeAllDD(); // digər dropdown-ları bağla
+    // yenidən aç (closeAllDD bağladı)
+    dd.style.display = "block";
+  } else {
+    dd.style.display = "none";
+  }
+}
+
+function buildTimeDD(){
+  var hList = document.getElementById("bs_h_list");
+  var mList = document.getElementById("bs_m_list");
+  hList.innerHTML = ""; mList.innerHTML = "";
+  for(var h=0; h<24; h++){
+    (function(hh){
+      var d = document.createElement("div");
+      d.className = "bs-t-item" + (hh===selHour?" sel":"");
+      d.textContent = (hh<10?"0":"")+hh;
+      d.addEventListener("click", function(){ selHour=hh; buildTimeDD(); });
+      hList.appendChild(d);
+    })(h);
+  }
+  for(var m=0; m<60; m+=5){
+    (function(mm){
+      var d = document.createElement("div");
+      d.className = "bs-t-item" + (mm===selMin?" sel":"");
+      d.textContent = (mm<10?"0":"")+mm;
+      d.addEventListener("click", function(){ selMin=mm; buildTimeDD(); });
+      mList.appendChild(d);
+    })(m);
+  }
+  // Seçili itemə scroll et
+  if(selHour>=0){
+    var items = hList.querySelectorAll(".bs-t-item");
+    if(items[selHour]) items[selHour].scrollIntoView({block:"nearest"});
+  }
+  if(selMin>=0){
+    var mIdx = Math.floor(selMin/5);
+    var mItems = mList.querySelectorAll(".bs-t-item");
+    if(mItems[mIdx]) mItems[mIdx].scrollIntoView({block:"nearest"});
+  }
+}
+
+function confirmTime(){
+  var h = selHour >= 0 ? selHour : 0;
+  var m = selMin  >= 0 ? selMin  : 0;
+  var str = (h<10?"0":"")+h+":"+(m<10?"0":"")+m;
+  var lbl = document.getElementById("bs_time_lbl");
+  if(lbl){ lbl.textContent = str; lbl.style.color = "#12233B"; }
+  document.getElementById("bs_time_dd").style.display = "none";
+  bsFormDirty = true;
+}
+
+function getTimeValue(){
+  var lbl = document.getElementById("bs_time_lbl");
+  if(!lbl || lbl.textContent === "--:--") return "";
+  return lbl.textContent;
+}
+
+// ── fillDD: API datası gəldikdə siyahıları hazırla ──
+function fillAllDDs(data){
+  bsFormData = data;
+  // Sistemlər burdaca dolsun ki cavabsız qalmasın
+}
+
+// ── Form açılışı ─────────────────────────────────────
 function openBusService(){
-  // Tarixi AZ formatında, saatı 24h formatında doldur
   var now = new Date();
-  // Bakı saatı ilə doldur
   var bParts = new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Baku",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
-  // en-CA → YYYY-MM-DD (input[type=date] üçün)
   document.getElementById("bs_date").value = bParts;
-  // 24h saat
-  var bakuTime = new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",hour:"2-digit",minute:"2-digit",hour12:false}).format(now);
-  document.getElementById("bs_time").value = bakuTime;
 
-  // Dirty state sıfırla
+  // Saat default: indiki saat
+  var bParts2 = new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(now);
+  var hh = 0, mm = 0;
+  bParts2.forEach(function(p){ if(p.type==="hour") hh=parseInt(p.value); if(p.type==="minute") mm=parseInt(p.value); });
+  selHour = hh; selMin = Math.floor(mm/5)*5;
+  var str = (hh<10?"0":"")+hh+":"+(mm<10?"0":"")+mm;
+  var lbl = document.getElementById("bs_time_lbl");
+  if(lbl){ lbl.textContent = str; lbl.style.color="#12233B"; }
+
+  // Reset
   bsFormDirty = false;
-  bsSelected = {carrier:"",brand:"",problem:"",solution:[],tech1:"",tech2:"",leader:""};
-  resetPickerLabels();
+  bsSelected = {carrier:"",brand:"",problem:"",solution:[],system:"",location:"",tech1:"",tech2:"",leader:""};
 
-  document.getElementById("bs_requester").value="";
-  document.getElementById("bs_phone").value="";
-  document.getElementById("bs_route").value="";
-  document.getElementById("bs_busid").value="";
-  document.getElementById("bs_plate").value="";
-  document.getElementById("bs_old_sn").value="";
-  document.getElementById("bs_new_sn").value="";
-  document.getElementById("bs_start").value="";
-  document.getElementById("bs_end").value="";
-  document.getElementById("bs_note").value="";
-  document.getElementById("bs_note_wrap").style.display="none";
-  document.getElementById("bs_solution_chips").innerHTML="";
-  document.getElementById("bs_location_note").value="";
-  document.getElementById("bs_location_note_wrap").style.display="none";
+  // Label-ları sıfırla
+  Object.keys(ddMeta).forEach(function(k){
+    var m = ddMeta[k];
+    var el = document.getElementById(m.lbl);
+    if(el){ el.textContent = k==="tech2" ? "Seçin (könüllü)" : k==="solution" ? "Seçin (çoxlu seçim)" : "Seçin"; el.style.color="#9AACC4"; }
+    closeDD(k);
+  });
 
-  document.getElementById("dashboardView").style.display="none";
-  document.getElementById("busServiceView").style.display="block";
-  document.getElementById("busServiceView").scrollTop=0;
+  ["bs_requester","bs_phone","bs_route","bs_busid","bs_plate","bs_old_sn","bs_new_sn","bs_start","bs_end","bs_note","bs_location_note"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = "";
+  });
+  document.getElementById("bs_note_wrap").style.display = "none";
+  document.getElementById("bs_solution_chips").innerHTML = "";
+  document.getElementById("bs_location_note_wrap").style.display = "none";
 
-  // Ticket ID yüklə
-  document.getElementById("bsTicketRow").textContent="Ticket ID yüklənir...";
+  document.getElementById("dashboardView").style.display = "none";
+  document.getElementById("busServiceView").style.display = "block";
+  document.getElementById("busServiceView").scrollTop = 0;
+
+  document.getElementById("bsTicketRow").innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;background:#E6F1FB;border:1.5px solid #CFE0F7;border-radius:8px;padding:5px 12px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;color:#1B4A8A;">🎫 yüklənir...</span>';
+
   loadBusFormData();
 }
 
-function resetPickerLabels(){
-  var resets=[
-    ["bs_carrier_lbl","Seçin","bs_carrier_btn"],
-    ["bs_brand_lbl","Seçin","bs_brand_btn"],
-    ["bs_problem_lbl","Seçin","bs_problem_btn"],
-    ["bs_solution_lbl","Seçin (çoxlu seçim)","bs_solution_btn"],
-    ["bs_system_lbl","Seçin","bs_system_btn"],
-    ["bs_location_lbl","Seçin","bs_location_btn"],
-    ["bs_tech1_lbl","Seçin","bs_tech1_btn"],
-    ["bs_tech2_lbl","Seçin (könüllü)","bs_tech2_btn"],
-    ["bs_leader_lbl","Seçin","bs_leader_btn"]
-  ];
-  resets.forEach(function(r){
-    var lbl=document.getElementById(r[0]); if(lbl) lbl.textContent=r[1];
-    var btn=document.getElementById(r[2]); if(btn) btn.classList.remove("filled");
-  });
-  document.getElementById("bs_location_note_wrap").style.display="none";
-}
-
+// ── API: form data yüklə ─────────────────────────────
 function loadBusFormData(){
-  fetch(API_URL,{
+  fetch(API_URL, {
     method:"POST",
     headers:{"Content-Type":"text/plain;charset=utf-8"},
     body:JSON.stringify({action:"getFormData"})
   })
-  .then(function(r){return r.json();})
+  .then(function(r){ return r.json(); })
   .then(function(d){
-    if(d.status!=="OK") return;
+    if(d.status !== "OK") return;
     bsFormData = d;
-    fillSelect("bs_system", d.systems||["LIT","LIT-2"]);
-    fillSelect("bs_equipment", d.busEquipment||[]);
-    fillSelect("bs_location", d.locations||["Daşıyıcı qarajı","Son dayanacaq","Dayanacaq"]);
-    // Ticket ID: nextTicketId backend-dən gəlir
     var tid = d.nextTicketId || "BUS-00001";
-    document.getElementById("bsTicketRow").textContent = "Ticket ID: " + tid;
     bsNextTicketId = tid;
+    document.getElementById("bsTicketRow").innerHTML =
+      '<span style="display:inline-flex;align-items:center;gap:6px;background:#E6F1FB;border:1.5px solid #CFE0F7;border-radius:8px;padding:5px 12px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;color:#1B4A8A;">🎫 ' + tid + '</span>';
   })
   .catch(function(){
     bsFormData = {
       carriers:["BakuBus MMC","Xaliq Faiqoğlu MMC","Çinar-Trans MMC","General Auto Company MMC","ENA Transport MMC","Transkontrol MMC","Vətən-Az MMC","Vətən MMC","K-Group MMC","AYNA - Monitoring"],
-      busModels:["BMC","BYD","Daewoo","Isuzu","Karsan","Otokar","Iveco","King-Long","Dragon"],
-      busProblems:["Validator cihazı ödəniş kartını qəbul etmir","Validator cihazı açılmır","Validator cihazı elektrik almır","Digər"],
+      busModels:["BMC","BYD","Daewoo","Isuzu","Karsan","Otokar","Iveco","King-Long","Dragon","Digər"],
+      busProblems:["Validator ödəniş kartını qəbul etmir","Validator açılmır","Validator elektrik almır","Digər"],
       solutions:["Validator dəyişdirildi","Problem aşkar olunmadı","Elektrik söndürülüb-yandırıldı","Digər"],
       busEquipment:["Validator","SAM Kart","Ethernet Kabel","RJ45 başlığı"],
       systems:["LIT","LIT-2"],
-      locations:["Daşıyıcı qarajı","Son dayanacaq","Dayanacaq"],
+      locations:["Daşıyıcı qarajı","Son dayanacaq","Dayanacaq","Digər"],
       technicians:["Tural Əmmədov","Amil İbrahimov","Rövşən Nurəhmədov","Sənan Nuriyev","Surxay Qasımov","Hikmət Musazadə"],
-      leaders:["Mustafa Salmanov","Ramil İbrahimov","Elvin Şamilov","Vüsal Məmmədov","Toğrul Əliyev"]
+      leaders:["Mustafa Salmanov","Ramil İbrahimov","Elvin Şamilov","Vüsal Məmmədov","Toğrul Əliyev","Nazim Dinavasov"]
     };
-    fillSelect("bs_system", bsFormData.systems);
-    fillSelect("bs_equipment", bsFormData.busEquipment);
-    fillSelect("bs_location", bsFormData.locations);
-    document.getElementById("bsTicketRow").textContent="Ticket ID: BUS-?????";
+    document.getElementById("bsTicketRow").innerHTML =
+      '<span style="display:inline-flex;align-items:center;gap:6px;background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:8px;padding:5px 12px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;color:#92400E;">⚠️ Offline</span>';
   });
 }
 
-function fillSelect(id, list){
-  var sel=document.getElementById(id);
-  if(!sel) return;
-  var cur=sel.value;
-  sel.innerHTML='<option value="">Seçin</option>';
-  (list||[]).forEach(function(v){ var o=document.createElement("option"); o.value=v; o.textContent=v; sel.appendChild(o); });
-  if(cur) sel.value=cur;
-}
-
-// Picker açmaq
-var pickerMeta = {
-  carrier: {title:"Daşıyıcı şirkət",  multi:false, list:function(){return bsFormData.carriers||[];}},
-  brand:   {title:"Marka / Modeli",    multi:false, list:function(){return bsFormData.busModels||[];}},
-  problem: {title:"Müraciət / Problem",multi:false, list:function(){return bsFormData.busProblems||[];}},
-  solution:{title:"Həll / Açıqlama",   multi:true,  list:function(){return bsFormData.solutions||[];}},
-  system:  {title:"Sistem",            multi:false, list:function(){return bsFormData.systems||[];}},
-  location:{title:"Servis verilən ünvan",multi:false,list:function(){return bsFormData.locations||[];}},
-  tech1:   {title:"1. Texnik",         multi:false, list:function(){return bsFormData.technicians||[];}},
-  tech2:   {title:"2. Texnik",         multi:false, list:function(){return bsFormData.technicians||[];}},
-  leader:  {title:"Qrup rəhbəri",      multi:false, list:function(){return bsFormData.leaders||[];}}
-};
-
-var activePicker = null;
-var activePickerList = [];
-
-function openPicker(key){
-  var meta=pickerMeta[key];
-  activePicker=key;
-  activePickerList=meta.list();
-  document.getElementById("bsPickerTitle").textContent=meta.title;
-  document.getElementById("bsPickerSearch").value="";
-  document.getElementById("bsPickerDone").style.display=meta.multi?"block":"none";
-  renderPickerList(activePickerList);
-  document.getElementById("bsPickerOverlay").classList.add("open");
-}
-
-function renderPickerList(list){
-  var box=document.getElementById("bsPickerList");
-  box.innerHTML="";
-  list.forEach(function(item){
-    var div=document.createElement("div");
-    div.className="bs-picker-item";
-    var isMulti=pickerMeta[activePicker].multi;
-    var isSelected=isMulti?bsSelected[activePicker].indexOf(item)!==-1:(bsSelected[activePicker]===item);
-    if(isSelected) div.classList.add("selected");
-    if(isMulti){
-      div.innerHTML='<div class="bs-picker-check">'+(isSelected?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>':'')+'</div><span>'+item+'</span>';
-    } else {
-      div.innerHTML=(isSelected?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2F6FED" stroke-width="2.5"><path d="M4 12l6 6L20 6"/></svg>':'<div style="width:16px;"></div>')+'<span>'+item+'</span>';
-    }
-    div.onclick=function(){ selectPickerItem(item); };
-    box.appendChild(div);
-  });
-}
-
-function filterPickerList(){
-  var q=document.getElementById("bsPickerSearch").value.toLowerCase();
-  var filtered=activePickerList.filter(function(i){return i.toLowerCase().indexOf(q)!==-1;});
-  renderPickerList(filtered);
-}
-
-function selectPickerItem(item){
-  var meta=pickerMeta[activePicker];
-  if(meta.multi){
-    var arr=bsSelected[activePicker];
-    var idx=arr.indexOf(item);
-    if(idx!==-1) arr.splice(idx,1); else arr.push(item);
-    renderPickerList(activePickerList.filter(function(i){return i.toLowerCase().indexOf(document.getElementById("bsPickerSearch").value.toLowerCase())!==-1;}));
-    updateSolutionChips();
-  } else {
-    bsSelected[activePicker]=item;
-    var lblEl=document.getElementById("bs_"+activePicker+"_lbl");
-    var btnEl=document.getElementById("bs_"+activePicker+"_btn");
-    if(lblEl){ lblEl.textContent=item; }
-    if(btnEl){ btnEl.classList.add("filled"); }
-    // Problem "Digər" → note məcburi
-    if(activePicker==="problem"){
-      var isDigar=(item.toLowerCase().indexOf("digər")!==-1);
-      document.getElementById("bs_note_wrap").style.display=isDigar?"block":"none";
-      if(!isDigar) document.getElementById("bs_note").value="";
-    }
-    // Servis yeri "Digər" → ünvan note məcburi
-    if(activePicker==="location"){
-      var isDigarLoc=(item.toLowerCase().indexOf("digər")!==-1);
-      document.getElementById("bs_location_note_wrap").style.display=isDigarLoc?"block":"none";
-      if(!isDigarLoc) document.getElementById("bs_location_note").value="";
-    }
-    bsFormDirty=true;
-    closePicker();
-  }
-}
-
-function updateSolutionChips(){
-  var arr=bsSelected.solution;
-  var chips=document.getElementById("bs_solution_chips");
-  chips.innerHTML="";
-  arr.forEach(function(a){
-    var c=document.createElement("span");
-    c.className="bs-chip";
-    c.textContent=a.length>32?a.slice(0,32)+"…":a;
-    chips.appendChild(c);
-  });
-  var lbl=document.getElementById("bs_solution_lbl");
-  var btn=document.getElementById("bs_solution_btn");
-  lbl.textContent=arr.length?arr.length+" seçim":"Seçin (çoxlu seçim)";
-  if(btn) btn.classList.toggle("filled",arr.length>0);
-  bsFormDirty=true;
-}
-
-function closePicker(){
-  document.getElementById("bsPickerOverlay").classList.remove("open");
-}
-
-// Home button — dirty check
-function attemptBusHome(){
-  if(bsFormDirty){
-    document.getElementById("bsConfirmOverlay").classList.add("open");
-  } else {
-    goToDashboardFromBus();
-  }
-}
-
-function closeConfirm(){
-  document.getElementById("bsConfirmOverlay").classList.remove("open");
-}
-
-function confirmExit(){
-  document.getElementById("bsConfirmOverlay").classList.remove("open");
-  // Qısa fırlanma animasiyası
-  var ov=document.getElementById("bsLoadingOverlay");
-  var sp=document.getElementById("bsSpinner");
-  var tx=document.getElementById("bsLoadingText");
-  var ic=document.getElementById("bsSuccessIcon");
-  ov.classList.add("open");
-  sp.style.display="block"; ic.style.display="none"; tx.textContent="Gözləyin...";
-  setTimeout(function(){
-    ov.classList.remove("open");
-    goToDashboardFromBus();
-  },1000);
-}
-
-function goToDashboardFromBus(){
-  document.getElementById("busServiceView").style.display="none";
-  document.getElementById("dashboardView").style.display="block";
-}
-
-// Submit
+// ── Submit ───────────────────────────────────────────
 function submitBusService(){
-  // Məcburi sahə yoxlaması
-  var required={
-    bs_date:"Tarix",
-    bs_time:"Saat",
-    bs_requester:"Müraciət edən"
-  };
-  for(var id in required){
-    if(!document.getElementById(id).value.trim()){
-      alert(required[id]+" doldurulmalıdır");
-      document.getElementById(id).focus();
-      return;
-    }
-  }
+  if(!document.getElementById("bs_date").value){ alert("Tarix daxil edin"); return; }
+  if(getTimeValue()===""){ alert("Saat seçin"); return; }
+  if(!document.getElementById("bs_requester").value.trim()){ alert("Müraciət edəni daxil edin"); return; }
   if(!bsSelected.carrier){ alert("Daşıyıcı şirkəti seçin"); return; }
   if(!bsSelected.brand){ alert("Marka/Modeli seçin"); return; }
   if(!bsSelected.system){ alert("Sistemi seçin"); return; }
@@ -1367,9 +1425,13 @@ function submitBusService(){
   if(!bsSelected.tech1){ alert("1. Texniki seçin"); return; }
   if(!bsSelected.leader){ alert("Qrup rəhbərini seçin"); return; }
 
-  var data={
-    report_date: document.getElementById("bs_date").value,  // GG.AA.İİİİ formatında
-    report_time: document.getElementById("bs_time").value,
+  // Həll/Açıqlama "Digər" seçimidir
+  var hasDigarSol = bsSelected.solution.some(function(s){ return s.toLowerCase().indexOf("digər")!==-1; });
+  if(hasDigarSol && !document.getElementById("bs_note").value.trim()){ alert("Həll üçün qeyd yazın"); return; }
+
+  var data = {
+    report_date: document.getElementById("bs_date").value,
+    report_time: getTimeValue(),
     requester_name: document.getElementById("bs_requester").value,
     requester_phone: document.getElementById("bs_phone").value,
     route_number: document.getElementById("bs_route").value,
@@ -1381,7 +1443,7 @@ function submitBusService(){
     problem: bsSelected.problem,
     request: bsSelected.problem,
     solution: bsSelected.solution,
-    changed_device_type: document.getElementById("bs_equipment").value,
+    changed_device_type: document.getElementById("bs_equipment") ? document.getElementById("bs_equipment").value : "",
     old_sn: document.getElementById("bs_old_sn").value,
     new_sn: document.getElementById("bs_new_sn").value,
     service_start_time: document.getElementById("bs_start").value,
@@ -1394,127 +1456,120 @@ function submitBusService(){
     note: document.getElementById("bs_note").value
   };
 
-  // Loading göstər
+  var ov = document.getElementById("bsLoadingOverlay");
+  var sp = document.getElementById("bsSpinner");
+  var tx = document.getElementById("bsLoadingText");
+  var ic = document.getElementById("bsSuccessIcon");
+  ov.classList.add("open");
+  sp.style.display="block"; ic.style.display="none"; tx.textContent="Göndərilir...";
+
+  fetch(API_URL, {
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({action:"submitBusService", data:data, userEmail:currentUser?currentUser.email:""})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(result){
+    sp.style.display = "none";
+    ic.style.display = "flex";
+    tx.textContent = result.status==="OK" ? "Göndərildi! " + result.ticketId : "Xəta baş verdi";
+    setTimeout(function(){
+      ov.classList.remove("open");
+      if(result.status==="OK"){ bsFormDirty=false; goToDashboardFromBus(); }
+    }, 1800);
+  })
+  .catch(function(){
+    sp.style.display = "none";
+    tx.textContent = "Şəbəkə xətası";
+    setTimeout(function(){ ov.classList.remove("open"); }, 1500);
+  });
+}
+
+// ── Home / Confirm / Exit ────────────────────────────
+function attemptBusHome(){
+  if(bsFormDirty){ document.getElementById("bsConfirmOverlay").classList.add("open"); }
+  else { goToDashboardFromBus(); }
+}
+function closeConfirm(){ document.getElementById("bsConfirmOverlay").classList.remove("open"); }
+function confirmExit(){
+  document.getElementById("bsConfirmOverlay").classList.remove("open");
   var ov=document.getElementById("bsLoadingOverlay");
   var sp=document.getElementById("bsSpinner");
   var tx=document.getElementById("bsLoadingText");
   var ic=document.getElementById("bsSuccessIcon");
   ov.classList.add("open");
-  sp.style.display="block"; ic.style.display="none"; tx.textContent="Göndərilir...";
-
-  fetch(API_URL,{
-    method:"POST",
-    headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body:JSON.stringify({action:"submitBusService",data:data,userEmail:currentUser?currentUser.email:""})
-  })
-  .then(function(r){return r.json();})
-  .then(function(result){
-    sp.style.display="none";
-    ic.style.display="flex";
-    tx.textContent=result.status==="OK"?"Göndərildi! "+result.ticketId:"Xəta baş verdi";
-    setTimeout(function(){
-      ov.classList.remove("open");
-      if(result.status==="OK"){
-        bsFormDirty=false;
-        goToDashboardFromBus();
-      }
-    },1800);
-  })
-  .catch(function(e){
-    sp.style.display="none";
-    tx.textContent="Şəbəkə xətası";
-    setTimeout(function(){ ov.classList.remove("open"); },1500);
-  });
+  sp.style.display="block"; ic.style.display="none"; tx.textContent="Gözləyin...";
+  setTimeout(function(){ ov.classList.remove("open"); goToDashboardFromBus(); }, 900);
+}
+function goToDashboardFromBus(){
+  closeAllDD();
+  document.getElementById("busServiceView").style.display="none";
+  document.getElementById("dashboardView").style.display="block";
 }
 
-// Dirty flag — text inputlar üçün
-(function(){
-  var inputs=document.querySelectorAll("#busServiceView input, #busServiceView select, #busServiceView textarea");
+// ── BUS ID: rəqəm only ───────────────────────────────
+document.addEventListener("DOMContentLoaded", function(){
+  var busidEl = document.getElementById("bs_busid");
+  if(busidEl){
+    busidEl.addEventListener("input", function(){
+      this.value = this.value.replace(/[^0-9]/g,"");
+      bsFormDirty = true;
+    });
+  }
+});
+
+// ── Marşrut: böyük hərf ──────────────────────────────
+document.addEventListener("DOMContentLoaded", function(){
+  var routeEl = document.getElementById("bs_route");
+  if(routeEl){
+    routeEl.addEventListener("input", function(){
+      var pos = this.selectionStart;
+      this.value = this.value.toUpperCase();
+      this.setSelectionRange(pos, pos);
+      bsFormDirty = true;
+    });
+  }
+});
+
+// ── D.Q.N. avtomatik format ──────────────────────────
+document.addEventListener("DOMContentLoaded", function(){
+  var plateEl = document.getElementById("bs_plate");
+  if(!plateEl) return;
+  plateEl.addEventListener("input", function(e){
+    var raw = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g,"");
+    if(raw.length > 8) raw = raw.slice(0,8);
+    var result = "";
+    if(raw.length <= 2) result = raw.replace(/[^0-9]/g,"").slice(0,2);
+    else if(raw.length <= 4){ var d1=raw.slice(0,2).replace(/[^0-9]/g,""); var l=raw.slice(2).replace(/[^A-Z]/g,"").slice(0,2); result=d1+(d1.length===2?"-":"")+l; }
+    else { var d1=raw.slice(0,2).replace(/[^0-9]/g,""); var l=raw.slice(2,4).replace(/[^A-Z]/g,"").slice(0,2); var d2=raw.slice(4).replace(/[^0-9]/g,"").slice(0,3); result=d1; if(d1.length===2)result+="-"; result+=l; if(l.length===2)result+="-"; result+=d2; }
+    e.target.value = result;
+    e.target.setSelectionRange(result.length, result.length);
+    bsFormDirty = true;
+  });
+  plateEl.addEventListener("paste", function(){ setTimeout(function(){ plateEl.dispatchEvent(new Event("input")); },0); });
+});
+
+// ── Enter → Tab ──────────────────────────────────────
+document.addEventListener("keydown", function(e){
+  if(e.key !== "Enter") return;
+  var view = document.getElementById("busServiceView");
+  if(!view || view.style.display === "none") return;
+  var active = document.activeElement;
+  if(!active || active.tagName === "BUTTON" || active.tagName === "TEXTAREA") return;
+  e.preventDefault();
+  var focusable = Array.from(view.querySelectorAll('input:not([type="hidden"]), select, textarea, button:not([tabindex="-1"])')).filter(function(el){ return !el.disabled && el.offsetParent !== null; });
+  var idx = focusable.indexOf(active);
+  if(idx !== -1 && idx < focusable.length-1) focusable[idx+1].focus();
+});
+
+// ── Dirty flag ───────────────────────────────────────
+document.addEventListener("DOMContentLoaded", function(){
+  var inputs = document.querySelectorAll("#busServiceView input, #busServiceView select, #busServiceView textarea");
   inputs.forEach(function(el){
     el.addEventListener("input",function(){bsFormDirty=true;});
     el.addEventListener("change",function(){bsFormDirty=true;});
   });
-})();
-
-// ── Marşrut nömrəsi: böyük hərf, auto-tire (NN-AA-NNN) ─────────────────────
-(function(){
-  var routeEl = document.getElementById("bs_route");
-  if(!routeEl) return;
-  routeEl.addEventListener("input", function(e){
-    var raw = e.target.value.toUpperCase();
-    // Tire mövqelərini qoru: ikinci simvoldan sonra hərf varsa tire qoy
-    // Format: rəqəm+hərf qarışığı, sadə böyük hərf kifayət
-    e.target.value = raw;
-    bsFormDirty = true;
-  });
-})();
-
-// ── Saat inputu: hər platformada 24h məcbur et ──────────────────────────────
-(function(){
-  // Bəzi Chrome versiyalarında type=time locale-ə görə AM/PM göstərir.
-  // Bunu aradan qaldırmaq üçün value-nu daima HH:MM formatında saxlayırıq.
-  var timeInputs = document.querySelectorAll("#busServiceView input[type='time']");
-  timeInputs.forEach(function(el){
-    el.addEventListener("change", function(){
-      // value həmişə HH:MM formatındadır (brauzerin daxili formatı)
-      // Göstərişi məcburi 24h etmək üçün heç bir əlavə lazım deyil
-      // amma placeholder kimi göstərmək üçün:
-      if(el.value){
-        var parts = el.value.split(":");
-        if(parts.length===2){
-          el.setAttribute("data-24h", parts[0]+":"+parts[1]);
-        }
-      }
-    });
-  });
-})();
-
-// ── D.Q.N. avtomatik format: 90-AA-587 ──────────────────────────────────────
-(function(){
-  var plateEl = document.getElementById("bs_plate");
-  if(!plateEl) return;
-
-  plateEl.addEventListener("input", function(e){
-    // Yalnız icazəli simvolları saxla: rəqəm və hərf
-    var raw = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, "");
-
-    var result = "";
-
-    if(raw.length === 0){
-      result = "";
-    } else if(raw.length <= 2){
-      // İlk iki rəqəm: yalnız rəqəm
-      result = raw.replace(/[^0-9]/g,"").slice(0,2);
-    } else if(raw.length <= 4){
-      // 3-4: hərf hissəsi
-      var digits1 = raw.slice(0,2).replace(/[^0-9]/g,"");
-      var letters = raw.slice(2).replace(/[^A-Z]/g,"").slice(0,2);
-      result = digits1 + (digits1.length===2 ? "-" : "") + letters;
-    } else {
-      // 5+: son rəqəmlər
-      var digits1 = raw.slice(0,2).replace(/[^0-9]/g,"");
-      var letters = raw.slice(2,4).replace(/[^A-Z]/g,"").slice(0,2);
-      var digits2 = raw.slice(4).replace(/[^0-9]/g,"").slice(0,3);
-      result = digits1;
-      if(digits1.length===2) result += "-";
-      result += letters;
-      if(letters.length===2) result += "-";
-      result += digits2;
-    }
-
-    // Kursor pozisiyasını itirmədən yenilə
-    var cursor = e.target.selectionStart;
-    e.target.value = result;
-    // Kursoru sona qoy (mobil üçün ən rahat)
-    e.target.setSelectionRange(result.length, result.length);
-    bsFormDirty = true;
-  });
-
-  // Yapışdırılanda da işləsin
-  plateEl.addEventListener("paste", function(e){
-    setTimeout(function(){ plateEl.dispatchEvent(new Event("input")); }, 0);
-  });
-})();
+});
 
 </script>
 </body>
