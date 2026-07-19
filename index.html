@@ -237,6 +237,12 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
 
 .bs-row { display:flex; gap:10px; }
 .bs-row > * { flex:1; min-width:0; }
+.bs-date-time-row {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.bs-date-time-row .bs-field { margin-bottom:0; }
 
 .bs-field { margin-bottom:12px; }
 .bs-field:last-child { margin-bottom:0; }
@@ -309,8 +315,8 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
   line-height:1.35;
 }
 .bs-picker-btn span { font-size:14px; font-weight:400; font-family:'Inter',sans-serif; }
-.bs-picker-btn.filled { color:#12233B; }
-.bs-picker-btn.filled span { color:#12233B; font-weight:400; }
+.bs-picker-btn.filled { color:#12233B !important; }
+.bs-picker-btn.filled span { color:#12233B !important; font-weight:400 !important; font-size:14px !important; }
 .bs-picker-btn:focus { border-color:#4E93FA; outline:none; }
 .bs-picker-btn svg { flex-shrink:0; margin-left:6px; }
 
@@ -796,14 +802,12 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
     <!-- Tarix / Saat -->
     <div class="bs-section">
       <div class="bs-section-title">Müraciət məlumatları</div>
-      <div class="bs-row" style="flex-wrap:nowrap;align-items:flex-start;gap:8px;">
-        <div class="bs-field" style="flex:0 0 auto;width:150px;min-width:0;">
+      <div class="bs-date-time-row">
+        <div class="bs-field">
           <label class="bs-label">Tarix *</label>
-          <div style="position:relative;">
-            <input type="date" id="bs_date" class="bs-input" style="padding:10px 6px;font-size:12px;width:100%;">
-          </div>
+          <input type="date" id="bs_date" class="bs-input" style="width:100%;padding:10px 8px;font-size:13px;">
         </div>
-        <div class="bs-field" style="flex:1;min-width:0;">
+        <div class="bs-field">
           <label class="bs-label">Saat *</label>
           <div class="bs-inline-dd" id="bs_time_wrap" style="position:relative;">
             <button type="button" class="bs-picker-btn" id="bs_time_btn" onclick="toggleTimeDD()">
@@ -847,7 +851,7 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
         </div>
         <div class="bs-field">
           <label class="bs-label">BUS ID *</label>
-          <input type="text" id="bs_busid" class="bs-input" placeholder="ID" inputmode="numeric" pattern="[0-9]*">
+          <input type="text" id="bs_busid" class="bs-input" placeholder="ID" inputmode="numeric" pattern="[0-9]*" maxlength="5">
         </div>
       </div>
       <div class="bs-field">
@@ -1338,7 +1342,9 @@ function selectDDItem(key, item){
     var lblEl = document.getElementById(meta.lbl);
     if(lblEl){
       lblEl.textContent = item;
-      lblEl.style.color = "";
+      lblEl.style.color = "#12233B";
+      lblEl.style.fontSize = "14px";
+      lblEl.style.fontWeight = "400";
       lblEl.classList.add("filled");
     }
     if(meta.onSelect) meta.onSelect(item);
@@ -1352,7 +1358,9 @@ function updateMultiLabel(key){
   var lblEl = document.getElementById(meta.lbl);
   if(lblEl){
     lblEl.textContent = arr.length ? arr.length + " seçim" : "Seçin (çoxlu seçim)";
-    lblEl.style.color = arr.length ? "" : "#9AACC4";
+    lblEl.style.color = arr.length ? "#12233B" : "#9AACC4";
+    lblEl.style.fontSize = "14px";
+    lblEl.style.fontWeight = "400";
     if(arr.length) lblEl.classList.add("filled");
     else lblEl.classList.remove("filled");
   }
@@ -1481,7 +1489,13 @@ function applyTime(which){
   var lblId = which==="main" ? "bs_time_lbl" : "bs_"+which+"_lbl";
   var ddId  = which==="main" ? "bs_time_dd"  : "bs_"+which+"_dd";
   var lbl = document.getElementById(lblId);
-  if(lbl){ lbl.textContent=str; lbl.style.color=""; lbl.classList.add("filled"); }
+  if(lbl){ 
+    lbl.textContent=str; 
+    lbl.style.color="#12233B"; 
+    lbl.style.fontSize="14px";
+    lbl.style.fontFamily="IBM Plex Mono,monospace";
+    lbl.classList.add("filled"); 
+  }
   var dd = document.getElementById(ddId);
   if(dd) dd.style.display="none";
   activeTimePicker = null;
@@ -1533,12 +1547,10 @@ function preloadBusData(callback){
       var tid = d.nextTicketId || "BUS-00001";
       bsNextTicketId = tid;
     }
-    // Minimum 1.5 saniyə göstər ki texnik görüb qəbul etsin
-    setTimeout(callback, 1500);
+    setTimeout(callback, 800);
   })
   .catch(function(){
-    // Xəta olsa da davam et
-    setTimeout(callback, 1500);
+    setTimeout(callback, 800);
   });
 }
 
@@ -1565,6 +1577,8 @@ function openBusService(){
     if(el){
       el.textContent = k==="tech2" ? "Seçin (könüllü)" : k==="solution" ? "Seçin (çoxlu seçim)" : "Seçin";
       el.style.color = "#9AACC4";
+      el.style.fontSize = "";
+      el.style.fontWeight = "";
       el.classList.remove("filled");
     }
     closeDD(k);
@@ -1739,7 +1753,7 @@ document.addEventListener("DOMContentLoaded", function(){
   var busidEl = document.getElementById("bs_busid");
   if(busidEl){
     busidEl.addEventListener("input", function(){
-      this.value = this.value.replace(/[^0-9]/g,"");
+      this.value = this.value.replace(/[^0-9]/g,"").slice(0,5);
       bsFormDirty = true;
     });
   }
