@@ -631,178 +631,185 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
   z-index:40;
   flex-direction:column;
 }
-
 .rpt-header {
   background:#FFFFFF;
-  border-bottom:1px solid #E1EAF6;
+  border-bottom:1px solid #DCE6F5;
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  padding:12px 20px;
-  padding-top:calc(12px + env(safe-area-inset-top));
+  gap:12px;
+  padding:10px 16px;
+  padding-top:calc(10px + env(safe-area-inset-top));
   flex-shrink:0;
 }
-
-.rpt-title {
+.rpt-header-title {
   font-family:'Rajdhani',sans-serif;
   font-weight:700;
-  font-size:18px;
+  font-size:17px;
   letter-spacing:1px;
   color:#12233B;
   text-transform:uppercase;
+  flex:1;
 }
-.rpt-title span { color:#2F6FED; }
-
+.rpt-header-title span { color:#2F6FED; }
 .rpt-toolbar {
   display:flex;
   align-items:center;
-  gap:10px;
-  padding:12px 20px;
+  gap:8px;
+  padding:8px 16px;
   background:#FFFFFF;
-  border-bottom:1px solid #E1EAF6;
+  border-bottom:1px solid #DCE6F5;
   flex-shrink:0;
-  flex-wrap:wrap;
 }
-
-.rpt-search {
-  flex:1;
-  min-width:200px;
-  padding:8px 12px;
-  border:1.5px solid #DCE6F5;
-  border-radius:9px;
-  font-size:13px;
-  font-family:'Inter',sans-serif;
-  color:#12233B;
-  background:#F8FAFD;
-  outline:none;
-}
-.rpt-search:focus { border-color:#4E93FA; }
-
-.rpt-btn {
+.rpt-search-wrap {
   display:flex;
   align-items:center;
   gap:6px;
-  padding:8px 14px;
-  border-radius:9px;
+  background:#F0F5FC;
+  border:1px solid #DCE6F5;
+  border-radius:8px;
+  padding:5px 10px;
+  cursor:pointer;
+  transition:background .15s;
+}
+.rpt-search-wrap:hover { background:#E6F1FB; border-color:#4E93FA; }
+.rpt-search-input {
   border:none;
-  font-size:13px;
+  background:transparent;
+  font-size:12px;
+  font-family:'Inter',sans-serif;
+  color:#12233B;
+  outline:none;
+  width:180px;
+}
+.rpt-search-input::placeholder { color:#9AACC4; }
+.rpt-info { font-size:12px; color:#8CA0BC; margin-left:auto; white-space:nowrap; }
+.rpt-btn {
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:6px 12px;
+  border-radius:8px;
+  border:none;
+  font-size:12px;
   font-weight:600;
   font-family:'Inter',sans-serif;
   cursor:pointer;
-  transition:opacity .15s;
-}
-.rpt-btn:active { opacity:.8; }
-.rpt-btn-refresh { background:#E6F1FB; color:#1B4A8A; }
-.rpt-btn-export  { background:#2F6FED; color:#FFFFFF; }
-
-.rpt-info {
-  font-size:12px;
-  color:#8CA0BC;
   white-space:nowrap;
 }
+.rpt-btn-refresh { background:#E6F1FB; color:#1B4A8A; }
+.rpt-btn-refresh:hover { background:#D0E7F8; }
+.rpt-btn-export  { background:#2F6FED; color:#FFFFFF; }
+.rpt-btn-export:hover { background:#1B5BD4; }
 
 .rpt-table-wrap {
   flex:1;
   overflow:auto;
-  padding:0;
+  -webkit-overflow-scrolling:touch;
 }
 
 .rpt-table {
   border-collapse:collapse;
+  font-size:13px;
+  font-family:'Inter',sans-serif;
   width:max-content;
   min-width:100%;
-  font-size:12px;
-  font-family:'Inter',sans-serif;
-  border:1px solid #C8D8EE;
 }
 
-.rpt-table th {
-  background:#E6F1FB;
-  color:#1B4A8A;
-  font-weight:700;
+/* Başlıq sətri */
+.rpt-table thead tr.rpt-head-row th {
+  background:#1B4A8A;
+  color:#FFFFFF;
+  font-weight:600;
   font-size:11px;
   text-transform:uppercase;
-  letter-spacing:.4px;
-  padding:9px 10px;
-  border:1px solid #C8D8EE;
+  letter-spacing:.5px;
+  padding:0;
   white-space:nowrap;
+  border-right:1px solid #2F6FED;
+  border-bottom:2px solid #0C3870;
   position:sticky;
   top:0;
   z-index:2;
-  text-align:center;
 }
-
-.rpt-table th:first-child {
-  position:sticky;
-  left:0;
-  z-index:3;
-  background:#D4E8FA;
-  text-align:left;
+.rpt-th-inner {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  padding:9px 10px;
 }
+.rpt-th-inner span { flex:1; }
+.rpt-filter-icon {
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:rgba(255,255,255,0.6);
+  padding:2px;
+  border-radius:4px;
+  display:flex;
+  align-items:center;
+  flex-shrink:0;
+  transition:color .15s, background .15s;
+}
+.rpt-filter-icon:hover { color:#fff; background:rgba(255,255,255,0.15); }
+.rpt-filter-icon.active { color:#FFD700; }
 
-.rpt-filter-row th {
-  background:#F0F6FF;
+/* Sütun filtir satırı - gizli, açıldıqda görünür */
+.rpt-table thead tr.rpt-filter-row { display:none; }
+.rpt-table thead tr.rpt-filter-row.visible { display:table-row; }
+.rpt-table thead tr.rpt-filter-row th {
+  background:#E6F1FB;
   padding:4px 6px;
+  border-bottom:1px solid #DCE6F5;
+  border-right:1px solid #DCE6F5;
   position:sticky;
-  top:36px;
+  top:37px;
   z-index:2;
-  border:1px solid #C8D8EE;
 }
-.rpt-filter-row th:first-child {
-  position:sticky;
-  left:0;
-  z-index:3;
-  background:#E8F2FB;
-}
-
 .rpt-col-filter {
   width:100%;
-  padding:3px 7px;
+  padding:4px 7px;
   border:1px solid #C8D8EE;
-  border-radius:4px;
+  border-radius:5px;
   font-size:11px;
   font-family:'Inter',sans-serif;
   background:#FFFFFF;
   color:#12233B;
   outline:none;
-  min-width:70px;
+  min-width:60px;
   box-sizing:border-box;
 }
-.rpt-col-filter:focus { border-color:#4E93FA; background:#F8FAFD; }
+.rpt-col-filter:focus { border-color:#4E93FA; }
+
+/* Data sətirləri */
+.rpt-table tbody tr { border-bottom:1px solid #DCE6F5; }
+.rpt-table tbody tr:nth-child(odd)  td { background:#FFFFFF; }
+.rpt-table tbody tr:nth-child(even) td { background:#F4F8FD; }
+.rpt-table tbody tr:hover td { background:#DFF0FF !important; }
 
 .rpt-table td {
-  padding:7px 10px;
-  border:1px solid #DCE6F5;
+  padding:8px 10px;
+  border-right:1px solid #DCE6F5;
   color:#12233B;
   white-space:nowrap;
-  max-width:200px;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  font-size:12px;
   vertical-align:middle;
 }
-
-.rpt-table tbody tr:nth-child(even) td { background:#F8FAFD; }
-.rpt-table tbody tr:nth-child(odd) td { background:#FFFFFF; }
-
-.rpt-table td:first-child {
-  position:sticky;
-  left:0;
-  background:#F0F7FF;
+.rpt-table td.rpt-td-id {
   font-family:'IBM Plex Mono',monospace;
   font-weight:700;
   font-size:11px;
   color:#2F6FED;
-  border-right:2px solid #C8D8EE;
-  z-index:1;
 }
-
-.rpt-table tbody tr:nth-child(even) td:first-child { background:#E8F3FF; }
-.rpt-table tr:hover td { background:#EEF6FF !important; }
-.rpt-table tr:hover td:first-child { background:#DFF0FF !important; }
+.rpt-table td.rpt-td-long {
+  max-width:200px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 
 .rpt-status-aciq {
   display:inline-block;
-  padding:2px 10px;
+  padding:2px 8px;
   background:#D1FAE5;
   color:#065F46;
   border-radius:4px;
@@ -811,45 +818,60 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
   border:1px solid #6EE7B7;
 }
 
-.rpt-empty {
-  text-align:center;
-  padding:60px 20px;
-  color:#8CA0BC;
-  font-size:14px;
-}
-
-.rpt-loading {
+/* Paginasiya */
+.rpt-pagination {
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
-  padding:60px;
-  gap:16px;
-  color:#5C7089;
-  font-size:14px;
+  gap:6px;
+  padding:10px 16px;
+  background:#FFFFFF;
+  border-top:1px solid #DCE6F5;
+  flex-shrink:0;
 }
+.rpt-page-btn {
+  width:32px; height:32px;
+  border-radius:7px;
+  border:1px solid #DCE6F5;
+  background:#F8FAFD;
+  color:#12233B;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background .15s;
+}
+.rpt-page-btn:hover { background:#E6F1FB; border-color:#4E93FA; }
+.rpt-page-btn.active { background:#2F6FED; color:#fff; border-color:#2F6FED; }
+.rpt-page-btn:disabled { opacity:.4; cursor:default; }
+.rpt-page-info { font-size:12px; color:#5C7089; padding:0 6px; }
+
+.rpt-empty { text-align:center; padding:48px 20px; color:#8CA0BC; font-size:14px; }
+.rpt-loading { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px; gap:14px; color:#5C7089; font-size:13px; }
 
 /* Dark mode */
 body.dark-mode #busReportView { background:#0F1826; }
 body.dark-mode .rpt-header,
-body.dark-mode .rpt-toolbar { background:#141F30; border-color:#4A6182; }
-body.dark-mode .rpt-title { color:#E8EEF5; }
-body.dark-mode .rpt-search { background:#1C2A3D; border-color:#4A6182; color:#E8EEF5; }
+body.dark-mode .rpt-toolbar,
+body.dark-mode .rpt-pagination { background:#141F30; border-color:#4A6182; }
+body.dark-mode .rpt-header-title { color:#E8EEF5; }
+body.dark-mode .rpt-search-wrap { background:#1C2A3D; border-color:#4A6182; }
+body.dark-mode .rpt-search-wrap:hover { background:#25374F; }
+body.dark-mode .rpt-search-input { color:#E8EEF5; }
 body.dark-mode .rpt-info { color:#5C7089; }
-body.dark-mode .rpt-table { border-color:#4A6182; }
-body.dark-mode .rpt-table th { background:#1C2A3D; color:#8CA0BC; border-color:#4A6182; }
-body.dark-mode .rpt-table th:first-child { background:#16212E; }
-body.dark-mode .rpt-filter-row th { background:#141F30; border-color:#4A6182; }
-body.dark-mode .rpt-filter-row th:first-child { background:#1C2A3D; }
-body.dark-mode .rpt-col-filter { background:#1C2A3D; border-color:#4A6182; color:#E8EEF5; }
-body.dark-mode .rpt-table tbody tr:nth-child(even) td { background:#16212E; }
-body.dark-mode .rpt-table tbody tr:nth-child(odd) td { background:#141F30; }
-body.dark-mode .rpt-table td { color:#E8EEF5; border-color:#2A3B52; }
-body.dark-mode .rpt-table td:first-child { background:#1C2A3D !important; color:#8FB4EA; border-color:#4A6182; }
-body.dark-mode .rpt-table tbody tr:nth-child(even) td:first-child { background:#16212E !important; }
-body.dark-mode .rpt-table tr:hover td { background:#25374F !important; }
-body.dark-mode .rpt-table tr:hover td:first-child { background:#2E4566 !important; }
 body.dark-mode .rpt-btn-refresh { background:#1C2A3D; color:#8FB4EA; }
+body.dark-mode .rpt-table thead tr.rpt-head-row th { background:#0C3870; border-color:#1B4A8A; }
+body.dark-mode .rpt-table thead tr.rpt-filter-row th { background:#1C2A3D; border-color:#4A6182; }
+body.dark-mode .rpt-col-filter { background:#141F30; border-color:#4A6182; color:#E8EEF5; }
+body.dark-mode .rpt-table tbody tr:nth-child(odd)  td { background:#141F30; }
+body.dark-mode .rpt-table tbody tr:nth-child(even) td { background:#16212E; }
+body.dark-mode .rpt-table tbody tr:hover td { background:#25374F !important; }
+body.dark-mode .rpt-table td { color:#E8EEF5; border-color:#2A3B52; }
+body.dark-mode .rpt-page-btn { background:#1C2A3D; border-color:#4A6182; color:#E8EEF5; }
+body.dark-mode .rpt-page-btn:hover { background:#25374F; }
+body.dark-mode .rpt-page-btn.active { background:#2F6FED; color:#fff; }
 
 </style>
 </head>
@@ -1031,30 +1053,43 @@ body.dark-mode .rpt-btn-refresh { background:#1C2A3D; color:#8FB4EA; }
 
   <div class="rpt-header">
     <button onclick="closeBusReport()" class="bs-home-btn" aria-label="Geri">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
     </button>
-    <div class="rpt-title">BUS <span>Real-Time</span> Report</div>
-    <div style="width:32px;"></div>
+    <div class="rpt-header-title">BUS <span>Real-Time</span> Report</div>
   </div>
 
   <div class="rpt-toolbar">
-    <input type="text" class="rpt-search" id="rptGlobalSearch" placeholder="🔍 Bütün sütunlarda axtar..." oninput="applyFilters()">
+    <div class="rpt-search-wrap" onclick="document.getElementById('rptGlobalSearch').focus()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5C7089" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" class="rpt-search-input" id="rptGlobalSearch" placeholder="Axtar..." onkeydown="if(event.key==='Enter')applyFilters()" oninput="applyFilters()">
+    </div>
     <span class="rpt-info" id="rptCount">— sətir</span>
     <button class="rpt-btn rpt-btn-refresh" onclick="loadReportData()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
       Yenilə
     </button>
     <button class="rpt-btn rpt-btn-export" onclick="exportToExcel()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Excel
     </button>
   </div>
 
-  <div class="rpt-table-wrap">
+  <div class="rpt-table-wrap" id="rptTableWrap">
     <div id="rptContent" class="rpt-loading">
       <div class="spinner" style="width:40px;height:40px;border-width:4px;"></div>
       <span>Məlumatlar yüklənir...</span>
     </div>
+  </div>
+
+  <div class="rpt-pagination" id="rptPagination" style="display:none;">
+    <button class="rpt-page-btn" id="rptPrevBtn" onclick="rptChangePage(-1)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div id="rptPageBtns" style="display:flex;gap:4px;"></div>
+    <button class="rpt-page-btn" id="rptNextBtn" onclick="rptChangePage(1)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <span class="rpt-page-info" id="rptPageInfo"></span>
   </div>
 
 </div>
@@ -1477,9 +1512,9 @@ if("serviceWorker" in navigator){ navigator.serviceWorker.register("service-work
 var savedUser=loadSession(); if(savedUser){currentUser=savedUser;showDashboard();}
 try{ var savedTheme=localStorage.getItem("ctech_theme"); if(savedTheme==="dark"){applyTheme(true);} }catch(e){}
 
-// ═══════════════════════════════════════════════════
-// BUS SERVICE — İNLİNE DROPDOWN SİSTEMİ
-// ═══════════════════════════════════════════════════
+// ===================================================
+// BUS SERVICE - İNLİNE DROPDOWN SİSTEMİ
+// ===================================================
 
 var bsFormData = {};
 var bsFormDirty = false;
@@ -1489,7 +1524,7 @@ var bsSelected = {
 };
 var activeDDKey = null; // hal-hazırda açıq olan dropdown
 
-// ── Dropdown meta ────────────────────────────────────
+// -- Dropdown meta ------------------------------------
 var ddMeta = {
   carrier:   { lbl:"bs_carrier_lbl",   list:"dd_carrier_list",   multi:false, onSelect: null },
   brand:     { lbl:"bs_brand_lbl",     list:"dd_brand_list",     multi:false, onSelect: null },
@@ -1503,7 +1538,7 @@ var ddMeta = {
   leader:    { lbl:"bs_leader_lbl",    list:"dd_leader_list",    multi:false, onSelect: null }
 };
 
-// ── DD aç/qapat ─────────────────────────────────────
+// -- DD aç/qapat -------------------------------------
 function toggleDD(key){
   if(activeDDKey && activeDDKey !== key){ closeDD(activeDDKey); }
   var listEl = document.getElementById("dd_" + key + "_list");
@@ -1543,7 +1578,7 @@ document.addEventListener("click", function(e){
   }
 });
 
-// ── DD siyahısını render et ──────────────────────────
+// -- DD siyahısını render et --------------------------
 function renderDD(key){
   var meta = ddMeta[key];
   var listEl = document.getElementById(meta.list);
@@ -1601,7 +1636,7 @@ function getListForKey(key){
   return map[key] || [];
 }
 
-// ── Seçim et ────────────────────────────────────────
+// -- Seçim et ----------------------------------------
 function selectDDItem(key, item){
   var meta = ddMeta[key];
   bsFormDirty = true;
@@ -1642,7 +1677,7 @@ function updateMultiLabel(key){
   }
 }
 
-// ── Xüsusi onSelect callback-lər ────────────────────
+// -- Xüsusi onSelect callback-lər --------------------
 function onProblemSelect(item){
   var isDigar = item.toLowerCase().indexOf("digər") !== -1;
   document.getElementById("bs_note_wrap").style.display = isDigar ? "block" : "none";
@@ -1670,12 +1705,12 @@ function updateSolutionChips(){
   arr.forEach(function(a){
     var c = document.createElement("span");
     c.className = "bs-chip";
-    c.textContent = a.length > 32 ? a.slice(0,32)+"…" : a;
+    c.textContent = a.length > 32 ? a.slice(0,32)+"..." : a;
     chips.appendChild(c);
   });
 }
 
-// ── Saat picker (universal) ──────────────────────────
+// -- Saat picker (universal) --------------------------
 // state: { main, start, end }
 var timeState = {
   main:  { h:-1, m:-1 },
@@ -1792,13 +1827,13 @@ function getTimeValue(){
   return lbl.textContent;
 }
 
-// ── fillDD: API datası gəldikdə siyahıları hazırla ──
+// -- fillDD: API datası gəldikdə siyahıları hazırla --
 function fillAllDDs(data){
   bsFormData = data;
   // Sistemlər burdaca dolsun ki cavabsız qalmasın
 }
 
-// ── Form açılışı ─────────────────────────────────────
+// -- Form açılışı -------------------------------------
 function startBusService(){
   // Overlay göstər
   var ov = document.getElementById("busOpenOverlay");
@@ -1892,7 +1927,7 @@ function openBusService(){
   }
 }
 
-// ── API: form data yüklə ─────────────────────────────
+// -- API: form data yüklə -----------------------------
 function loadBusFormData(){
   fetch(API_URL, {
     method:"POST",
@@ -1925,7 +1960,7 @@ function loadBusFormData(){
   });
 }
 
-// ── Submit ───────────────────────────────────────────
+// -- Submit -------------------------------------------
 function submitBusService(){
   if(!document.getElementById("bs_date").value){ alert("Tarix daxil edin"); return; }
   if(getTimeValue()===""){ alert("Saat seçin"); return; }
@@ -2007,7 +2042,7 @@ function submitBusService(){
   });
 }
 
-// ── Home / Confirm / Exit ────────────────────────────
+// -- Home / Confirm / Exit ----------------------------
 function attemptBusHome(){
   if(bsFormDirty){ document.getElementById("bsConfirmOverlay").classList.add("open"); }
   else { goToDashboardFromBus(); }
@@ -2029,7 +2064,7 @@ function goToDashboardFromBus(){
   document.getElementById("dashboardView").style.display="block";
 }
 
-// ── BUS ID: rəqəm only ───────────────────────────────
+// -- BUS ID: rəqəm only -------------------------------
 document.addEventListener("DOMContentLoaded", function(){
   var busidEl = document.getElementById("bs_busid");
   if(busidEl){
@@ -2040,7 +2075,7 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 });
 
-// ── Marşrut: böyük hərf ──────────────────────────────
+// -- Marşrut: böyük hərf ------------------------------
 document.addEventListener("DOMContentLoaded", function(){
   var routeEl = document.getElementById("bs_route");
   if(routeEl){
@@ -2053,7 +2088,7 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 });
 
-// ── D.Q.N. avtomatik format ──────────────────────────
+// -- D.Q.N. avtomatik format --------------------------
 document.addEventListener("DOMContentLoaded", function(){
   var plateEl = document.getElementById("bs_plate");
   if(!plateEl) return;
@@ -2071,7 +2106,7 @@ document.addEventListener("DOMContentLoaded", function(){
   plateEl.addEventListener("paste", function(){ setTimeout(function(){ plateEl.dispatchEvent(new Event("input")); },0); });
 });
 
-// ── Enter → Tab (yalnız BUS Service formasında) ─────
+// -- Enter -> Tab (yalnız BUS Service formasında) -----
 document.addEventListener("keydown", function(e){
   if(e.key !== "Enter") return;
   var view = document.getElementById("busServiceView");
@@ -2086,7 +2121,7 @@ document.addEventListener("keydown", function(e){
   if(idx !== -1 && idx < focusable.length-1) focusable[idx+1].focus();
 });
 
-// ── Dirty flag ───────────────────────────────────────
+// -- Dirty flag ---------------------------------------
 document.addEventListener("DOMContentLoaded", function(){
   var inputs = document.querySelectorAll("#busServiceView input, #busServiceView select, #busServiceView textarea");
   inputs.forEach(function(el){
@@ -2096,26 +2131,29 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 
 
-// ═══════════════════════════════════════════════════
+// ===================================================
 // BUS REAL-TIME REPORT
-// ═══════════════════════════════════════════════════
+// ===================================================
 
-var rptAllRows = [];      // bütün data
-var rptColumns = [];      // sütun adları
-var rptFiltered = [];     // filtirdən keçmiş data
-var rptColFilters = {};   // hər sütun üçün filter dəyəri
+var rptAllRows    = [];
+var rptColumns    = [];
+var rptFiltered   = [];
+var rptColFilters = {};
 var rptAutoRefresh = null;
+var rptPage       = 1;
+var rptPageSize   = 20;
+var rptActiveFilterCol = null; // hansı sütunun filteri açıqdır
 
 function openBusReport(){
   document.getElementById("dashboardView").style.display = "none";
-  var view = document.getElementById("busReportView");
-  view.style.display = "flex";
+  document.getElementById("busReportView").style.display = "flex";
   rptColFilters = {};
+  rptPage = 1;
+  rptActiveFilterCol = null;
   document.getElementById("rptGlobalSearch").value = "";
   loadReportData();
-  // Hər 30 saniyədə avtomatik yenilə
   if(rptAutoRefresh) clearInterval(rptAutoRefresh);
-  rptAutoRefresh = setInterval(loadReportData, 30000);
+  rptAutoRefresh = setInterval(loadReportData, 120000); // 2 dəqiqə
 }
 
 function closeBusReport(){
@@ -2126,142 +2164,195 @@ function closeBusReport(){
 
 function loadReportData(){
   document.getElementById("rptContent").innerHTML =
-    '<div class="rpt-loading"><div class="spinner" style="width:40px;height:40px;border-width:4px;"></div><span>Yüklənir...</span></div>';
+    '<div class="rpt-loading"><div class="spinner" style="width:36px;height:36px;border-width:4px;"></div><span>Yüklənir...</span></div>';
+  document.getElementById("rptPagination").style.display = "none";
 
-  fetch(API_URL, {
+  fetch(API_URL,{
     method:"POST",
     headers:{"Content-Type":"text/plain;charset=utf-8"},
     body:JSON.stringify({action:"getReportData"})
   })
-  .then(function(r){ return r.json(); })
+  .then(function(r){return r.json();})
   .then(function(d){
-    if(d.status !== "OK"){
-      document.getElementById("rptContent").innerHTML =
-        '<div class="rpt-empty">Xəta: ' + (d.message||"məlumat gəlmədi") + '</div>';
+    if(d.status!=="OK"){
+      document.getElementById("rptContent").innerHTML='<div class="rpt-empty">Xəta: '+(d.message||"məlumat gəlmədi")+'</div>';
       return;
     }
-    rptAllRows = d.rows || [];
-    rptColumns = d.columns || [];
+    rptAllRows = d.rows||[];
+    rptColumns = d.columns||[];
+    rptPage = 1;
     applyFilters();
   })
   .catch(function(e){
-    document.getElementById("rptContent").innerHTML =
-      '<div class="rpt-empty">Şəbəkə xətası: ' + e.message + '</div>';
+    document.getElementById("rptContent").innerHTML='<div class="rpt-empty">Şəbəkə xətası: '+e.message+'</div>';
   });
 }
 
 function applyFilters(){
-  var global = (document.getElementById("rptGlobalSearch").value || "").toLowerCase();
-
+  var global=(document.getElementById("rptGlobalSearch").value||"").toLowerCase();
   rptFiltered = rptAllRows.filter(function(row){
-    // Sütun filtirləri
     for(var col in rptColFilters){
-      var fv = rptColFilters[col].toLowerCase();
+      var fv=(rptColFilters[col]||"").toLowerCase();
       if(!fv) continue;
-      var cv = (row[col] || "").toLowerCase();
-      if(cv.indexOf(fv) === -1) return false;
+      if((row[col]||"").toLowerCase().indexOf(fv)===-1) return false;
     }
-    // Qlobal axtarış
     if(global){
-      var found = false;
-      for(var k in row){
-        if((row[k]||"").toLowerCase().indexOf(global) !== -1){ found=true; break; }
-      }
+      var found=false;
+      for(var k in row){ if((row[k]||"").toLowerCase().indexOf(global)!==-1){found=true;break;} }
       if(!found) return false;
     }
     return true;
   });
-
+  rptPage=1;
   renderTable();
 }
 
 function renderTable(){
-  var wrap = document.getElementById("rptContent");
-  document.getElementById("rptCount").textContent = rptFiltered.length + " / " + rptAllRows.length + " sətir";
+  var cols = rptColumns;
+  var total = rptFiltered.length;
+  var totalPages = Math.max(1, Math.ceil(total/rptPageSize));
+  if(rptPage > totalPages) rptPage = totalPages;
 
-  if(rptFiltered.length === 0){
-    wrap.innerHTML = '<div class="rpt-empty">Məlumat tapılmadı</div>';
+  var start = (rptPage-1) * rptPageSize;
+  var pageRows = rptFiltered.slice(start, start + rptPageSize);
+
+  document.getElementById("rptCount").textContent =
+    rptFiltered.length + " / " + rptAllRows.length + " setir";
+
+  if(total === 0){
+    document.getElementById("rptContent").innerHTML = '<div class="rpt-empty">Melumat tapilmadi</div>';
+    document.getElementById("rptPagination").style.display = "none";
     return;
   }
 
-  var cols = rptColumns;
-
-  // Hər sütun üçün en (px)
-  var colWidths = {
-    "Ticket ID":     88,
-    "Tarix":         88,
-    "Saat":          52,
-    "Daşıyıcı":     140,
-    "Marşrut №":     72,
-    "BUS ID":        65,
-    "D.Q.N.":        85,
-    "Marka/Model":   95,
-    "Sistem":        60,
-    "Problem":      190,
-    "Həll":         190,
-    "Servis Kat.":   90,
-    "Köhnə SN":      95,
-    "Yeni SN":       95,
-    "Başlanğıc":     72,
-    "Bitiş":         72,
-    "Servis yeri":  120,
-    "Müraciət edən":130,
-    "Telefon":      100,
-    "1. Texnik":    115,
-    "2. Texnik":    115,
-    "Qrup rəhbəri": 115,
-    "Status":        70,
-    "Qeyd":         150
+  var cw = {
+    "Ticket ID":95, "Tarix":90, "Saat":52, "Dasiyici":145, "Marsrut No":72,
+    "BUS ID":65, "D.Q.N.":86, "Marka/Model":95, "Sistem":58,
+    "Problem":195, "Hell":195, "Servis Kat.":92,
+    "Kohne SN":96, "Yeni SN":96, "Baslanqic":74, "Bitis":74,
+    "Servis yeri":120, "Muraciet eden":130, "Telefon":100,
+    "1. Texnik":115, "2. Texnik":115, "Qrup rehberi":115,
+    "Status":70, "Qeyd":150
   };
 
-  var html = '<table class="rpt-table"><colgroup>';
+  var h = '<table class="rpt-table"><colgroup>';
   cols.forEach(function(c){
-    var w = colWidths[c] || 100;
-    html += '<col style="width:' + w + 'px;min-width:' + w + 'px;">';
+    var w = cw[c] || 90;
+    h += '<col style="min-width:' + w + 'px;">';
   });
-  html += '</colgroup><thead>';
+  h += '</colgroup><thead><tr class="rpt-head-row">';
 
-  // Başlıq sətri
-  html += '<tr>';
+  cols.forEach(function(c, ci){
+    var active = (rptColFilters[c] && rptColFilters[c] !== "") ? " active" : "";
+    h += '<th><div class="rpt-th-inner"><span>' + c + '</span>';
+    h += '<button class="rpt-filter-icon' + active + '" onclick="toggleColFilter(' + ci + ')" title="Filtir">';
+    h += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">';
+    h += '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>';
+    h += '</button></div></th>';
+  });
+  h += '</tr><tr class="rpt-filter-row" id="rptFilterRow">';
+
   cols.forEach(function(c){
-    html += '<th>' + c + '</th>';
+    var val = (rptColFilters[c] || "").replace(/"/g, "&quot;");
+    var safeC = c.replace(/"/g, "&quot;");
+    h += '<th><input type="text" class="rpt-col-filter" placeholder="Filtir..." value="' + val + '" data-col="' + safeC + '" oninput="onColFilter(this)"></th>';
   });
-  html += '</tr>';
+  h += '</tr></thead><tbody>';
 
-  // Filter sətri
-  html += '<tr class="rpt-filter-row">';
-  cols.forEach(function(c){
-    var val = rptColFilters[c] || "";
-    html += '<th><input type="text" class="rpt-col-filter" placeholder="Filtir..." value="'
-      + val.replace(/"/g,"&quot;")
-      + '" data-col="' + c.replace(/"/g,"&quot;") + '" oninput="onColFilter(this)"></th>';
-  });
-  html += '</tr></thead><tbody>';
-
-  // Data sətirləri
-  rptFiltered.forEach(function(row){
-    html += '<tr>';
-    cols.forEach(function(c, i){
-      var v = row[c] || "";
+  pageRows.forEach(function(row){
+    h += '<tr>';
+    cols.forEach(function(c){
+      var v = (row[c] || "");
       if(c === "Status"){
-        html += '<td><span class="rpt-status-aciq">' + v + '</span></td>';
-      } else if(i === 0){
-        html += '<td>' + v + '</td>';
+        h += '<td><span class="rpt-status-aciq">' + v + '</span></td>';
+      } else if(c === "Ticket ID"){
+        h += '<td class="rpt-td-id">' + v + '</td>';
+      } else if(c === "Problem" || c === "Hell"){
+        h += '<td class="rpt-td-long" title="' + v.replace(/"/g,"&quot;") + '">' + v + '</td>';
       } else {
-        html += '<td title="' + v.replace(/"/g,"&quot;") + '">' + v + '</td>';
+        h += '<td>' + v + '</td>';
       }
     });
-    html += '</tr>';
+    h += '</tr>';
   });
+  h += '</tbody></table>';
+  document.getElementById("rptContent").innerHTML = h;
 
-  html += '</tbody></table>';
-  wrap.innerHTML = html;
+  if(rptActiveFilterCol !== null){
+    var fr = document.getElementById("rptFilterRow");
+    if(fr) fr.classList.add("visible");
+  }
+
+  renderPagination(totalPages);
+}
+
+function toggleColFilter(colIdx){
+  var col = rptColumns[colIdx];
+  var fr=document.getElementById("rptFilterRow");
+  if(!fr) return;
+  if(rptActiveFilterCol===col){
+    fr.classList.remove("visible");
+    rptActiveFilterCol=null;
+  } else {
+    fr.classList.add("visible");
+    rptActiveFilterCol=col;
+    var safeId="rptFCell_"+col.replace(/[^a-zA-Z0-9]/g,"_");
+    setTimeout(function(){
+      var cell=document.getElementById(safeId);
+      if(cell){ var inp=cell.querySelector("input"); if(inp) inp.focus(); }
+    },50);
+  }
 }
 
 function onColFilter(input){
-  var col = input.getAttribute("data-col");
-  rptColFilters[col] = input.value;
+  var col=input.getAttribute("data-col");
+  rptColFilters[col]=input.value;
   applyFilters();
+}
+
+function renderPagination(totalPages){
+  var pg=document.getElementById("rptPagination");
+  var pi=document.getElementById("rptPageInfo");
+  var pb=document.getElementById("rptPageBtns");
+  if(totalPages<=1){pg.style.display="none";return;}
+  pg.style.display="flex";
+  document.getElementById("rptPrevBtn").disabled=(rptPage===1);
+  document.getElementById("rptNextBtn").disabled=(rptPage===totalPages);
+  pi.textContent=rptPage+" / "+totalPages;
+
+  // Səhifə düymələri: əvvəl, ...cari±2..., son
+  pb.innerHTML="";
+  var pages=[];
+  if(totalPages<=7){
+    for(var i=1;i<=totalPages;i++) pages.push(i);
+  } else {
+    pages=[1];
+    if(rptPage>3) pages.push("...");
+    for(var j=Math.max(2,rptPage-1);j<=Math.min(totalPages-1,rptPage+1);j++) pages.push(j);
+    if(rptPage<totalPages-2) pages.push("...");
+    pages.push(totalPages);
+  }
+  pages.forEach(function(p){
+    if(p==="..."){
+      var sp=document.createElement("span");
+      sp.style.cssText="padding:0 4px;color:#8CA0BC;font-size:12px;align-self:center;";
+      sp.textContent="...";
+      pb.appendChild(sp);
+    } else {
+      var btn=document.createElement("button");
+      btn.className="rpt-page-btn"+(p===rptPage?" active":"");
+      btn.textContent=p;
+      btn.onclick=(function(pp){return function(){rptPage=pp;renderTable();};})(p);
+      pb.appendChild(btn);
+    }
+  });
+}
+
+function rptChangePage(dir){
+  var total=Math.ceil(rptFiltered.length/rptPageSize);
+  rptPage=Math.max(1,Math.min(total,rptPage+dir));
+  renderTable();
+  document.getElementById("rptTableWrap").scrollTop=0;
 }
 
 function exportToExcel(){
