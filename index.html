@@ -2289,18 +2289,16 @@ function renderTable(){
   renderPagination(totalPages);
 }
 
-function toggleColFilter(col){
+function toggleColFilter(btn){
+  var col = btn.getAttribute("data-col");
   var fr=document.getElementById("rptFilterRow");
   if(!fr) return;
   if(rptActiveFilterCol===col){
-    // Eyni sütun - bağla
     fr.classList.remove("visible");
     rptActiveFilterCol=null;
   } else {
-    // Başqa sütun - aç
     fr.classList.add("visible");
     rptActiveFilterCol=col;
-    // Həmin sütunun input-una fokus
     var safeId="rptFCell_"+col.replace(/[^a-zA-Z0-9]/g,"_");
     setTimeout(function(){
       var cell=document.getElementById(safeId);
