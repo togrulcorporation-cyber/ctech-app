@@ -2240,12 +2240,12 @@ function renderTable(){
   html+='<tr class="rpt-head-row">';
   cols.forEach(function(c){
     var hasFilter=(rptColFilters[c]&&rptColFilters[c]!=="");
-    html+='<th><div class="rpt-th-inner"><span>'+c+'</span>'
-      +'<button class="rpt-filter-icon'+(hasFilter?" active":"")
-      +'" onclick="toggleColFilter(''+c.replace(/'/g,"\'")+'')" title="Filtir">'
-      +'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>'
-      +'</button></div></th>';
-  });
+    var iconClass = "rpt-filter-icon" + (hasFilter ? " active" : "");
+    var colIdx = cols.indexOf(c);
+    html += '<th><div class="rpt-th-inner"><span>' + c + '</span>'
+      + '<button class="' + iconClass + '" onclick="toggleColFilter(' + colIdx + ')" title="Filtir">'
+      + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>'
+      + '</button></div></th>';
   html+='</tr>';
 
   // Filtir sətri (gizli, sütuna görə açılır)
@@ -2289,8 +2289,8 @@ function renderTable(){
   renderPagination(totalPages);
 }
 
-function toggleColFilter(btn){
-  var col = btn.getAttribute("data-col");
+function toggleColFilter(colIdx){
+  var col = rptColumns[colIdx];
   var fr=document.getElementById("rptFilterRow");
   if(!fr) return;
   if(rptActiveFilterCol===col){
