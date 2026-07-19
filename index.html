@@ -156,10 +156,10 @@ button.primary:disabled { opacity:.6; cursor:default; }
   top:0;
   background:#FFFFFF;
   border-bottom:1px solid #E1EAF6;
-  display:flex;
+  display:grid;
+  grid-template-columns:46px 1fr 46px;
   align-items:center;
-  justify-content:space-between;
-  padding:12px 20px;
+  padding:12px 16px;
   padding-top:calc(12px + env(safe-area-inset-top));
   z-index:10;
 }
@@ -167,24 +167,34 @@ button.primary:disabled { opacity:.6; cursor:default; }
 .bs-logo {
   font-family:'Rajdhani',sans-serif;
   font-weight:700;
-  font-size:15px;
-  letter-spacing:1.5px;
+  font-size:20px;
+  letter-spacing:2px;
   color:#12233B;
   text-transform:uppercase;
+  text-align:center;
+  white-space:nowrap;
 }
 .bs-logo span { color:#2F6FED; }
-
-.bs-ticket {
-  font-size:11px;
-  color:#8CA0BC;
-  font-family:'IBM Plex Mono',monospace;
-  font-weight:600;
-}
 
 .bs-body {
   max-width:520px;
   margin:0 auto;
-  padding:18px 16px 80px;
+  padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+}
+
+@media(min-width:640px){
+  .bs-body { max-width:760px; padding:24px 40px calc(24px + env(safe-area-inset-bottom)); }
+  .bs-section { padding:22px 24px; border-radius:18px; margin-bottom:16px; }
+  .bs-section-title { font-size:12px; margin-bottom:16px; }
+  .bs-label { font-size:13px; margin-bottom:6px; }
+  .bs-input, .bs-select, .bs-picker-btn, .bs-textarea { font-size:15px; padding:12px 14px; border-radius:11px; }
+  .bs-select { padding-right:36px; }
+  .bs-field { margin-bottom:16px; }
+  .bs-row { gap:14px; }
+  .bs-header { padding:14px 28px; padding-top:calc(14px + env(safe-area-inset-top)); }
+  .bs-logo { font-size:22px; letter-spacing:2.5px; }
+  .bs-submit-btn { font-size:16px; padding:14px 64px; }
+  #bsTicketRow { font-size:12px; padding:8px 28px 0; }
 }
 
 /* Form sections */
@@ -317,27 +327,23 @@ button.primary:disabled { opacity:.6; cursor:default; }
 
 /* Submit button */
 .bs-submit {
-  position:fixed;
-  bottom:0;
-  left:0; right:0;
-  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
-  background:#fff;
-  border-top:1px solid #E1EAF6;
-  z-index:10;
+  padding:20px 0 8px;
+  display:flex;
+  justify-content:center;
 }
 .bs-submit-btn {
-  width:100%;
   background:linear-gradient(135deg,#4E93FA,#2F6FED);
   color:#fff;
   border:none;
-  padding:15px;
+  padding:13px 48px;
   border-radius:12px;
-  font-size:16px;
+  font-size:15px;
   font-weight:700;
   font-family:'Inter',sans-serif;
   cursor:pointer;
   box-shadow:0 8px 20px rgba(47,111,237,.28);
   transition:opacity .15s,transform .05s;
+  min-width:180px;
 }
 .bs-submit-btn:active { transform:scale(.98); }
 .bs-submit-btn:disabled { opacity:.6; cursor:default; }
@@ -377,20 +383,7 @@ button.primary:disabled { opacity:.6; cursor:default; }
 .bs-picker-title { font-weight:700; font-size:15px; color:#12233B; }
 .bs-picker-close { background:none; border:none; cursor:pointer; color:#5C7089; padding:4px; }
 
-.bs-picker-search {
-  width:100%;
-  padding:9px 12px;
-  background:#F8FAFD;
-  border:1.5px solid #DCE6F5;
-  border-radius:10px;
-  font-size:14px;
-  color:#12233B;
-  font-family:'Inter',sans-serif;
-  outline:none;
-  margin-bottom:10px;
-  box-sizing:border-box;
-}
-.bs-picker-search:focus { border-color:#4E93FA; }
+.bs-picker-search { display:none; }
 
 #bsPickerList {
   overflow-y:auto;
@@ -515,9 +508,29 @@ body.dark-mode .menu-item:hover { background:#1C2A3D; }
 body.dark-mode .banner-wrap { border-color:#4A6182; }
 body.dark-mode .modal-text strong { color:#E8EEF5; }
 body.dark-mode .dash-connector { background:linear-gradient(to bottom,#2A3B52,rgba(42,59,82,0)); }
-body.dark-mode .modal-overlay { background:rgba(6,12,20,.7); }
-body.dark-mode .loading-overlay { background:rgba(15,24,38,.9); }
-body.dark-mode .loading-text { color:#93A4BC; }
+body.dark-mode #busServiceView { background:#0F1826; }
+body.dark-mode .bs-header { background:#141F30; border-bottom-color:#4A6182; }
+body.dark-mode .bs-logo { color:#E8EEF5; }
+body.dark-mode .bs-section { background:#16212E; border-color:#4A6182; }
+body.dark-mode .bs-section-title { color:#5C7089; }
+body.dark-mode .bs-label { color:#8CA0BC; }
+body.dark-mode .bs-input, body.dark-mode .bs-select, body.dark-mode .bs-picker-btn, body.dark-mode .bs-textarea {
+  background:#1C2A3D; border-color:#4A6182; color:#E8EEF5;
+}
+body.dark-mode .bs-input::placeholder, body.dark-mode .bs-textarea::placeholder { color:#5C7089; }
+body.dark-mode .bs-picker-btn { color:#5C7089; }
+body.dark-mode .bs-picker-btn.filled { color:#E8EEF5; }
+body.dark-mode .bs-ticket-row { color:#5C7089; }
+body.dark-mode #bsPickerSheet { background:#16212E; }
+body.dark-mode .bs-picker-title { color:#E8EEF5; }
+body.dark-mode .bs-picker-search { background:#1C2A3D; border-color:#4A6182; color:#E8EEF5; }
+body.dark-mode .bs-picker-item { color:#E8EEF5; border-bottom-color:#1C2A3D; }
+body.dark-mode .bs-picker-item:hover { background:#1C2A3D; }
+body.dark-mode .bs-picker-check { border-color:#4A6182; }
+body.dark-mode .bs-confirm-box { background:#16212E; }
+body.dark-mode .bs-confirm-title { color:#E8EEF5; }
+body.dark-mode .bs-confirm-text { color:#8CA0BC; }
+body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
 
 </style>
 </head>
@@ -690,12 +703,13 @@ body.dark-mode .loading-text { color:#93A4BC; }
 <div id="busServiceView">
 
   <div class="bs-header">
-    <button onclick="attemptBusHome()" style="background:none;border:none;cursor:pointer;padding:4px;color:#12233B;display:flex;align-items:center;" aria-label="Ana səhifəyə qayıt">
+    <button onclick="attemptBusHome()" style="background:none;border:none;cursor:pointer;padding:4px;color:#12233B;display:flex;align-items:center;justify-content:center;" aria-label="Ana səhifəyə qayıt">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
     </button>
     <div class="bs-logo">CTECH <span>SOLUTIONS</span> MMC</div>
-    <div class="bs-ticket" id="bsTicketLabel">BUS------</div>
+    <div></div>
   </div>
+  <div style="text-align:center;padding:6px 16px 0;font-size:11px;color:#8CA0BC;font-family:'IBM Plex Mono',monospace;font-weight:600;" id="bsTicketRow"></div>
 
   <div class="bs-body">
 
@@ -706,13 +720,13 @@ body.dark-mode .loading-text { color:#93A4BC; }
         <div class="bs-field">
           <label class="bs-label">Tarix *</label>
           <div style="position:relative;">
-            <input type="date" id="bs_date" class="bs-input" style="padding-right:32px;">
+            <input type="text" id="bs_date" class="bs-input" placeholder="GG.AA.İİİİ" maxlength="10" style="padding-right:32px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AACC4" stroke-width="2" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
           </div>
         </div>
         <div class="bs-field">
           <label class="bs-label">Saat *</label>
-          <input type="time" id="bs_time" class="bs-input">
+          <input type="time" id="bs_time" class="bs-input" step="60">
         </div>
       </div>
       <div class="bs-field">
@@ -748,7 +762,7 @@ body.dark-mode .loading-text { color:#93A4BC; }
       <div class="bs-row">
         <div class="bs-field">
           <label class="bs-label">D.Q.N.</label>
-          <input type="text" id="bs_plate" class="bs-input" placeholder="D.Q.N.">
+          <input type="text" id="bs_plate" class="bs-input" placeholder="90-AA-000" maxlength="10" autocomplete="off" autocapitalize="characters">
         </div>
         <div class="bs-field">
           <label class="bs-label">Marka/Modeli *</label>
@@ -818,11 +832,11 @@ body.dark-mode .loading-text { color:#93A4BC; }
       <div class="bs-row">
         <div class="bs-field">
           <label class="bs-label">Başlanğıc saatı</label>
-          <input type="time" id="bs_start" class="bs-input">
+          <input type="time" id="bs_start" class="bs-input" step="60">
         </div>
         <div class="bs-field">
           <label class="bs-label">Bitiş saatı</label>
-          <input type="time" id="bs_end" class="bs-input">
+          <input type="time" id="bs_end" class="bs-input" step="60">
         </div>
       </div>
       <div class="bs-field">
@@ -1028,21 +1042,59 @@ try{ var savedTheme=localStorage.getItem("ctech_theme"); if(savedTheme==="dark")
 // BUS SERVICE LOGIC
 // ─────────────────────────────────────────────
 
-var bsFormData = {};   // form siyahı məlumatları
-var bsPickerConfig = {};  // aktiv picker konfiqurasiyası
+var bsFormData = {};
+var bsPickerConfig = {};
 var bsFormDirty = false;
+var bsNextTicketId = "";
 
-// Seçilmiş dəyərlər
 var bsSelected = {
   carrier:"", brand:"", problem:"", solution:[], tech1:"", tech2:"", leader:""
 };
 
+// Enter → növbəti focusable elementə keçir (Tab kimi)
+document.addEventListener("keydown", function(e){
+  if(e.key !== "Enter") return;
+  var view = document.getElementById("busServiceView");
+  if(!view || view.style.display === "none") return;
+  var active = document.activeElement;
+  if(!active || active.tagName === "BUTTON" || active.tagName === "TEXTAREA") return;
+  e.preventDefault();
+  var focusable = Array.from(view.querySelectorAll(
+    'input:not([type="hidden"]), select, textarea, button:not([tabindex="-1"])'
+  )).filter(function(el){ return !el.disabled && el.offsetParent !== null; });
+  var idx = focusable.indexOf(active);
+  if(idx !== -1 && idx < focusable.length - 1){
+    focusable[idx + 1].focus();
+  }
+});
+
+// Tarix inputu: yalnız rəqəm qəbul edir, GG.AA.İİİİ formatını avtomatik tamamlayır
+document.addEventListener("DOMContentLoaded", function(){
+  var dateEl = document.getElementById("bs_date");
+  if(!dateEl) return;
+  dateEl.addEventListener("input", function(e){
+    var v = e.target.value.replace(/\D/g,"");
+    if(v.length > 8) v = v.slice(0,8);
+    var out = "";
+    if(v.length > 4) out = v.slice(0,2)+"."+v.slice(2,4)+"."+v.slice(4);
+    else if(v.length > 2) out = v.slice(0,2)+"."+v.slice(2);
+    else out = v;
+    e.target.value = out;
+    bsFormDirty = true;
+  });
+});
+
 function openBusService(){
-  // Tarixi avtomatik bugün, saatı indiki saat et
+  // Tarixi AZ formatında, saatı 24h formatında doldur
   var now = new Date();
-  var baku = new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Baku"}).format(now);
+  var parts = new Intl.DateTimeFormat("az-AZ",{
+    timeZone:"Asia/Baku", day:"2-digit", month:"2-digit", year:"numeric"
+  }).formatToParts(now);
+  var map={}; parts.forEach(function(p){map[p.type]=p.value;});
+  var azDate = map.day+"."+map.month+"."+map.year;
   var bakuTime = new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",hour:"2-digit",minute:"2-digit",hour12:false}).format(now);
-  document.getElementById("bs_date").value = baku;
+
+  document.getElementById("bs_date").value = azDate;
   document.getElementById("bs_time").value = bakuTime;
 
   // Dirty state sıfırla
@@ -1067,13 +1119,9 @@ function openBusService(){
   document.getElementById("busServiceView").style.display="block";
   document.getElementById("busServiceView").scrollTop=0;
 
-  // Form data yüklə (ilk dəfə)
-  if(!bsFormData.carriers){
-    loadBusFormData();
-  }
-
-  // Ticket ID nümunə
-  document.getElementById("bsTicketLabel").textContent="yüklənir...";
+  // Ticket ID yüklə
+  document.getElementById("bsTicketRow").textContent="Ticket ID yüklənir...";
+  loadBusFormData();
 }
 
 function resetPickerLabels(){
@@ -1096,17 +1144,15 @@ function loadBusFormData(){
   .then(function(d){
     if(d.status!=="OK") return;
     bsFormData = d;
-
-    // Select-ləri doldur
     fillSelect("bs_system", d.systems||["LIT","LIT-2"]);
     fillSelect("bs_equipment", d.busEquipment||[]);
     fillSelect("bs_location", d.locations||["Daşıyıcı qarajı","Son dayanacaq","Dayanacaq"]);
-
-    // Ticket ID al (son sətir sayı üçün sadə hesab)
-    document.getElementById("bsTicketLabel").textContent="BUS------";
+    // Ticket ID: nextTicketId backend-dən gəlir
+    var tid = d.nextTicketId || "BUS-00001";
+    document.getElementById("bsTicketRow").textContent = "Ticket ID: " + tid;
+    bsNextTicketId = tid;
   })
   .catch(function(){
-    // Offline fallback
     bsFormData = {
       carriers:["BakuBus MMC","Xaliq Faiqoğlu MMC","Çinar-Trans MMC","General Auto Company MMC","ENA Transport MMC","Transkontrol MMC","Vətən-Az MMC","Vətən MMC","K-Group MMC","AYNA - Monitoring"],
       busModels:["BMC","BYD","Daewoo","Isuzu","Karsan","Otokar","Iveco","King-Long","Dragon"],
@@ -1121,6 +1167,7 @@ function loadBusFormData(){
     fillSelect("bs_system", bsFormData.systems);
     fillSelect("bs_equipment", bsFormData.busEquipment);
     fillSelect("bs_location", bsFormData.locations);
+    document.getElementById("bsTicketRow").textContent="Ticket ID: BUS-?????";
   });
 }
 
@@ -1283,7 +1330,7 @@ function submitBusService(){
   if(!bsSelected.leader){ alert("Qrup rəhbərini seçin"); return; }
 
   var data={
-    report_date: document.getElementById("bs_date").value,
+    report_date: document.getElementById("bs_date").value,  // GG.AA.İİİİ formatında
     report_time: document.getElementById("bs_time").value,
     requester_name: document.getElementById("bs_requester").value,
     requester_phone: document.getElementById("bs_phone").value,
@@ -1347,6 +1394,53 @@ function submitBusService(){
   inputs.forEach(function(el){
     el.addEventListener("input",function(){bsFormDirty=true;});
     el.addEventListener("change",function(){bsFormDirty=true;});
+  });
+})();
+
+// ── D.Q.N. avtomatik format: 90-AA-587 ──────────────────────────────────────
+(function(){
+  var plateEl = document.getElementById("bs_plate");
+  if(!plateEl) return;
+
+  plateEl.addEventListener("input", function(e){
+    // Yalnız icazəli simvolları saxla: rəqəm və hərf
+    var raw = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, "");
+
+    var result = "";
+
+    if(raw.length === 0){
+      result = "";
+    } else if(raw.length <= 2){
+      // İlk iki rəqəm: yalnız rəqəm
+      result = raw.replace(/[^0-9]/g,"").slice(0,2);
+    } else if(raw.length <= 4){
+      // 3-4: hərf hissəsi
+      var digits1 = raw.slice(0,2).replace(/[^0-9]/g,"");
+      var letters = raw.slice(2).replace(/[^A-Z]/g,"").slice(0,2);
+      result = digits1 + (digits1.length===2 ? "-" : "") + letters;
+    } else {
+      // 5+: son rəqəmlər
+      var digits1 = raw.slice(0,2).replace(/[^0-9]/g,"");
+      var letters = raw.slice(2,4).replace(/[^A-Z]/g,"").slice(0,2);
+      var digits2 = raw.slice(4).replace(/[^0-9]/g,"").slice(0,3);
+      result = digits1;
+      if(digits1.length===2) result += "-";
+      result += letters;
+      if(letters.length===2) result += "-";
+      result += digits2;
+    }
+
+    // Kursor pozisiyasını itirmədən yenilə
+    var cursor = e.target.selectionStart;
+    e.target.value = result;
+    // Kursoru sona qoy (mobil üçün ən rahat)
+    e.target.setSelectionRange(result.length, result.length);
+    bsFormDirty = true;
+  });
+
+  // Yapışdırılanda da işləsin
+  plateEl.addEventListener("paste", function(e){
+    setTimeout(function(){ plateEl.dispatchEvent(new Event("input")); }, 0);
   });
 })();
 
