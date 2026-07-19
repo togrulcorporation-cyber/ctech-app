@@ -126,7 +126,7 @@ button.primary:disabled { opacity:.6; cursor:default; }
 .card-sub-small { font-size:12px; color:#5C7089; margin-top:1px; }
 @media(max-width:520px){ .primary-row{grid-template-columns:1fr;} .secondary-row{grid-template-columns:1fr;} .card-title-big{font-size:21px;} .brand-mini{display:none;} }
 .banner-wrap { margin-top:28px; border-radius:20px; overflow:hidden; border:1px solid #E1EAF6; box-shadow:0 20px 45px rgba(30,68,130,.08); }
-.banner-img { width:100%; display:block; object-fit:cover; min-height:160px; object-position:center; }
+.banner-img { width:100%; display:block; object-fit:cover; min-height:180px; object-position:left center; }
 .footer-note-dash { text-align:center; padding:6px 0 30px; font-size:12px; color:#8CA0BC; }
 .loading-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(244,248,253,.88); z-index:60; align-items:center; justify-content:center; }
 .loading-overlay.open { display:flex; }
@@ -337,7 +337,7 @@ input[type="time"]::-webkit-datetime-edit-ampm-field { display:none !important; 
 
 /* Submit button */
 .bs-submit {
-  padding:16px 0 4px;
+  padding:24px 0 32px;
   display:flex;
   justify-content:center;
 }
@@ -509,6 +509,11 @@ body.dark-mode .modal-text strong { color:#E8EEF5; }
 body.dark-mode .dash-connector { background:linear-gradient(to bottom,#2A3B52,rgba(42,59,82,0)); }
 body.dark-mode #busServiceView { background:#0F1826; }
 body.dark-mode #busServiceView button[onclick="attemptBusHome()"] { color:#E8EEF5; }
+body.dark-mode .bs-t-item { color:#E8EEF5 !important; background:transparent; }
+body.dark-mode .bs-t-item.sel { background:#1C2A3D !important; color:#8FB4EA !important; }
+body.dark-mode #bs_time_dd .bs-t-item:hover,
+body.dark-mode #bs_start_dd .bs-t-item:hover,
+body.dark-mode #bs_end_dd .bs-t-item:hover { background:#25374F !important; }
 body.dark-mode .bs-header { background:#141F30; border-bottom-color:#4A6182; }
 body.dark-mode .bs-logo { color:#E8EEF5; }
 body.dark-mode .bs-section { background:#16212E; border-color:#4A6182; }
@@ -526,7 +531,12 @@ body.dark-mode .bs-dd-item { color:#E8EEF5; border-bottom-color:#1C2A3D; }
 body.dark-mode .bs-dd-item:hover { background:#1C2A3D; }
 body.dark-mode .bs-dd-item.selected { color:#8FB4EA; }
 body.dark-mode .bs-dd-check { border-color:#4A6182; }
-body.dark-mode #bs_time_dd { background:#16212E; border-color:#4A6182; }
+body.dark-mode #bs_time_dd,
+body.dark-mode #bs_start_dd,
+body.dark-mode #bs_end_dd { background:#16212E; border-color:#4A6182; }
+body.dark-mode #bs_time_dd div[style*="color:#12233B"],
+body.dark-mode #bs_start_dd div[style*="color:#12233B"],
+body.dark-mode #bs_end_dd div[style*="color:#12233B"] { color:#E8EEF5 !important; }
 body.dark-mode .bs-t-item { color:#E8EEF5; }
 body.dark-mode .bs-t-item:hover { background:#1C2A3D; }
 body.dark-mode .bs-t-item.sel { background:#1C2A3D; color:#8FB4EA; }
@@ -539,6 +549,12 @@ body.dark-mode .bs-confirm-box { background:#16212E; }
 body.dark-mode .bs-confirm-title { color:#E8EEF5; }
 body.dark-mode .bs-confirm-text { color:#8CA0BC; }
 body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
+body.dark-mode #bs_time_dd div[style*="color:#8CA0BC"],
+body.dark-mode #bs_start_dd div[style*="color:#8CA0BC"],
+body.dark-mode #bs_end_dd div[style*="color:#8CA0BC"] { color:#5C7089 !important; }
+body.dark-mode #bs_time_dd,
+body.dark-mode #bs_start_dd,
+body.dark-mode #bs_end_dd { color:#E8EEF5; }
 
 </style>
 </head>
@@ -714,12 +730,14 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
     <button onclick="attemptBusHome()" style="background:none;border:none;cursor:pointer;padding:4px;color:#12233B;display:flex;align-items:center;justify-content:center;" aria-label="Ana səhifəyə qayıt">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
     </button>
-    <div class="bs-logo">CTECH <span>SOLUTIONS</span> MMC</div>
+    <span style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;letter-spacing:2px;color:#12233B;text-transform:uppercase;text-align:center;">CTECH <span style="color:#2F6FED;">SOLUTIONS</span> MMC</span>
     <div></div>
   </div>
-  <div id="bsTicketRow" style="padding:8px 16px 0;"></div>
 
   <div class="bs-body">
+
+    <!-- Ticket ID -->
+    <div id="bsTicketRow" style="padding:0 0 8px;"></div>
 
     <!-- Tarix / Saat -->
     <div class="bs-section">
@@ -739,12 +757,18 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </button>
             <div id="bs_time_dd" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#fff;border:1.5px solid #DCE6F5;border-radius:12px;box-shadow:0 8px 24px rgba(18,35,59,.12);overflow:hidden;">
-              <div style="display:flex;height:180px;">
-                <div id="bs_h_list" style="flex:1;overflow-y:auto;border-right:1px solid #F0F5FC;scroll-snap-type:y mandatory;"></div>
-                <div style="display:flex;align-items:center;justify-content:center;padding:0 4px;font-size:18px;font-weight:700;color:#12233B;">:</div>
-                <div id="bs_m_list" style="flex:1;overflow-y:auto;scroll-snap-type:y mandatory;"></div>
+              <div style="display:flex;height:200px;">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
+                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">SAAT</div>
+                  <div id="bs_h_list" style="flex:1;overflow-y:auto;width:100%;border-right:1px solid #F0F5FC;scroll-snap-type:y mandatory;"></div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:center;padding:0 6px;font-size:20px;font-weight:700;color:#12233B;">:</div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
+                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">DƏQİQƏ</div>
+                  <div id="bs_m_list" style="flex:1;overflow-y:auto;width:100%;scroll-snap-type:y mandatory;"></div>
+                </div>
               </div>
-              <button type="button" onclick="confirmTime()" style="width:100%;padding:10px;background:#2F6FED;color:#fff;border:none;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Təsdiqlə</button>
+              <button type="button" onclick="confirmTime('main')" style="width:100%;padding:10px;background:#2F6FED;color:#fff;border:none;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Təsdiqlə</button>
             </div>
           </div>
         </div>
@@ -846,9 +870,13 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
       <div class="bs-section-title">Servis Kategoriyası</div>
       <div class="bs-field">
         <label class="bs-label">Servis Kategoriyası</label>
-        <select id="bs_equipment" class="bs-select">
-          <option value="">Seçin</option>
-        </select>
+        <div class="bs-inline-dd" id="dd_equipment">
+          <button type="button" class="bs-picker-btn" id="bs_equipment_btn" onclick="toggleDD('equipment')">
+            <span id="bs_equipment_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_equipment_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_equipment_list"></div>
+        </div>
       </div>
       <div class="bs-row">
         <div class="bs-field">
@@ -868,11 +896,49 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
       <div class="bs-row">
         <div class="bs-field">
           <label class="bs-label">Başlanğıc saatı</label>
-          <input type="time" id="bs_start" class="bs-input" step="60">
+          <div class="bs-inline-dd" id="bs_start_wrap" style="position:relative;">
+            <button type="button" class="bs-picker-btn" onclick="toggleTimeDD('start')">
+              <span id="bs_start_lbl" style="font-family:IBM Plex Mono,monospace;">--:--</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div id="bs_start_dd" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#fff;border:1.5px solid #DCE6F5;border-radius:12px;box-shadow:0 8px 24px rgba(18,35,59,.12);overflow:hidden;">
+              <div style="display:flex;height:200px;">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
+                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">SAAT</div>
+                  <div id="bs_sh_list" style="flex:1;overflow-y:auto;width:100%;border-right:1px solid #F0F5FC;scroll-snap-type:y mandatory;"></div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:center;padding:0 6px;font-size:20px;font-weight:700;color:#12233B;">:</div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
+                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">DƏQİQƏ</div>
+                  <div id="bs_sm_list" style="flex:1;overflow-y:auto;width:100%;scroll-snap-type:y mandatory;"></div>
+                </div>
+              </div>
+              <button type="button" onclick="confirmTime('start')" style="width:100%;padding:10px;background:#2F6FED;color:#fff;border:none;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Təsdiqlə</button>
+            </div>
+          </div>
         </div>
         <div class="bs-field">
           <label class="bs-label">Bitiş saatı</label>
-          <input type="time" id="bs_end" class="bs-input" step="60">
+          <div class="bs-inline-dd" id="bs_end_wrap" style="position:relative;">
+            <button type="button" class="bs-picker-btn" onclick="toggleTimeDD('end')">
+              <span id="bs_end_lbl" style="font-family:IBM Plex Mono,monospace;">--:--</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div id="bs_end_dd" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#fff;border:1.5px solid #DCE6F5;border-radius:12px;box-shadow:0 8px 24px rgba(18,35,59,.12);overflow:hidden;">
+              <div style="display:flex;height:200px;">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
+                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">SAAT</div>
+                  <div id="bs_eh_list" style="flex:1;overflow-y:auto;width:100%;border-right:1px solid #F0F5FC;scroll-snap-type:y mandatory;"></div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:center;padding:0 6px;font-size:20px;font-weight:700;color:#12233B;">:</div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
+                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">DƏQİQƏ</div>
+                  <div id="bs_em_list" style="flex:1;overflow-y:auto;width:100%;scroll-snap-type:y mandatory;"></div>
+                </div>
+              </div>
+              <button type="button" onclick="confirmTime('end')" style="width:100%;padding:10px;background:#2F6FED;color:#fff;border:none;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Təsdiqlə</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="bs-field">
@@ -1085,21 +1151,22 @@ var bsFormData = {};
 var bsFormDirty = false;
 var bsNextTicketId = "";
 var bsSelected = {
-  carrier:"", brand:"", problem:"", solution:[], system:"", location:"", tech1:"", tech2:"", leader:""
+  carrier:"", brand:"", problem:"", solution:[], system:"", equipment:"", location:"", tech1:"", tech2:"", leader:""
 };
 var activeDDKey = null; // hal-hazırda açıq olan dropdown
 
 // ── Dropdown meta ────────────────────────────────────
 var ddMeta = {
-  carrier:  { lbl:"bs_carrier_lbl",  list:"dd_carrier_list",  multi:false, onSelect: null },
-  brand:    { lbl:"bs_brand_lbl",    list:"dd_brand_list",    multi:false, onSelect: null },
-  system:   { lbl:"bs_system_lbl",   list:"dd_system_list",   multi:false, onSelect: null },
-  problem:  { lbl:"bs_problem_lbl",  list:"dd_problem_list",  multi:false, onSelect: onProblemSelect },
-  solution: { lbl:"bs_solution_lbl", list:"dd_solution_list", multi:true,  onSelect: onSolutionSelect },
-  location: { lbl:"bs_location_lbl", list:"dd_location_list", multi:false, onSelect: onLocationSelect },
-  tech1:    { lbl:"bs_tech1_lbl",    list:"dd_tech1_list",    multi:false, onSelect: null },
-  tech2:    { lbl:"bs_tech2_lbl",    list:"dd_tech2_list",    multi:false, onSelect: null },
-  leader:   { lbl:"bs_leader_lbl",   list:"dd_leader_list",   multi:false, onSelect: null }
+  carrier:   { lbl:"bs_carrier_lbl",   list:"dd_carrier_list",   multi:false, onSelect: null },
+  brand:     { lbl:"bs_brand_lbl",     list:"dd_brand_list",     multi:false, onSelect: null },
+  system:    { lbl:"bs_system_lbl",    list:"dd_system_list",    multi:false, onSelect: null },
+  equipment: { lbl:"bs_equipment_lbl", list:"dd_equipment_list", multi:false, onSelect: null },
+  problem:   { lbl:"bs_problem_lbl",   list:"dd_problem_list",   multi:false, onSelect: onProblemSelect },
+  solution:  { lbl:"bs_solution_lbl",  list:"dd_solution_list",  multi:true,  onSelect: onSolutionSelect },
+  location:  { lbl:"bs_location_lbl",  list:"dd_location_list",  multi:false, onSelect: onLocationSelect },
+  tech1:     { lbl:"bs_tech1_lbl",     list:"dd_tech1_list",     multi:false, onSelect: null },
+  tech2:     { lbl:"bs_tech2_lbl",     list:"dd_tech2_list",     multi:false, onSelect: null },
+  leader:    { lbl:"bs_leader_lbl",    list:"dd_leader_list",    multi:false, onSelect: null }
 };
 
 // ── DD aç/qapat ─────────────────────────────────────
@@ -1129,8 +1196,10 @@ function closeDD(key){
 
 function closeAllDD(){
   Object.keys(ddMeta).forEach(function(k){ closeDD(k); });
-  var td = document.getElementById("bs_time_dd");
-  if(td) td.style.display = "none";
+  ["bs_time_dd","bs_start_dd","bs_end_dd"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.style.display = "none";
+  });
 }
 
 // Forma dışına tıklayınca kapat
@@ -1184,15 +1253,16 @@ function renderDD(key){
 
 function getListForKey(key){
   var map = {
-    carrier: bsFormData.carriers || [],
-    brand:   bsFormData.busModels || [],
-    system:  bsFormData.systems || [],
-    problem: bsFormData.busProblems || [],
-    solution:bsFormData.solutions || [],
-    location:bsFormData.locations || [],
-    tech1:   bsFormData.technicians || [],
-    tech2:   bsFormData.technicians || [],
-    leader:  bsFormData.leaders || []
+    carrier:   bsFormData.carriers || [],
+    brand:     bsFormData.busModels || [],
+    system:    bsFormData.systems || [],
+    equipment: bsFormData.busEquipment || [],
+    problem:   bsFormData.busProblems || [],
+    solution:  bsFormData.solutions || [],
+    location:  bsFormData.locations || [],
+    tech1:     bsFormData.technicians || [],
+    tech2:     bsFormData.technicians || [],
+    leader:    bsFormData.leaders || []
   };
   return map[key] || [];
 }
@@ -1261,69 +1331,92 @@ function updateSolutionChips(){
   });
 }
 
-// ── Saat picker ──────────────────────────────────────
-var selHour = -1, selMin = -1;
+// ── Saat picker (universal) ──────────────────────────
+// state: { main, start, end }
+var timeState = {
+  main:  { h:-1, m:-1 },
+  start: { h:-1, m:-1 },
+  end:   { h:-1, m:-1 }
+};
 
-function toggleTimeDD(){
-  var dd = document.getElementById("bs_time_dd");
-  if(dd.style.display === "none" || !dd.style.display){
-    buildTimeDD();
+var activeTimePicker = null;
+
+function toggleTimeDD(which){
+  which = which || "main";
+  var ddId = which==="main" ? "bs_time_dd" : "bs_"+which+"_dd";
+  var dd = document.getElementById(ddId);
+  if(!dd) return;
+  var isOpen = dd.style.display !== "none" && dd.style.display !== "";
+  // Digər bütün DD-ləri bağla
+  ["bs_time_dd","bs_start_dd","bs_end_dd"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.style.display = "none";
+  });
+  closeAllDD();
+  if(!isOpen){
+    buildTimeDDFor(which);
     dd.style.display = "block";
-    closeAllDD(); // digər dropdown-ları bağla
-    // yenidən aç (closeAllDD bağladı)
-    dd.style.display = "block";
+    activeTimePicker = which;
   } else {
-    dd.style.display = "none";
+    activeTimePicker = null;
   }
 }
 
-function buildTimeDD(){
-  var hList = document.getElementById("bs_h_list");
-  var mList = document.getElementById("bs_m_list");
+function buildTimeDDFor(which){
+  var hListId = which==="main" ? "bs_h_list" : (which==="start" ? "bs_sh_list" : "bs_eh_list");
+  var mListId = which==="main" ? "bs_m_list" : (which==="start" ? "bs_sm_list" : "bs_em_list");
+  var hList = document.getElementById(hListId);
+  var mList = document.getElementById(mListId);
+  if(!hList || !mList) return;
+  var st = timeState[which];
   hList.innerHTML = ""; mList.innerHTML = "";
+
   for(var h=0; h<24; h++){
     (function(hh){
       var d = document.createElement("div");
-      d.className = "bs-t-item" + (hh===selHour?" sel":"");
+      d.className = "bs-t-item" + (hh===st.h?" sel":"");
       d.textContent = (hh<10?"0":"")+hh;
-      d.addEventListener("click", function(){ selHour=hh; buildTimeDD(); });
+      d.addEventListener("click", function(e){ e.stopPropagation(); st.h=hh; buildTimeDDFor(which); });
       hList.appendChild(d);
     })(h);
   }
-  for(var m=0; m<60; m+=5){
+  for(var m=0; m<60; m++){
     (function(mm){
       var d = document.createElement("div");
-      d.className = "bs-t-item" + (mm===selMin?" sel":"");
+      d.className = "bs-t-item" + (mm===st.m?" sel":"");
       d.textContent = (mm<10?"0":"")+mm;
-      d.addEventListener("click", function(){ selMin=mm; buildTimeDD(); });
+      d.addEventListener("click", function(e){ e.stopPropagation(); st.m=mm; buildTimeDDFor(which); });
       mList.appendChild(d);
     })(m);
   }
-  // Seçili itemə scroll et
-  if(selHour>=0){
-    var items = hList.querySelectorAll(".bs-t-item");
-    if(items[selHour]) items[selHour].scrollIntoView({block:"nearest"});
-  }
-  if(selMin>=0){
-    var mIdx = Math.floor(selMin/5);
-    var mItems = mList.querySelectorAll(".bs-t-item");
-    if(mItems[mIdx]) mItems[mIdx].scrollIntoView({block:"nearest"});
-  }
+  // Seçilmişə scroll et
+  setTimeout(function(){
+    if(st.h>=0){ var el=hList.querySelectorAll(".bs-t-item")[st.h]; if(el) el.scrollIntoView({block:"center"}); }
+    if(st.m>=0){ var el2=mList.querySelectorAll(".bs-t-item")[st.m]; if(el2) el2.scrollIntoView({block:"center"}); }
+  }, 30);
 }
 
-function confirmTime(){
-  var h = selHour >= 0 ? selHour : 0;
-  var m = selMin  >= 0 ? selMin  : 0;
+function confirmTime(which){
+  which = which || "main";
+  var st = timeState[which];
+  var h = st.h >= 0 ? st.h : 0;
+  var m = st.m >= 0 ? st.m : 0;
   var str = (h<10?"0":"")+h+":"+(m<10?"0":"")+m;
-  var lbl = document.getElementById("bs_time_lbl");
-  if(lbl){ lbl.textContent = str; lbl.style.color = "#12233B"; }
-  document.getElementById("bs_time_dd").style.display = "none";
+
+  var lblId = which==="main" ? "bs_time_lbl" : "bs_"+which+"_lbl";
+  var ddId  = which==="main" ? "bs_time_dd"  : "bs_"+which+"_dd";
+
+  var lbl = document.getElementById(lblId);
+  if(lbl){ lbl.textContent=str; lbl.style.color="#12233B"; }
+  var dd = document.getElementById(ddId);
+  if(dd) dd.style.display="none";
+  activeTimePicker = null;
   bsFormDirty = true;
 }
 
 function getTimeValue(){
   var lbl = document.getElementById("bs_time_lbl");
-  if(!lbl || lbl.textContent === "--:--") return "";
+  if(!lbl || lbl.textContent==="--:--") return "";
   return lbl.textContent;
 }
 
@@ -1339,14 +1432,12 @@ function openBusService(){
   var bParts = new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Baku",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
   document.getElementById("bs_date").value = bParts;
 
-  // Saat default: indiki saat
-  var bParts2 = new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(now);
-  var hh = 0, mm = 0;
-  bParts2.forEach(function(p){ if(p.type==="hour") hh=parseInt(p.value); if(p.type==="minute") mm=parseInt(p.value); });
-  selHour = hh; selMin = Math.floor(mm/5)*5;
-  var str = (hh<10?"0":"")+hh+":"+(mm<10?"0":"")+mm;
-  var lbl = document.getElementById("bs_time_lbl");
-  if(lbl){ lbl.textContent = str; lbl.style.color="#12233B"; }
+  // Saat: manual seçim, --:-- başlasın
+  timeState = { main:{h:-1,m:-1}, start:{h:-1,m:-1}, end:{h:-1,m:-1} };
+  ["bs_time_lbl","bs_start_lbl","bs_end_lbl"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){ el.textContent="--:--"; el.style.color="#9AACC4"; }
+  });
 
   // Reset
   bsFormDirty = false;
@@ -1443,11 +1534,11 @@ function submitBusService(){
     problem: bsSelected.problem,
     request: bsSelected.problem,
     solution: bsSelected.solution,
-    changed_device_type: document.getElementById("bs_equipment") ? document.getElementById("bs_equipment").value : "",
+    changed_device_type: bsSelected.equipment || "",
     old_sn: document.getElementById("bs_old_sn").value,
     new_sn: document.getElementById("bs_new_sn").value,
-    service_start_time: document.getElementById("bs_start").value,
-    service_end_time: document.getElementById("bs_end").value,
+    service_start_time: (function(){ var l=document.getElementById("bs_start_lbl"); return l&&l.textContent!=="--:--"?l.textContent:""; })(),
+    service_end_time:   (function(){ var l=document.getElementById("bs_end_lbl");   return l&&l.textContent!=="--:--"?l.textContent:""; })(),
     service_location: bsSelected.location,
     service_location_note: document.getElementById("bs_location_note").value,
     technician_1: bsSelected.tech1,
