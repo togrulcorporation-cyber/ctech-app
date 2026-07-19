@@ -325,6 +325,10 @@ button.primary:disabled { opacity:.6; cursor:default; }
 }
 .bs-textarea:focus { border-color:#4E93FA; background:#fff; }
 
+/* Saat inputu - 24h məcburi (AM/PM gizlət) */
+input[type="time"]::-webkit-datetime-edit-ampm-field { display:none !important; }
+input[type="time"] { -webkit-appearance:none; }
+
 /* Submit button */
 .bs-submit {
   padding:20px 0 8px;
@@ -356,17 +360,23 @@ button.primary:disabled { opacity:.6; cursor:default; }
   background:rgba(18,35,59,.45);
   z-index:80;
   align-items:flex-end;
+  justify-content:center;
 }
 #bsPickerOverlay.open { display:flex; }
 
 #bsPickerSheet {
   background:#FFFFFF;
   width:100%;
+  max-width:480px;
   border-radius:20px 20px 0 0;
   padding:16px;
-  max-height:72vh;
+  max-height:55vh;
   display:flex;
   flex-direction:column;
+}
+@media(min-width:640px){
+  #bsPickerOverlay { align-items:center; }
+  #bsPickerSheet { border-radius:16px; max-height:60vh; }
 }
 .bs-picker-handle {
   width:36px; height:4px;
@@ -720,13 +730,13 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
         <div class="bs-field">
           <label class="bs-label">Tarix *</label>
           <div style="position:relative;">
-            <input type="text" id="bs_date" class="bs-input" placeholder="GG.AA.İİİİ" maxlength="10" style="padding-right:32px;">
+            <input type="date" id="bs_date" class="bs-input" style="padding-right:32px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AACC4" stroke-width="2" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
           </div>
         </div>
         <div class="bs-field">
           <label class="bs-label">Saat *</label>
-          <input type="time" id="bs_time" class="bs-input" step="60">
+          <input type="time" id="bs_time" class="bs-input" step="60" lang="az">
         </div>
       </div>
       <div class="bs-field">
@@ -745,7 +755,7 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
       <div class="bs-row">
         <div class="bs-field">
           <label class="bs-label">Marşrut nömrəsi *</label>
-          <input type="text" id="bs_route" class="bs-input" placeholder="Məs. 125">
+          <input type="text" id="bs_route" class="bs-input" placeholder="Məs. 125A" autocapitalize="characters">
         </div>
         <div class="bs-field">
           <label class="bs-label">BUS ID *</label>
@@ -774,9 +784,10 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
       </div>
       <div class="bs-field">
         <label class="bs-label">Sistem *</label>
-        <select id="bs_system" class="bs-select">
-          <option value="">Seçin</option>
-        </select>
+        <button type="button" class="bs-picker-btn" id="bs_system_btn" onclick="openPicker('system')">
+          <span id="bs_system_lbl">Seçin</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
       </div>
     </div>
 
@@ -800,8 +811,8 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
       </div>
       <!-- Note: yalnız "Digər" seçiləndə görünür -->
       <div class="bs-field" id="bs_note_wrap" style="display:none;">
-        <label class="bs-label">Əlavə qeyd (Note)</label>
-        <textarea id="bs_note" class="bs-textarea" placeholder="Əlavə məlumat varsa buraya yazın..."></textarea>
+        <label class="bs-label">Qeyd *</label>
+        <textarea id="bs_note" class="bs-textarea" placeholder="Problemi ətraflı yazın..."></textarea>
       </div>
     </div>
 
@@ -840,10 +851,15 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
         </div>
       </div>
       <div class="bs-field">
-        <label class="bs-label">Servis yeri</label>
-        <select id="bs_location" class="bs-select">
-          <option value="">Seçin</option>
-        </select>
+        <label class="bs-label">Servis verilən ünvan</label>
+        <button type="button" class="bs-picker-btn" id="bs_location_btn" onclick="openPicker('location')">
+          <span id="bs_location_lbl">Seçin</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </div>
+      <div class="bs-field" id="bs_location_note_wrap" style="display:none;">
+        <label class="bs-label">Ünvan qeydi *</label>
+        <textarea id="bs_location_note" class="bs-textarea" placeholder="Ünvanı ətraflı yazın..."></textarea>
       </div>
     </div>
 
@@ -1048,7 +1064,7 @@ var bsFormDirty = false;
 var bsNextTicketId = "";
 
 var bsSelected = {
-  carrier:"", brand:"", problem:"", solution:[], tech1:"", tech2:"", leader:""
+  carrier:"", brand:"", problem:"", solution:[], system:"", location:"", tech1:"", tech2:"", leader:""
 };
 
 // Enter → növbəti focusable elementə keçir (Tab kimi)
@@ -1087,14 +1103,12 @@ document.addEventListener("DOMContentLoaded", function(){
 function openBusService(){
   // Tarixi AZ formatında, saatı 24h formatında doldur
   var now = new Date();
-  var parts = new Intl.DateTimeFormat("az-AZ",{
-    timeZone:"Asia/Baku", day:"2-digit", month:"2-digit", year:"numeric"
-  }).formatToParts(now);
-  var map={}; parts.forEach(function(p){map[p.type]=p.value;});
-  var azDate = map.day+"."+map.month+"."+map.year;
+  // Bakı saatı ilə doldur
+  var bParts = new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Baku",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+  // en-CA → YYYY-MM-DD (input[type=date] üçün)
+  document.getElementById("bs_date").value = bParts;
+  // 24h saat
   var bakuTime = new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",hour:"2-digit",minute:"2-digit",hour12:false}).format(now);
-
-  document.getElementById("bs_date").value = azDate;
   document.getElementById("bs_time").value = bakuTime;
 
   // Dirty state sıfırla
@@ -1114,6 +1128,8 @@ function openBusService(){
   document.getElementById("bs_note").value="";
   document.getElementById("bs_note_wrap").style.display="none";
   document.getElementById("bs_solution_chips").innerHTML="";
+  document.getElementById("bs_location_note").value="";
+  document.getElementById("bs_location_note_wrap").style.display="none";
 
   document.getElementById("dashboardView").style.display="none";
   document.getElementById("busServiceView").style.display="block";
@@ -1125,13 +1141,22 @@ function openBusService(){
 }
 
 function resetPickerLabels(){
-  document.getElementById("bs_carrier_lbl").textContent="Seçin"; document.getElementById("bs_carrier_btn").classList.remove("filled");
-  document.getElementById("bs_brand_lbl").textContent="Seçin"; document.getElementById("bs_brand_btn").classList.remove("filled");
-  document.getElementById("bs_problem_lbl").textContent="Seçin"; document.getElementById("bs_problem_btn").classList.remove("filled");
-  document.getElementById("bs_solution_lbl").textContent="Seçin (çoxlu seçim)"; document.getElementById("bs_solution_btn").classList.remove("filled");
-  document.getElementById("bs_tech1_lbl").textContent="Seçin"; document.getElementById("bs_tech1_btn").classList.remove("filled");
-  document.getElementById("bs_tech2_lbl").textContent="Seçin (könüllü)"; document.getElementById("bs_tech2_btn").classList.remove("filled");
-  document.getElementById("bs_leader_lbl").textContent="Seçin"; document.getElementById("bs_leader_btn").classList.remove("filled");
+  var resets=[
+    ["bs_carrier_lbl","Seçin","bs_carrier_btn"],
+    ["bs_brand_lbl","Seçin","bs_brand_btn"],
+    ["bs_problem_lbl","Seçin","bs_problem_btn"],
+    ["bs_solution_lbl","Seçin (çoxlu seçim)","bs_solution_btn"],
+    ["bs_system_lbl","Seçin","bs_system_btn"],
+    ["bs_location_lbl","Seçin","bs_location_btn"],
+    ["bs_tech1_lbl","Seçin","bs_tech1_btn"],
+    ["bs_tech2_lbl","Seçin (könüllü)","bs_tech2_btn"],
+    ["bs_leader_lbl","Seçin","bs_leader_btn"]
+  ];
+  resets.forEach(function(r){
+    var lbl=document.getElementById(r[0]); if(lbl) lbl.textContent=r[1];
+    var btn=document.getElementById(r[2]); if(btn) btn.classList.remove("filled");
+  });
+  document.getElementById("bs_location_note_wrap").style.display="none";
 }
 
 function loadBusFormData(){
@@ -1182,13 +1207,15 @@ function fillSelect(id, list){
 
 // Picker açmaq
 var pickerMeta = {
-  carrier:{title:"Daşıyıcı şirkət",multi:false,list:function(){return bsFormData.carriers||[];}},
-  brand:  {title:"Marka / Modeli",multi:false,list:function(){return bsFormData.busModels||[];}},
-  problem:{title:"Müraciət / Problem",multi:false,list:function(){return bsFormData.busProblems||[];}},
-  solution:{title:"Həll / Açıqlama",multi:true,list:function(){return bsFormData.solutions||[];}},
-  tech1:  {title:"1. Texnik",multi:false,list:function(){return bsFormData.technicians||[];}},
-  tech2:  {title:"2. Texnik",multi:false,list:function(){return bsFormData.technicians||[];}},
-  leader: {title:"Qrup rəhbəri",multi:false,list:function(){return bsFormData.leaders||[];}}
+  carrier: {title:"Daşıyıcı şirkət",  multi:false, list:function(){return bsFormData.carriers||[];}},
+  brand:   {title:"Marka / Modeli",    multi:false, list:function(){return bsFormData.busModels||[];}},
+  problem: {title:"Müraciət / Problem",multi:false, list:function(){return bsFormData.busProblems||[];}},
+  solution:{title:"Həll / Açıqlama",   multi:true,  list:function(){return bsFormData.solutions||[];}},
+  system:  {title:"Sistem",            multi:false, list:function(){return bsFormData.systems||[];}},
+  location:{title:"Servis verilən ünvan",multi:false,list:function(){return bsFormData.locations||[];}},
+  tech1:   {title:"1. Texnik",         multi:false, list:function(){return bsFormData.technicians||[];}},
+  tech2:   {title:"2. Texnik",         multi:false, list:function(){return bsFormData.technicians||[];}},
+  leader:  {title:"Qrup rəhbəri",      multi:false, list:function(){return bsFormData.leaders||[];}}
 };
 
 var activePicker = null;
@@ -1240,14 +1267,21 @@ function selectPickerItem(item){
     updateSolutionChips();
   } else {
     bsSelected[activePicker]=item;
-    // Label yenilə
     var lblEl=document.getElementById("bs_"+activePicker+"_lbl");
     var btnEl=document.getElementById("bs_"+activePicker+"_btn");
     if(lblEl){ lblEl.textContent=item; }
     if(btnEl){ btnEl.classList.add("filled"); }
-    // Problem "Digər" yoxla
+    // Problem "Digər" → note məcburi
     if(activePicker==="problem"){
-      document.getElementById("bs_note_wrap").style.display=(item.toLowerCase().indexOf("digər")!==-1)?"block":"none";
+      var isDigar=(item.toLowerCase().indexOf("digər")!==-1);
+      document.getElementById("bs_note_wrap").style.display=isDigar?"block":"none";
+      if(!isDigar) document.getElementById("bs_note").value="";
+    }
+    // Servis yeri "Digər" → ünvan note məcburi
+    if(activePicker==="location"){
+      var isDigarLoc=(item.toLowerCase().indexOf("digər")!==-1);
+      document.getElementById("bs_location_note_wrap").style.display=isDigarLoc?"block":"none";
+      if(!isDigarLoc) document.getElementById("bs_location_note").value="";
     }
     bsFormDirty=true;
     closePicker();
@@ -1325,7 +1359,11 @@ function submitBusService(){
   }
   if(!bsSelected.carrier){ alert("Daşıyıcı şirkəti seçin"); return; }
   if(!bsSelected.brand){ alert("Marka/Modeli seçin"); return; }
+  if(!bsSelected.system){ alert("Sistemi seçin"); return; }
   if(!bsSelected.problem){ alert("Müraciət/Problemi seçin"); return; }
+  if(bsSelected.problem.toLowerCase().indexOf("digər")!==-1 && !document.getElementById("bs_note").value.trim()){ alert("Problem üçün qeyd yazın"); return; }
+  if(!bsSelected.location){ alert("Servis verilən ünvanı seçin"); return; }
+  if(bsSelected.location.toLowerCase().indexOf("digər")!==-1 && !document.getElementById("bs_location_note").value.trim()){ alert("Ünvan qeydi yazın"); return; }
   if(!bsSelected.tech1){ alert("1. Texniki seçin"); return; }
   if(!bsSelected.leader){ alert("Qrup rəhbərini seçin"); return; }
 
@@ -1339,7 +1377,7 @@ function submitBusService(){
     carrier: bsSelected.carrier,
     license_plate: document.getElementById("bs_plate").value,
     brand_model: bsSelected.brand,
-    system: document.getElementById("bs_system").value,
+    system: bsSelected.system,
     problem: bsSelected.problem,
     request: bsSelected.problem,
     solution: bsSelected.solution,
@@ -1348,7 +1386,8 @@ function submitBusService(){
     new_sn: document.getElementById("bs_new_sn").value,
     service_start_time: document.getElementById("bs_start").value,
     service_end_time: document.getElementById("bs_end").value,
-    service_location: document.getElementById("bs_location").value,
+    service_location: bsSelected.location,
+    service_location_note: document.getElementById("bs_location_note").value,
     technician_1: bsSelected.tech1,
     technician_2: bsSelected.tech2,
     team_leader: bsSelected.leader,
@@ -1394,6 +1433,39 @@ function submitBusService(){
   inputs.forEach(function(el){
     el.addEventListener("input",function(){bsFormDirty=true;});
     el.addEventListener("change",function(){bsFormDirty=true;});
+  });
+})();
+
+// ── Marşrut nömrəsi: böyük hərf, auto-tire (NN-AA-NNN) ─────────────────────
+(function(){
+  var routeEl = document.getElementById("bs_route");
+  if(!routeEl) return;
+  routeEl.addEventListener("input", function(e){
+    var raw = e.target.value.toUpperCase();
+    // Tire mövqelərini qoru: ikinci simvoldan sonra hərf varsa tire qoy
+    // Format: rəqəm+hərf qarışığı, sadə böyük hərf kifayət
+    e.target.value = raw;
+    bsFormDirty = true;
+  });
+})();
+
+// ── Saat inputu: hər platformada 24h məcbur et ──────────────────────────────
+(function(){
+  // Bəzi Chrome versiyalarında type=time locale-ə görə AM/PM göstərir.
+  // Bunu aradan qaldırmaq üçün value-nu daima HH:MM formatında saxlayırıq.
+  var timeInputs = document.querySelectorAll("#busServiceView input[type='time']");
+  timeInputs.forEach(function(el){
+    el.addEventListener("change", function(){
+      // value həmişə HH:MM formatındadır (brauzerin daxili formatı)
+      // Göstərişi məcburi 24h etmək üçün heç bir əlavə lazım deyil
+      // amma placeholder kimi göstərmək üçün:
+      if(el.value){
+        var parts = el.value.split(":");
+        if(parts.length===2){
+          el.setAttribute("data-24h", parts[0]+":"+parts[1]);
+        }
+      }
+    });
   });
 })();
 
