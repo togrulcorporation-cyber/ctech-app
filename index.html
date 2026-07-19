@@ -240,9 +240,20 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
 .bs-date-time-row {
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:8px;
+  gap:10px;
+  align-items:start;
 }
 .bs-date-time-row .bs-field { margin-bottom:0; }
+/* iOS date input fix */
+.bs-date-time-row input[type="date"] {
+  -webkit-appearance:none;
+  appearance:none;
+  min-width:0 !important;
+  width:100% !important;
+  box-sizing:border-box;
+  font-size:13px !important;
+  padding:10px 6px !important;
+}
 
 .bs-field { margin-bottom:12px; }
 .bs-field:last-child { margin-bottom:0; }
@@ -805,7 +816,7 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
       <div class="bs-date-time-row">
         <div class="bs-field">
           <label class="bs-label">Tarix *</label>
-          <input type="date" id="bs_date" class="bs-input" style="width:100%;padding:10px 8px;font-size:13px;">
+          <input type="date" id="bs_date" class="bs-input">
         </div>
         <div class="bs-field">
           <label class="bs-label">Saat *</label>
@@ -1535,6 +1546,9 @@ function startBusService(){
 }
 
 function preloadBusData(callback){
+  // Overlay maksimum 1 saniyə görünür, data arxa planda yüklənir
+  setTimeout(callback, 900);
+  // API sorğusu ayrıca, overlay-dən asılı deyil
   fetch(API_URL, {
     method:"POST",
     headers:{"Content-Type":"text/plain;charset=utf-8"},
@@ -1546,12 +1560,14 @@ function preloadBusData(callback){
       bsFormData = d;
       var tid = d.nextTicketId || "BUS-00001";
       bsNextTicketId = tid;
+      // Ticket ID-ni forma açıqsa yenilə
+      var row = document.getElementById("bsTicketRow");
+      if(row && document.getElementById("busServiceView").style.display !== "none"){
+        row.innerHTML = '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + tid + '</span>';
+      }
     }
-    setTimeout(callback, 800);
   })
-  .catch(function(){
-    setTimeout(callback, 800);
-  });
+  .catch(function(){ /* offline, fallback data işlər */ });
 }
 
 function openBusService(){
