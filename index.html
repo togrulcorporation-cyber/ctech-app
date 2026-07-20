@@ -633,14 +633,18 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
 }
 
 .rpt-header {
+  position:sticky;
+  top:0;
   background:#FFFFFF;
   border-bottom:1px solid #E1EAF6;
-  display:flex;
+  display:grid;
+  grid-template-columns:46px 1fr auto;
   align-items:center;
-  justify-content:space-between;
-  padding:12px 20px;
+  padding:12px 16px;
   padding-top:calc(12px + env(safe-area-inset-top));
+  gap:8px;
   flex-shrink:0;
+  z-index:10;
 }
 
 .rpt-title {
@@ -650,166 +654,111 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
   letter-spacing:1px;
   color:#12233B;
   text-transform:uppercase;
+  text-align:center;
 }
 .rpt-title span { color:#2F6FED; }
+
+.rpt-header-btns { display:flex; align-items:center; gap:8px; justify-self:end; }
 
 .rpt-toolbar {
   display:flex;
   align-items:center;
   gap:10px;
-  padding:12px 20px;
+  padding:12px 16px;
   background:#FFFFFF;
   border-bottom:1px solid #E1EAF6;
   flex-shrink:0;
-  flex-wrap:wrap;
 }
 
+.rpt-search-wrap { position:relative; flex:1; }
+.rpt-search-wrap svg { position:absolute; left:13px; top:50%; transform:translateY(-50%); opacity:.5; pointer-events:none; }
 .rpt-search {
-  flex:1;
-  min-width:200px;
-  padding:8px 12px;
+  width:100%;
+  padding:10px 12px 10px 38px;
   border:1.5px solid #DCE6F5;
-  border-radius:9px;
-  font-size:13px;
+  border-radius:11px;
+  font-size:14px;
   font-family:'Inter',sans-serif;
   color:#12233B;
   background:#F8FAFD;
   outline:none;
+  box-sizing:border-box;
+  transition:border-color .15s;
 }
-.rpt-search:focus { border-color:#4E93FA; }
-
-.rpt-btn {
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:8px 14px;
-  border-radius:9px;
-  border:none;
-  font-size:13px;
-  font-weight:600;
-  font-family:'Inter',sans-serif;
-  cursor:pointer;
-  transition:opacity .15s;
-}
-.rpt-btn:active { opacity:.8; }
-.rpt-btn-refresh { background:#E6F1FB; color:#1B4A8A; }
-.rpt-btn-export  { background:#2F6FED; color:#FFFFFF; }
+.rpt-search:focus { border-color:#4E93FA; background:#fff; }
+.rpt-search::placeholder { color:#9AACC4; }
 
 .rpt-info {
   font-size:12px;
   color:#8CA0BC;
   white-space:nowrap;
+  font-weight:600;
 }
 
-.rpt-table-wrap {
+.rpt-body-scroll {
   flex:1;
-  overflow:auto;
-  padding:0;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:16px 16px calc(24px + env(safe-area-inset-bottom));
 }
 
-.rpt-table {
-  border-collapse:collapse;
-  width:max-content;
-  min-width:100%;
-  font-size:12px;
-  font-family:'Inter',sans-serif;
-  border:1px solid #C8D8EE;
-}
+.rpt-cards { max-width:720px; margin:0 auto; display:flex; flex-direction:column; gap:10px; }
 
-.rpt-table th {
-  background:#E6F1FB;
-  color:#1B4A8A;
-  font-weight:700;
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:.4px;
-  padding:9px 10px;
-  border:1px solid #C8D8EE;
-  white-space:nowrap;
-  position:sticky;
-  top:0;
-  z-index:2;
-  text-align:center;
-}
-
-.rpt-table th:first-child {
-  position:sticky;
-  left:0;
-  z-index:3;
-  background:#D4E8FA;
-  text-align:left;
-}
-
-.rpt-filter-row th {
-  background:#F0F6FF;
-  padding:4px 6px;
-  position:sticky;
-  top:36px;
-  z-index:2;
-  border:1px solid #C8D8EE;
-}
-.rpt-filter-row th:first-child {
-  position:sticky;
-  left:0;
-  z-index:3;
-  background:#E8F2FB;
-}
-
-.rpt-col-filter {
-  width:100%;
-  padding:3px 7px;
-  border:1px solid #C8D8EE;
-  border-radius:4px;
-  font-size:11px;
-  font-family:'Inter',sans-serif;
+.rpt-card {
   background:#FFFFFF;
-  color:#12233B;
-  outline:none;
-  min-width:70px;
-  box-sizing:border-box;
+  border:1px solid #E1EAF6;
+  border-radius:14px;
+  padding:14px 14px 14px 16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 8px 20px rgba(30,68,130,.06);
+  transition:transform .12s,box-shadow .12s;
 }
-.rpt-col-filter:focus { border-color:#4E93FA; background:#F8FAFD; }
+.rpt-card:hover { transform:translateY(-1px); box-shadow:0 12px 26px rgba(30,68,130,.10); }
 
-.rpt-table td {
-  padding:7px 10px;
-  border:1px solid #DCE6F5;
-  color:#12233B;
-  white-space:nowrap;
-  max-width:200px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  vertical-align:middle;
-}
+.rpt-card-main { flex:1; min-width:0; display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; }
 
-.rpt-table tbody tr:nth-child(even) td { background:#F8FAFD; }
-.rpt-table tbody tr:nth-child(odd) td { background:#FFFFFF; }
-
-.rpt-table td:first-child {
-  position:sticky;
-  left:0;
-  background:#F0F7FF;
+.rpt-card-id {
   font-family:'IBM Plex Mono',monospace;
   font-weight:700;
-  font-size:11px;
+  font-size:13px;
   color:#2F6FED;
-  border-right:2px solid #C8D8EE;
-  z-index:1;
+  background:#E6F1FB;
+  padding:3px 10px;
+  border-radius:7px;
+  white-space:nowrap;
 }
-
-.rpt-table tbody tr:nth-child(even) td:first-child { background:#E8F3FF; }
-.rpt-table tr:hover td { background:#EEF6FF !important; }
-.rpt-table tr:hover td:first-child { background:#DFF0FF !important; }
-
-.rpt-status-aciq {
-  display:inline-block;
-  padding:2px 10px;
+.rpt-card-field { font-size:13px; color:#3A4A5E; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rpt-card-field b { color:#12233B; font-weight:600; }
+.rpt-card-status {
+  font-size:10px;
+  font-weight:700;
+  padding:2px 9px;
+  border-radius:5px;
   background:#D1FAE5;
   color:#065F46;
-  border-radius:4px;
-  font-size:11px;
-  font-weight:700;
   border:1px solid #6EE7B7;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+  white-space:nowrap;
 }
+
+.rpt-card-actions { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.rpt-icon-btn {
+  width:36px; height:36px;
+  border-radius:10px;
+  border:1.5px solid #DCE6F5;
+  background:#F8FAFD;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  color:#5C7089;
+  transition:background .15s,color .15s,border-color .15s;
+  flex-shrink:0;
+}
+.rpt-icon-btn:hover { background:#E6F1FB; color:#1B4A8A; border-color:#CFE0F7; }
+.rpt-icon-btn:active { transform:scale(.94); }
+.rpt-icon-btn.rpt-edit-btn:hover { background:#FDF1E3; color:#B45309; border-color:#F5D9A8; }
 
 .rpt-empty {
   text-align:center;
@@ -829,27 +778,89 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
   font-size:14px;
 }
 
-/* Dark mode */
+.rpt-loadmore-wrap { display:flex; justify-content:center; padding:18px 0 4px; }
+.rpt-loadmore-btn {
+  background:#E6F1FB;
+  color:#1B4A8A;
+  border:1.5px solid #CFE0F7;
+  padding:11px 30px;
+  border-radius:11px;
+  font-size:13px;
+  font-weight:700;
+  font-family:'Inter',sans-serif;
+  cursor:pointer;
+  transition:background .15s;
+}
+.rpt-loadmore-btn:hover { background:#DDE9FB; }
+.rpt-loadmore-btn:active { transform:scale(.97); }
+
+/* Dark mode - Report view */
 body.dark-mode #busReportView { background:#0F1826; }
 body.dark-mode .rpt-header,
 body.dark-mode .rpt-toolbar { background:#141F30; border-color:#4A6182; }
 body.dark-mode .rpt-title { color:#E8EEF5; }
 body.dark-mode .rpt-search { background:#1C2A3D; border-color:#4A6182; color:#E8EEF5; }
+body.dark-mode .rpt-search::placeholder { color:#5C7089; }
 body.dark-mode .rpt-info { color:#5C7089; }
-body.dark-mode .rpt-table { border-color:#4A6182; }
-body.dark-mode .rpt-table th { background:#1C2A3D; color:#8CA0BC; border-color:#4A6182; }
-body.dark-mode .rpt-table th:first-child { background:#16212E; }
-body.dark-mode .rpt-filter-row th { background:#141F30; border-color:#4A6182; }
-body.dark-mode .rpt-filter-row th:first-child { background:#1C2A3D; }
-body.dark-mode .rpt-col-filter { background:#1C2A3D; border-color:#4A6182; color:#E8EEF5; }
-body.dark-mode .rpt-table tbody tr:nth-child(even) td { background:#16212E; }
-body.dark-mode .rpt-table tbody tr:nth-child(odd) td { background:#141F30; }
-body.dark-mode .rpt-table td { color:#E8EEF5; border-color:#2A3B52; }
-body.dark-mode .rpt-table td:first-child { background:#1C2A3D !important; color:#8FB4EA; border-color:#4A6182; }
-body.dark-mode .rpt-table tbody tr:nth-child(even) td:first-child { background:#16212E !important; }
-body.dark-mode .rpt-table tr:hover td { background:#25374F !important; }
-body.dark-mode .rpt-table tr:hover td:first-child { background:#2E4566 !important; }
-body.dark-mode .rpt-btn-refresh { background:#1C2A3D; color:#8FB4EA; }
+body.dark-mode .rpt-card { background:#16212E; border-color:#4A6182; box-shadow:none; }
+body.dark-mode .rpt-card:hover { box-shadow:0 10px 24px rgba(0,0,0,.25); }
+body.dark-mode .rpt-card-id { background:#1C2A3D; color:#8FB4EA; }
+body.dark-mode .rpt-card-field { color:#93A4BC; }
+body.dark-mode .rpt-card-field b { color:#E8EEF5; }
+body.dark-mode .rpt-icon-btn { background:#1C2A3D; border-color:#4A6182; color:#93A4BC; }
+body.dark-mode .rpt-icon-btn:hover { background:#25374F; color:#8FB4EA; }
+body.dark-mode .rpt-icon-btn.rpt-edit-btn:hover { background:#3A2E1C; color:#F0B860; }
+body.dark-mode .rpt-loadmore-btn { background:#1C2A3D; border-color:#4A6182; color:#8FB4EA; }
+body.dark-mode .rpt-loadmore-btn:hover { background:#25374F; }
+
+/* ===== BUS DETAIL VIEW (görüntüləmə) ===== */
+#busDetailView {
+  display:none;
+  position:fixed;
+  top:0; left:0; width:100%; height:100%;
+  background:#F4F8FD;
+  z-index:45;
+  flex-direction:column;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.dv-body { max-width:560px; margin:0 auto; padding:18px 16px calc(24px + env(safe-area-inset-bottom)); width:100%; box-sizing:border-box; }
+.dv-section {
+  background:#FFFFFF;
+  border:1px solid #E1EAF6;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:12px;
+}
+.dv-section-title {
+  font-size:11px;
+  font-weight:700;
+  color:#8CA0BC;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:12px;
+}
+.dv-row { display:flex; justify-content:space-between; gap:14px; padding:8px 0; border-bottom:1px solid #F0F5FC; }
+.dv-row:last-child { border-bottom:none; }
+.dv-label { font-size:12px; color:#8CA0BC; font-weight:600; flex-shrink:0; }
+.dv-value { font-size:13px; color:#12233B; font-weight:500; text-align:right; word-break:break-word; }
+.dv-status-chip {
+  display:inline-block;
+  padding:2px 12px;
+  background:#D1FAE5;
+  color:#065F46;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:700;
+  border:1px solid #6EE7B7;
+}
+body.dark-mode #busDetailView { background:#0F1826; }
+body.dark-mode .dv-section { background:#16212E; border-color:#4A6182; }
+body.dark-mode .dv-section-title { color:#5C7089; }
+body.dark-mode .dv-row { border-bottom-color:#1C2A3D; }
+body.dark-mode .dv-label { color:#5C7089; }
+body.dark-mode .dv-value { color:#E8EEF5; }
+
 
 </style>
 </head>
@@ -972,7 +983,7 @@ body.dark-mode .rpt-btn-refresh { background:#1C2A3D; color:#8FB4EA; }
       </div>
     </div>
 
-    <div id="managementSection">
+    <div id="dashboardsSection">
       <div class="dash-divider">
         <div class="dash-badge">DASHBOARDS</div>
         <div class="dash-connector"></div>
@@ -991,6 +1002,9 @@ body.dark-mode .rpt-btn-refresh { background:#1C2A3D; color:#8FB4EA; }
           <div><div class="card-title-small">Dashboard TVM</div><div class="card-sub-small">Statistika və hesabatlar</div></div>
         </div>
       </div>
+    </div>
+
+    <div id="reportsSection">
       <div class="dash-divider">
         <div class="dash-badge">HESABATLAR</div>
         <div class="dash-connector"></div>
@@ -1000,13 +1014,13 @@ body.dark-mode .rpt-btn-refresh { background:#1C2A3D; color:#8FB4EA; }
           <div class="card-icon-small icon-bus">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
           </div>
-          <div><div class="card-title-small">BUS Real-Time Report</div><div class="card-sub-small">Canlı cədvəl və Excel ixracı</div></div>
+          <div><div class="card-title-small">BUS Real-Time Report</div><div class="card-sub-small">Canlı siyahı və Excel ixracı</div></div>
         </div>
         <div class="card-small" onclick="moduleAlert('TVM-Real-Time-Report')">
           <div class="card-icon-small icon-tvm">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
           </div>
-          <div><div class="card-title-small">TVM Real-Time Report</div><div class="card-sub-small">Canlı cədvəl və Excel ixracı</div></div>
+          <div><div class="card-title-small">TVM Real-Time Report</div><div class="card-sub-small">Canlı siyahı və Excel ixracı</div></div>
         </div>
       </div>
     </div>
@@ -1030,27 +1044,29 @@ body.dark-mode .rpt-btn-refresh { background:#1C2A3D; color:#8FB4EA; }
 <div id="busReportView" style="display:none;flex-direction:column;">
 
   <div class="rpt-header">
-    <button onclick="closeBusReport()" class="bs-home-btn" aria-label="Geri">
+    <button onclick="closeBusReport()" class="bs-home-btn" aria-label="Ana səhifəyə qayıt">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
     </button>
     <div class="rpt-title">BUS <span>Real-Time</span> Report</div>
-    <div style="width:32px;"></div>
+    <div class="rpt-header-btns">
+      <button class="icon-btn" onclick="loadReportData()" aria-label="Yenilə" title="Yenilə">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      </button>
+      <button class="icon-btn" id="rptExcelBtn" onclick="exportToExcel()" aria-label="Excel yüklə" title="Excel yüklə" style="display:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+    </div>
   </div>
 
   <div class="rpt-toolbar">
-    <input type="text" class="rpt-search" id="rptGlobalSearch" placeholder="🔍 Bütün sütunlarda axtar..." oninput="applyFilters()">
-    <span class="rpt-info" id="rptCount">— sətir</span>
-    <button class="rpt-btn rpt-btn-refresh" onclick="loadReportData()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-      Yenilə
-    </button>
-    <button class="rpt-btn rpt-btn-export" onclick="exportToExcel()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Excel
-    </button>
+    <div class="rpt-search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" class="rpt-search" id="rptGlobalSearch" placeholder="Ticket ID, D.Q.N., BUS ID və ya Daşıyıcı üzrə axtar..." oninput="applyFilters()">
+    </div>
+    <span class="rpt-info" id="rptCount">— nəticə</span>
   </div>
 
-  <div class="rpt-table-wrap">
+  <div class="rpt-body-scroll">
     <div id="rptContent" class="rpt-loading">
       <div class="spinner" style="width:40px;height:40px;border-width:4px;"></div>
       <span>Məlumatlar yüklənir...</span>
@@ -1058,6 +1074,25 @@ body.dark-mode .rpt-btn-refresh { background:#1C2A3D; color:#8FB4EA; }
   </div>
 
 </div>
+
+<!-- ===== BUS DETAIL VIEW (yalnız baxış) ===== -->
+<div id="busDetailView" style="display:none;flex-direction:column;">
+
+  <div class="rpt-header">
+    <button onclick="closeBusDetail()" class="bs-home-btn" aria-label="Geri">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    </button>
+    <div class="rpt-title" id="dvTicketTitle">Servis Detalları</div>
+    <div style="width:32px;"></div>
+  </div>
+
+  <div class="dv-body" id="dvBody">
+    <!-- JS tərəfindən doldurulur -->
+  </div>
+
+</div>
+
+<!-- ===== BUS SERVICE VIEW ===== -->
 
 <!-- ===== BUS SERVICE VIEW ===== -->
 <div id="busServiceView">
@@ -1329,7 +1364,7 @@ body.dark-mode .rpt-btn-refresh { background:#1C2A3D; color:#8FB4EA; }
   </div><!-- /.bs-body -->
 
   <div class="bs-submit">
-    <button type="button" class="bs-submit-btn" onclick="submitBusService()">Göndər</button>
+    <button type="button" class="bs-submit-btn" id="bsSubmitBtn" onclick="submitBusService()">Göndər</button>
   </div>
 
 </div><!-- /#busServiceView -->
@@ -1447,7 +1482,8 @@ function getAccessLevel(role){ var r=(role||"").toLowerCase(); if(r.indexOf("adm
 
 function applyAccessLevel(){
   var level=getAccessLevel(currentUser.role);
-  document.getElementById("managementSection").style.display=(level==="technician")?"none":"block";
+  document.getElementById("dashboardsSection").style.display=(level==="technician")?"none":"block";
+  document.getElementById("reportsSection").style.display="block";
   document.getElementById("adminMenuItem").style.display=(level==="admin")?"flex":"none";
 }
 
@@ -1799,6 +1835,11 @@ function fillAllDDs(data){
 }
 
 // ── Form açılışı ─────────────────────────────────────
+// ── Redaktə (edit) rejimi dəyişənləri ────────────────
+var bsEditMode = false;
+var bsEditTicketId = null;
+var bsReturnTarget = "dashboard"; // "dashboard" | "report"
+
 function startBusService(){
   // Overlay göstər
   var ov = document.getElementById("busOpenOverlay");
@@ -1825,9 +1866,9 @@ function preloadBusData(callback){
       bsFormData = d;
       var tid = d.nextTicketId || "BUS-00001";
       bsNextTicketId = tid;
-      // Ticket ID-ni forma açıqsa yenilə
+      // Ticket ID-ni forma açıqsa yenilə (yalnız yeni-yaratma rejimində)
       var row = document.getElementById("bsTicketRow");
-      if(row && document.getElementById("busServiceView").style.display !== "none"){
+      if(row && !bsEditMode && document.getElementById("busServiceView").style.display !== "none"){
         row.innerHTML = '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + tid + '</span>';
       }
     }
@@ -1835,23 +1876,17 @@ function preloadBusData(callback){
   .catch(function(){ /* offline, fallback data işlər */ });
 }
 
-function openBusService(){
-  var now = new Date();
-  var bParts = new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Baku",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
-  document.getElementById("bs_date").value = bParts;
-
+function resetBusFormFields(){
   // Saat: manual seçim, --:-- başlasın
   timeState = { main:{h:-1,m:-1}, start:{h:-1,m:-1}, end:{h:-1,m:-1} };
   ["bs_time_lbl","bs_start_lbl","bs_end_lbl"].forEach(function(id){
     var el = document.getElementById(id);
-    if(el){ el.textContent="--:--"; el.style.color="#9AACC4"; }
+    if(el){ el.textContent="--:--"; el.style.color="#9AACC4"; el.classList.remove("filled"); }
   });
 
-  // Reset
   bsFormDirty = false;
-  bsSelected = {carrier:"",brand:"",problem:"",solution:[],system:"",location:"",tech1:"",tech2:"",leader:""};
+  bsSelected = {carrier:"",brand:"",problem:"",solution:[],system:"",equipment:"",location:"",tech1:"",tech2:"",leader:""};
 
-  // Label-ları sıfırla
   Object.keys(ddMeta).forEach(function(k){
     var m = ddMeta[k];
     var el = document.getElementById(m.lbl);
@@ -1864,23 +1899,34 @@ function openBusService(){
     }
     closeDD(k);
   });
-  // Saat label-larını da sıfırla
-  ["bs_time_lbl","bs_start_lbl","bs_end_lbl"].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el){ el.classList.remove("filled"); }
-  });
 
-  ["bs_requester","bs_phone","bs_route","bs_busid","bs_plate","bs_old_sn","bs_new_sn","bs_start","bs_end","bs_note","bs_location_note"].forEach(function(id){
+  ["bs_requester","bs_phone","bs_route","bs_busid","bs_plate","bs_old_sn","bs_new_sn","bs_note","bs_location_note"].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.value = "";
   });
   document.getElementById("bs_note_wrap").style.display = "none";
   document.getElementById("bs_solution_chips").innerHTML = "";
   document.getElementById("bs_location_note_wrap").style.display = "none";
+}
+
+function openBusService(){
+  bsEditMode = false;
+  bsEditTicketId = null;
+  bsReturnTarget = "dashboard";
+
+  var now = new Date();
+  var bParts = new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Baku",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+
+  resetBusFormFields();
+  document.getElementById("bs_date").value = bParts;
 
   document.getElementById("dashboardView").style.display = "none";
+  document.getElementById("busReportView").style.display = "none";
   document.getElementById("busServiceView").style.display = "block";
   document.getElementById("busServiceView").scrollTop = 0;
+
+  var btn = document.getElementById("bsSubmitBtn");
+  if(btn) btn.textContent = "Göndər";
 
   // Ticket ID göstər
   if(bsNextTicketId){
@@ -1905,8 +1951,10 @@ function loadBusFormData(){
     bsFormData = d;
     var tid = d.nextTicketId || "BUS-00001";
     bsNextTicketId = tid;
-    document.getElementById("bsTicketRow").innerHTML =
-      '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + tid + '</span>';
+    if(!bsEditMode){
+      document.getElementById("bsTicketRow").innerHTML =
+        '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + tid + '</span>';
+    }
   })
   .catch(function(){
     bsFormData = {
@@ -1920,12 +1968,140 @@ function loadBusFormData(){
       technicians:["Tural Əmmədov","Amil İbrahimov","Rövşən Nurəhmədov","Sənan Nuriyev","Surxay Qasımov","Hikmət Musazadə"],
       leaders:["Mustafa Salmanov","Ramil İbrahimov","Elvin Şamilov","Vüsal Məmmədov","Toğrul Əliyev","Nazim Dinavasov"]
     };
-    document.getElementById("bsTicketRow").innerHTML =
-      '<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>';
+    if(!bsEditMode){
+      document.getElementById("bsTicketRow").innerHTML =
+        '<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>';
+    }
   });
 }
 
-// ── Submit ───────────────────────────────────────────
+// ── Redaktə üçün: mövcud ticket-i formaya yüklə ──────
+function setDDValue(key, value){
+  if(!value) return;
+  var meta = ddMeta[key];
+  if(!meta) return;
+  bsSelected[key] = value;
+  var lblEl = document.getElementById(meta.lbl);
+  if(lblEl){
+    lblEl.textContent = value;
+    lblEl.style.color = "#12233B";
+    lblEl.style.fontSize = "14px";
+    lblEl.style.fontWeight = "400";
+    lblEl.classList.add("filled");
+  }
+}
+
+function setTimeLabel(which, hhmm){
+  if(!hhmm) return;
+  var parts = hhmm.split(":");
+  if(parts.length !== 2) return;
+  var h = parseInt(parts[0],10), m = parseInt(parts[1],10);
+  if(isNaN(h) || isNaN(m)) return;
+  timeState[which] = { h:h, m:m };
+  var lblId = which==="main" ? "bs_time_lbl" : "bs_"+which+"_lbl";
+  var lbl = document.getElementById(lblId);
+  if(lbl){
+    lbl.textContent = hhmm;
+    lbl.style.color = "#12233B";
+    lbl.style.fontSize = "14px";
+    lbl.style.fontFamily = "IBM Plex Mono,monospace";
+    lbl.classList.add("filled");
+  }
+}
+
+function openBusServiceForEdit(ticketId){
+  var ov = document.getElementById("busOpenOverlay");
+  ov.style.display = "flex";
+
+  var ensureFormData = bsFormData && bsFormData.carriers ? Promise.resolve(bsFormData) :
+    fetch(API_URL, {
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({action:"getFormData"})
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if(d.status==="OK"){ bsFormData = d; bsNextTicketId = d.nextTicketId || bsNextTicketId; }
+      return bsFormData;
+    });
+
+  ensureFormData.then(function(){
+    return fetch(API_URL, {
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({action:"getServiceById", ticketId:ticketId})
+    }).then(function(r){ return r.json(); });
+  }).then(function(d){
+    ov.style.display = "none";
+    if(d.status !== "OK"){
+      alert(d.message || "Ticket yüklənə bilmədi");
+      return;
+    }
+
+    bsEditMode = true;
+    bsEditTicketId = ticketId;
+    bsReturnTarget = "report";
+
+    resetBusFormFields();
+
+    document.getElementById("dashboardView").style.display = "none";
+    document.getElementById("busReportView").style.display = "none";
+    document.getElementById("busServiceView").style.display = "block";
+    document.getElementById("busServiceView").scrollTop = 0;
+
+    // Ticket badge - redaktə rejimi (narıncı)
+    document.getElementById("bsTicketRow").innerHTML =
+      '<span style="display:inline-flex;align-items:center;background:#D97706;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">REDAKTƏ: ' + d.ticketId + '</span>';
+
+    var btn = document.getElementById("bsSubmitBtn");
+    if(btn) btn.textContent = "Yadda saxla";
+
+    // Sadə xanalar
+    document.getElementById("bs_date").value = d.report_date_raw || "";
+    document.getElementById("bs_requester").value = d.requester_name || "";
+    document.getElementById("bs_phone").value = d.requester_phone || "";
+    document.getElementById("bs_route").value = d.route_number || "";
+    document.getElementById("bs_busid").value = d.bus_id || "";
+    document.getElementById("bs_plate").value = d.license_plate || "";
+    document.getElementById("bs_old_sn").value = d.old_sn || "";
+    document.getElementById("bs_new_sn").value = d.new_sn || "";
+    document.getElementById("bs_note").value = d.note || "";
+    document.getElementById("bs_location_note").value = d.service_location_note || "";
+
+    // Saatlar
+    setTimeLabel("main", d.report_time);
+    setTimeLabel("start", d.service_start_time);
+    setTimeLabel("end", d.service_end_time);
+
+    // Dropdown-lar
+    setDDValue("carrier", d.carrier);
+    setDDValue("brand", d.brand_model);
+    setDDValue("system", d.system);
+    setDDValue("equipment", d.changed_device_type);
+    setDDValue("problem", d.problem);
+    setDDValue("location", d.service_location);
+    setDDValue("tech1", d.technician_1);
+    if(d.technician_2){ setDDValue("tech2", d.technician_2); }
+    setDDValue("leader", d.team_leader);
+
+    // Çoxlu seçim: Həll/Açıqlama
+    bsSelected.solution = Array.isArray(d.solution) ? d.solution.slice() : [];
+    updateMultiLabel("solution");
+    updateSolutionChips();
+
+    // "Digər" qeyd xanalarını aç
+    var problemDigar = (d.problem||"").toLowerCase().indexOf("digər")!==-1;
+    var solutionDigar = bsSelected.solution.some(function(s){ return s.toLowerCase().indexOf("digər")!==-1; });
+    document.getElementById("bs_note_wrap").style.display = (problemDigar || solutionDigar) ? "block" : "none";
+    document.getElementById("bs_location_note_wrap").style.display = (d.service_location||"").toLowerCase().indexOf("digər")!==-1 ? "block" : "none";
+
+    bsFormDirty = false;
+  })
+  .catch(function(){
+    ov.style.display = "none";
+    alert("Şəbəkə xətası: ticket yüklənə bilmədi");
+  });
+}
+
+// ── Submit (yaratma və ya redaktə) ───────────────────
 function submitBusService(){
   if(!document.getElementById("bs_date").value){ alert("Tarix daxil edin"); return; }
   if(getTimeValue()===""){ alert("Saat seçin"); return; }
@@ -1983,21 +2159,35 @@ function submitBusService(){
   var tx = document.getElementById("bsLoadingText");
   var ic = document.getElementById("bsSuccessIcon");
   ov.classList.add("open");
-  sp.style.display="block"; ic.style.display="none"; tx.textContent="Göndərilir...";
+  sp.style.display="block"; ic.style.display="none";
+  tx.textContent = bsEditMode ? "Yadda saxlanılır..." : "Göndərilir...";
+
+  var payload = bsEditMode
+    ? { action:"updateBusService", ticketId:bsEditTicketId, data:data, userEmail:currentUser?currentUser.email:"" }
+    : { action:"submitBusService", data:data, userEmail:currentUser?currentUser.email:"" };
 
   fetch(API_URL, {
     method:"POST",
     headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body:JSON.stringify({action:"submitBusService", data:data, userEmail:currentUser?currentUser.email:""})
+    body:JSON.stringify(payload)
   })
   .then(function(r){ return r.json(); })
   .then(function(result){
     sp.style.display = "none";
     ic.style.display = "flex";
-    tx.textContent = result.status==="OK" ? "Göndərildi! " + result.ticketId : "Xəta baş verdi";
+    if(result.status==="OK"){
+      tx.textContent = bsEditMode ? "Yadda saxlanıldı! " + result.ticketId : "Göndərildi! " + result.ticketId;
+    } else {
+      tx.textContent = "Xəta baş verdi";
+    }
     setTimeout(function(){
       ov.classList.remove("open");
-      if(result.status==="OK"){ bsFormDirty=false; goToDashboardFromBus(); }
+      if(result.status==="OK"){
+        bsFormDirty=false;
+        var wasEdit = bsEditMode;
+        bsGoBack();
+        if(wasEdit){ loadReportData(); }
+      }
     }, 1800);
   })
   .catch(function(){
@@ -2010,7 +2200,7 @@ function submitBusService(){
 // ── Home / Confirm / Exit ────────────────────────────
 function attemptBusHome(){
   if(bsFormDirty){ document.getElementById("bsConfirmOverlay").classList.add("open"); }
-  else { goToDashboardFromBus(); }
+  else { bsGoBack(); }
 }
 function closeConfirm(){ document.getElementById("bsConfirmOverlay").classList.remove("open"); }
 function confirmExit(){
@@ -2021,13 +2211,21 @@ function confirmExit(){
   var ic=document.getElementById("bsSuccessIcon");
   ov.classList.add("open");
   sp.style.display="block"; ic.style.display="none"; tx.textContent="Gözləyin...";
-  setTimeout(function(){ ov.classList.remove("open"); goToDashboardFromBus(); }, 900);
+  setTimeout(function(){ ov.classList.remove("open"); bsGoBack(); }, 900);
 }
-function goToDashboardFromBus(){
+function bsGoBack(){
   closeAllDD();
   document.getElementById("busServiceView").style.display="none";
-  document.getElementById("dashboardView").style.display="block";
+  if(bsReturnTarget === "report"){
+    document.getElementById("busReportView").style.display="flex";
+  } else {
+    document.getElementById("dashboardView").style.display="block";
+  }
+  bsEditMode = false;
+  bsEditTicketId = null;
+  bsReturnTarget = "dashboard";
 }
+
 
 // ── BUS ID: rəqəm only ───────────────────────────────
 document.addEventListener("DOMContentLoaded", function(){
@@ -2100,28 +2298,44 @@ document.addEventListener("DOMContentLoaded", function(){
 // BUS REAL-TIME REPORT
 // ═══════════════════════════════════════════════════
 
-var rptAllRows = [];      // bütün data
-var rptColumns = [];      // sütun adları
-var rptFiltered = [];     // filtirdən keçmiş data
-var rptColFilters = {};   // hər sütun üçün filter dəyəri
+var rptAllRows = [];      // bütün data (sıralanmış)
+var rptColumns = [];      // sütun adları (Excel export üçün)
+var rptFiltered = [];     // axtarışdan keçmiş data (tam siyahı)
+var rptShownCount = 20;   // hazırda göstərilən say
+var rptPageSize = 20;
 var rptAutoRefresh = null;
+
+var RPT_SEARCH_FIELDS = ["Ticket ID", "D.Q.N.", "BUS ID", "Daşıyıcı"];
 
 function openBusReport(){
   document.getElementById("dashboardView").style.display = "none";
   var view = document.getElementById("busReportView");
   view.style.display = "flex";
-  rptColFilters = {};
   document.getElementById("rptGlobalSearch").value = "";
+  document.getElementById("rptExcelBtn").style.display =
+    (getAccessLevel(currentUser.role) === "technician") ? "none" : "flex";
+  rptShownCount = rptPageSize;
   loadReportData();
-  // Hər 30 saniyədə avtomatik yenilə
+  // Hər 2 dəqiqədə avtomatik yenilə
   if(rptAutoRefresh) clearInterval(rptAutoRefresh);
-  rptAutoRefresh = setInterval(loadReportData, 30000);
+  rptAutoRefresh = setInterval(loadReportData, 120000);
 }
 
 function closeBusReport(){
   if(rptAutoRefresh){ clearInterval(rptAutoRefresh); rptAutoRefresh = null; }
   document.getElementById("busReportView").style.display = "none";
   document.getElementById("dashboardView").style.display = "block";
+}
+
+// Azərbaycan tarix (dd.MM.yyyy) + saat (HH:MM) -> sıralana bilən ədəd
+function rptSortKey(row){
+  var d = row["Tarix"] || "";
+  var t = row["Saat"] || "";
+  var dp = d.split(".");
+  if(dp.length !== 3) return 0;
+  var iso = dp[2] + "-" + dp[1] + "-" + dp[0] + "T" + (t || "00:00") + ":00";
+  var ts = new Date(iso).getTime();
+  return isNaN(ts) ? 0 : ts;
 }
 
 function loadReportData(){
@@ -2140,7 +2354,7 @@ function loadReportData(){
         '<div class="rpt-empty">Xəta: ' + (d.message||"məlumat gəlmədi") + '</div>';
       return;
     }
-    rptAllRows = d.rows || [];
+    rptAllRows = (d.rows || []).slice().sort(function(a,b){ return rptSortKey(b) - rptSortKey(a); });
     rptColumns = d.columns || [];
     applyFilters();
   })
@@ -2151,117 +2365,136 @@ function loadReportData(){
 }
 
 function applyFilters(){
-  var global = (document.getElementById("rptGlobalSearch").value || "").toLowerCase();
+  var q = (document.getElementById("rptGlobalSearch").value || "").toLowerCase().trim();
+  rptShownCount = rptPageSize;
 
-  rptFiltered = rptAllRows.filter(function(row){
-    // Sütun filtirləri
-    for(var col in rptColFilters){
-      var fv = rptColFilters[col].toLowerCase();
-      if(!fv) continue;
-      var cv = (row[col] || "").toLowerCase();
-      if(cv.indexOf(fv) === -1) return false;
-    }
-    // Qlobal axtarış
-    if(global){
-      var found = false;
-      for(var k in row){
-        if((row[k]||"").toLowerCase().indexOf(global) !== -1){ found=true; break; }
+  if(!q){
+    rptFiltered = rptAllRows;
+  } else {
+    rptFiltered = rptAllRows.filter(function(row){
+      for(var i=0;i<RPT_SEARCH_FIELDS.length;i++){
+        var f = RPT_SEARCH_FIELDS[i];
+        if((row[f]||"").toLowerCase().indexOf(q) !== -1) return true;
       }
-      if(!found) return false;
-    }
-    return true;
-  });
+      return false;
+    });
+  }
 
-  renderTable();
+  renderCards();
 }
 
-function renderTable(){
+function canEditTicket(row){
+  var level = getAccessLevel(currentUser.role);
+  if(level === "leader" || level === "admin") return true;
+  var createdBy = (row["_created_by"] || "").toLowerCase().trim();
+  var me = (currentUser.email || "").toLowerCase().trim();
+  return createdBy && me && createdBy === me;
+}
+
+function renderCards(){
   var wrap = document.getElementById("rptContent");
-  document.getElementById("rptCount").textContent = rptFiltered.length + " / " + rptAllRows.length + " sətir";
+  document.getElementById("rptCount").textContent = rptFiltered.length + " nəticə";
 
   if(rptFiltered.length === 0){
     wrap.innerHTML = '<div class="rpt-empty">Məlumat tapılmadı</div>';
     return;
   }
 
-  var cols = rptColumns;
+  var visible = rptFiltered.slice(0, rptShownCount);
+  var html = '<div class="rpt-cards">';
 
-  // Hər sütun üçün en (px)
-  var colWidths = {
-    "Ticket ID":     88,
-    "Tarix":         88,
-    "Saat":          52,
-    "Daşıyıcı":     140,
-    "Marşrut №":     72,
-    "BUS ID":        65,
-    "D.Q.N.":        85,
-    "Marka/Model":   95,
-    "Sistem":        60,
-    "Problem":      190,
-    "Həll":         190,
-    "Servis Kat.":   90,
-    "Köhnə SN":      95,
-    "Yeni SN":       95,
-    "Başlanğıc":     72,
-    "Bitiş":         72,
-    "Servis yeri":  120,
-    "Müraciət edən":130,
-    "Telefon":      100,
-    "1. Texnik":    115,
-    "2. Texnik":    115,
-    "Qrup rəhbəri": 115,
-    "Status":        70,
-    "Qeyd":         150
-  };
-
-  var html = '<table class="rpt-table"><colgroup>';
-  cols.forEach(function(c){
-    var w = colWidths[c] || 100;
-    html += '<col style="width:' + w + 'px;min-width:' + w + 'px;">';
-  });
-  html += '</colgroup><thead>';
-
-  // Başlıq sətri
-  html += '<tr>';
-  cols.forEach(function(c){
-    html += '<th>' + c + '</th>';
-  });
-  html += '</tr>';
-
-  // Filter sətri
-  html += '<tr class="rpt-filter-row">';
-  cols.forEach(function(c){
-    var val = rptColFilters[c] || "";
-    html += '<th><input type="text" class="rpt-col-filter" placeholder="Filtir..." value="'
-      + val.replace(/"/g,"&quot;")
-      + '" data-col="' + c.replace(/"/g,"&quot;") + '" oninput="onColFilter(this)"></th>';
-  });
-  html += '</tr></thead><tbody>';
-
-  // Data sətirləri
-  rptFiltered.forEach(function(row){
-    html += '<tr>';
-    cols.forEach(function(c, i){
-      var v = row[c] || "";
-      if(c === "Status"){
-        html += '<td><span class="rpt-status-aciq">' + v + '</span></td>';
-      } else if(i === 0){
-        html += '<td>' + v + '</td>';
-      } else {
-        html += '<td title="' + v.replace(/"/g,"&quot;") + '">' + v + '</td>';
-      }
-    });
-    html += '</tr>';
+  visible.forEach(function(row){
+    var ticketId = row["Ticket ID"] || "";
+    var editable = canEditTicket(row);
+    html += '<div class="rpt-card">'
+      + '<div class="rpt-card-main">'
+      +   '<span class="rpt-card-id">' + ticketId + '</span>'
+      +   '<span class="rpt-card-field">' + (row["Tarix"]||"") + '</span>'
+      +   '<span class="rpt-card-field"><b>' + (row["D.Q.N."]||"") + '</b></span>'
+      +   '<span class="rpt-card-field">BUS ' + (row["BUS ID"]||"") + '</span>'
+      + '</div>'
+      + '<div class="rpt-card-actions">'
+      +   '<button class="rpt-icon-btn" onclick="openBusDetail(\'' + ticketId.replace(/'/g,"") + '\')" aria-label="Baxış" title="Baxış">'
+      +     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>'
+      +   '</button>'
+      +   (editable
+          ? '<button class="rpt-icon-btn rpt-edit-btn" onclick="openBusServiceForEdit(\'' + ticketId.replace(/'/g,"") + '\')" aria-label="Redaktə et" title="Redaktə et">'
+            + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>'
+            + '</button>'
+          : '')
+      + '</div>'
+      + '</div>';
   });
 
-  html += '</tbody></table>';
+  html += '</div>';
+
+  if(rptFiltered.length > rptShownCount){
+    html += '<div class="rpt-loadmore-wrap"><button class="rpt-loadmore-btn" onclick="rptShowMore()">Daha çox göstər (' + (rptFiltered.length - rptShownCount) + ')</button></div>';
+  }
+
   wrap.innerHTML = html;
 }
 
-function onColFilter(input){
-  var col = input.getAttribute("data-col");
-  rptColFilters[col] = input.value;
-  applyFilters();
+function rptShowMore(){
+  rptShownCount += rptPageSize;
+  renderCards();
+}
+
+// ── Detail (baxış) görünüşü ───────────────────────────
+var DV_FIELD_MAP = [
+  { section:"Müraciət məlumatları", rows:[
+    ["Tarix","Tarix"], ["Saat","Saat"], ["Müraciət edən","Müraciət edən"], ["Telefon","Telefon"]
+  ]},
+  { section:"Avtobus məlumatları", rows:[
+    ["Marşrut №","Marşrut №"], ["BUS ID","BUS ID"], ["Daşıyıcı","Daşıyıcı"],
+    ["D.Q.N.","D.Q.N."], ["Marka/Model","Marka/Model"], ["Sistem","Sistem"]
+  ]},
+  { section:"Servis məlumatları", rows:[
+    ["Problem","Problem"], ["Həll","Həll"], ["Qeyd","Qeyd"]
+  ]},
+  { section:"Servis Kateqoriyası", rows:[
+    ["Servis Kat.","Servis Kat."], ["Köhnə SN","Köhnə SN"], ["Yeni SN","Yeni SN"]
+  ]},
+  { section:"Servis vaxtı və yeri", rows:[
+    ["Başlanğıc","Başlanğıc"], ["Bitiş","Bitiş"], ["Servis yeri","Servis yeri"]
+  ]},
+  { section:"Texnik heyət", rows:[
+    ["1. Texnik","1. Texnik"], ["2. Texnik","2. Texnik"], ["Qrup rəhbəri","Qrup rəhbəri"]
+  ]}
+];
+
+function openBusDetail(ticketId){
+  var row = rptAllRows.find(function(r){ return r["Ticket ID"] === ticketId; });
+  if(!row){ alert("Ticket tapılmadı"); return; }
+
+  document.getElementById("dvTicketTitle").textContent = ticketId;
+
+  var html = "";
+  DV_FIELD_MAP.forEach(function(sec){
+    var rowsHtml = "";
+    sec.rows.forEach(function(pair){
+      var val = row[pair[1]];
+      if(!val) return;
+      rowsHtml += '<div class="dv-row"><span class="dv-label">' + pair[0] + '</span><span class="dv-value">' + val + '</span></div>';
+    });
+    if(rowsHtml){
+      html += '<div class="dv-section"><div class="dv-section-title">' + sec.section + '</div>' + rowsHtml + '</div>';
+    }
+  });
+
+  html += '<div class="dv-section"><div class="dv-section-title">Status</div>'
+    + '<div class="dv-row"><span class="dv-label">Vəziyyət</span><span class="dv-value"><span class="dv-status-chip">' + (row["Status"]||"") + '</span></span></div>'
+    + '</div>';
+
+  document.getElementById("dvBody").innerHTML = html;
+
+  document.getElementById("busReportView").style.display = "none";
+  document.getElementById("busDetailView").style.display = "flex";
+}
+
+function closeBusDetail(){
+  document.getElementById("busDetailView").style.display = "none";
+  document.getElementById("busReportView").style.display = "flex";
 }
 
 function exportToExcel(){
