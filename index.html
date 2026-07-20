@@ -931,24 +931,24 @@ body.dark-mode .dash-radial-textbox { background:#1C2A3D; border-color:#233248; 
 .dash-radial-count { display:inline-flex; align-items:center; gap:5px; background:#F0F5FC; color:#1B4A8A; font-size:12.5px; font-weight:700; padding:5px 12px; border-radius:20px; margin-top:10px; }
 body.dark-mode .dash-radial-count { background:#1C2A3D; color:#8FB4EA; }
 
-.dash-ranklist { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:0 18px; box-shadow:0 10px 24px rgba(30,68,130,.06); display:table; width:100%; border-collapse:collapse; }
-body.dark-mode .dash-ranklist { background:#16212E; border-color:#4A6182; box-shadow:none; }
-.dash-rank-header { display:table-row; }
-.dash-rank-header .drh-c { display:table-cell; padding:12px 0; border-bottom:2px solid #E1EAF6; font-size:11.5px; font-weight:700; color:#8CA0BC; letter-spacing:.2px; }
-.dash-rank-header .drh-c.right { text-align:right; padding-left:16px; border-left:2px solid #E1EAF6; white-space:nowrap; }
-body.dark-mode .dash-rank-header .drh-c { border-bottom-color:#4A6182; color:#8FA0B8; }
-body.dark-mode .dash-rank-header .drh-c.right { border-left-color:#4A6182; }
-.dash-rank-row { display:table-row; }
-.dash-rank-row > * { display:table-cell; padding:13px 0; border-bottom:1px solid #F0F5FC; vertical-align:middle; }
-body.dark-mode .dash-rank-row > * { border-bottom-color:#1C2A3D; }
-.dash-rank-row:last-child > * { border-bottom:none; }
-.dash-rank-num { width:34px; }
-.dash-rank-num span { width:26px; height:26px; border-radius:8px; background:#F0F5FC; color:#2F6FED; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; }
+.dash-ranklist-wrap { border:1px solid #E1EAF6; border-radius:14px; overflow:hidden; box-shadow:0 10px 24px rgba(30,68,130,.06); }
+body.dark-mode .dash-ranklist-wrap { border-color:#4A6182; box-shadow:none; }
+.dash-ranklist { width:100%; border-collapse:collapse; background:#FFFFFF; table-layout:fixed; }
+body.dark-mode .dash-ranklist { background:#16212E; }
+.dash-ranklist th, .dash-ranklist td { border:1px solid #E1EAF6; padding:12px 14px; }
+body.dark-mode .dash-ranklist th, body.dark-mode .dash-ranklist td { border-color:#4A6182; }
+.dash-ranklist th { background:#F7FAFD; font-size:11.5px; font-weight:700; color:#8CA0BC; letter-spacing:.2px; text-align:left; }
+body.dark-mode .dash-ranklist th { background:#1C2A3D; color:#8FA0B8; }
+.dash-ranklist th.dr-count-col, .dash-ranklist td.dr-count-col { text-align:right; width:110px; }
+.dash-ranklist th.dr-num-col, .dash-ranklist td.dr-num-col { width:40px; text-align:center; }
+.dash-ranklist td { font-size:14.5px; color:#12233B; vertical-align:middle; }
+body.dark-mode .dash-ranklist td { color:#E8EEF5; }
+.dash-ranklist tbody tr:nth-child(even) td { background:#FAFBFE; }
+body.dark-mode .dash-ranklist tbody tr:nth-child(even) td { background:#18222F; }
+.dash-rank-num span { width:24px; height:24px; border-radius:7px; background:#F0F5FC; color:#2F6FED; font-weight:700; font-size:12.5px; display:inline-flex; align-items:center; justify-content:center; }
 body.dark-mode .dash-rank-num span { background:#1C2A3D; color:#4E93FA; }
-.dash-rank-name { font-size:15px; color:#12233B; font-weight:500; line-height:1.5; padding-right:14px; }
-body.dark-mode .dash-rank-name { color:#E8EEF5; }
-.dash-rank-count { font-family:'Rajdhani',sans-serif; font-size:19px; font-weight:700; color:#12233B; text-align:right; white-space:nowrap; padding-left:16px; border-left:2px solid #EEF3FB; }
-body.dark-mode .dash-rank-count { color:#E8EEF5; border-left-color:#233248; }
+.dash-rank-count-val { font-family:'Rajdhani',sans-serif; font-size:19px; font-weight:700; color:#12233B; }
+body.dark-mode .dash-rank-count-val { color:#E8EEF5; }
 
 .dash-tile-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
 .dash-tile { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:18px 14px; display:flex; flex-direction:column; align-items:center; gap:10px; box-shadow:0 10px 24px rgba(30,68,130,.06); }
@@ -1024,6 +1024,8 @@ body.dark-mode .dash-modal-left { border-right-color:#4A6182; }
 .dash-opt-chip { padding:4px 10px; border-radius:14px; border:1px solid #DCE6F5; font-size:10.5px; color:#12233B; cursor:pointer; background:#fff; }
 .dash-opt-chip.sel { background:#E6F1FB; border-color:#2F6FED; color:#0C447C; font-weight:600; }
 .dash-subfilter input { width:100%; padding:7px 10px; border:1.5px solid #DCE6F5; border-radius:8px; font-size:12.5px; outline:none; font-family:'Inter',sans-serif; }
+.dash-search-warn { display:flex; align-items:center; gap:8px; background:#FEF3E2; border:1px solid #F6D9A0; color:#8A5A00; font-size:12.5px; font-weight:600; padding:10px 12px; border-radius:10px; margin-bottom:10px; line-height:1.4; }
+body.dark-mode .dash-search-warn { background:#3A2E1C; border-color:#5C4522; color:#F0C060; }
 .dash-search-btn { margin-top:auto; background:linear-gradient(135deg,#4E93FA,#2F6FED); color:#fff; border:none; padding:11px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; }
 
 .dash-loading-overlay { display:none; position:fixed; inset:0; background:rgba(244,248,253,.85); align-items:center; justify-content:center; z-index:210; flex-direction:column; gap:14px; }
@@ -1035,23 +1037,10 @@ body.dark-mode .dash-loading-text { color:#8FB4EA; }
 /* Mobil sadə görünüş */
 .dash-mobile-view { display:none; padding:16px 16px 40px; }
 .dash-m-section { margin-bottom:20px; }
-.dash-m-title { font-size:13px; font-weight:800; color:#12233B; margin-bottom:10px; }
+.dash-m-title { font-size:13px; font-weight:700; color:#12233B; margin-bottom:10px; }
 body.dark-mode .dash-m-title { color:#E8EEF5; }
-.dash-m-card { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:0 14px; box-shadow:0 8px 20px rgba(30,68,130,.06); display:table; width:100%; border-collapse:collapse; }
-body.dark-mode .dash-m-card { background:#16212E; border-color:#4A6182; box-shadow:none; }
-.dash-m-header { display:table-row; }
-.dash-m-header .dmh-c { display:table-cell; padding:10px 0; border-bottom:2px solid #E1EAF6; font-size:11.5px; font-weight:700; color:#8CA0BC; }
-.dash-m-header .dmh-c.right { text-align:right; padding-left:14px; border-left:2px solid #E1EAF6; white-space:nowrap; }
-body.dark-mode .dash-m-header .dmh-c { border-bottom-color:#4A6182; color:#8FA0B8; }
-body.dark-mode .dash-m-header .dmh-c.right { border-left-color:#4A6182; }
-.dash-m-row { display:table-row; }
-.dash-m-row .dmr-c { display:table-cell; padding:12px 0; border-bottom:1px solid #EEF3FB; font-size:14.5px; color:#12233B; vertical-align:middle; }
-body.dark-mode .dash-m-row .dmr-c { border-bottom-color:#1C2A3D; color:#E8EEF5; }
-.dash-m-row:last-child .dmr-c { border-bottom:none; }
-.dash-m-row .dmr-c.right { text-align:right; font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; white-space:nowrap; padding-left:14px; border-left:2px solid #EEF3FB; }
-body.dark-mode .dash-m-row .dmr-c.right { border-left-color:#233248; }
-.dash-m-empty { padding:14px 0; font-size:13px; color:#8CA0BC; }
-body.dark-mode .dash-m-empty { color:#8FA0B8; }
+.dash-m-card-empty { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:14px; font-size:13px; color:#8CA0BC; }
+body.dark-mode .dash-m-card-empty { background:#16212E; border-color:#4A6182; color:#8FA0B8; }
 .dash-m-metrics { font-size:15px; color:#12233B; line-height:2.1; font-weight:500; }
 body.dark-mode .dash-m-metrics { color:#E8EEF5; }
 .dash-m-metrics b { font-family:'Rajdhani',sans-serif; font-size:18px; }
@@ -1496,6 +1485,10 @@ body.dark-mode .dv-value { color:#E8EEF5; }
       <div class="dash-modal-right">
         <div class="dash-chip-row" id="dashChipRow"></div>
         <div id="dashSubfilters"></div>
+        <div class="dash-search-warn" id="dashSearchWarn" style="display:none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Zəhmət olmasa tarix aralığı seçin və ya ən azı bir filtr kateqoriyası aktivləşdirin.
+        </div>
         <button class="dash-search-btn" onclick="runDashSearch()">Axtar</button>
       </div>
     </div>
@@ -2941,11 +2934,11 @@ function dashRenderRadial(containerId, items, total){
 function buildRankTableRows(items, numStyle, countStyle){
   var html = "";
   items.forEach(function(it,i){
-    html += '<div class="dash-rank-row">'
-      + '<div class="dash-rank-num"><span'+(numStyle?' style="'+numStyle+'"':'')+'>'+(i+1)+'</span></div>'
-      + '<div class="dash-rank-name">'+escapeHtml(it.name)+'</div>'
-      + '<div class="dash-rank-count"'+(countStyle?' style="'+countStyle+'"':'')+'>'+it.count+'</div>'
-      + '</div>';
+    html += '<tr>'
+      + '<td class="dr-num-col"><span'+(numStyle?' style="'+numStyle+'"':'')+'>'+(i+1)+'</span></td>'
+      + '<td>'+escapeHtml(it.name)+'</td>'
+      + '<td class="dr-count-col"><span class="dash-rank-count-val"'+(countStyle?' style="'+countStyle+'"':'')+'>'+it.count+'</span></td>'
+      + '</tr>';
   });
   return html;
 }
@@ -2953,8 +2946,9 @@ function dashRenderRankList(containerId, items, max, headerLabel, nameHeader){
   var el = document.getElementById(containerId);
   var top = items.slice(0, max||6);
   if(top.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>'; return; }
-  var html = '<div class="dash-rank-header"><div class="drh-c">'+(nameHeader||"Ad")+'</div><div class="drh-c right">'+(headerLabel||"Servis sayı")+'</div></div>';
-  html += buildRankTableRows(top);
+  var html = '<div class="dash-ranklist-wrap"><table class="dash-ranklist"><thead><tr>'
+    + '<th class="dr-num-col"></th><th>'+(nameHeader||"Ad")+'</th><th class="dr-count-col">'+(headerLabel||"Servis sayı")+'</th>'
+    + '</tr></thead><tbody>' + buildRankTableRows(top) + '</tbody></table></div>';
   el.innerHTML = html;
 }
 function dashRenderTiles(containerId, items, max){
@@ -2984,20 +2978,22 @@ function dashRenderRecurring(containerId, items){
   var el = document.getElementById(containerId);
   if(items.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün heç bir avtobus 3 və ya daha çox servis almayıb — təkrarlanan problem qeydə alınmayıb.</div>'; return; }
   var mapped = items.slice(0,15).map(function(it){ return { name:(it.plate||"—")+" · BUS "+it.busId, count:it.count }; });
-  var html = '<div class="dash-rank-header"><div class="drh-c">Avtobus (D.Q.N. · BUS ID)</div><div class="drh-c right">Servis sayı</div></div>';
-  html += buildRankTableRows(mapped, "background:#FEECEC;color:#A32D2D;", "color:#A32D2D;");
+  var html = '<div class="dash-ranklist-wrap"><table class="dash-ranklist"><thead><tr>'
+    + '<th class="dr-num-col"></th><th>Avtobus (D.Q.N. · BUS ID)</th><th class="dr-count-col">Servis sayı</th>'
+    + '</tr></thead><tbody>' + buildRankTableRows(mapped, "background:#FEECEC;color:#A32D2D;", "color:#A32D2D;") + '</tbody></table></div>';
   el.innerHTML = html;
 }
 function dashMobileSection(title, items, max, headerLabel){
   var top = items.slice(0, max||6);
-  var html = '<div class="dash-m-section"><div class="dash-m-title">'+title+'</div><div class="dash-m-card">';
+  var html = '<div class="dash-m-section"><div class="dash-m-title">'+title+'</div>';
   if(top.length===0){
-    html += '<div class="dash-m-empty">Bu dövr üçün qeydə alınmayıb.</div>';
+    html += '<div class="dash-m-card-empty">Bu dövr üçün qeydə alınmayıb.</div>';
   } else {
-    html += '<div class="dash-m-header"><div class="dmh-c">Ad</div><div class="dmh-c right">'+(headerLabel||"Say")+'</div></div>';
-    top.forEach(function(it){ html += '<div class="dash-m-row"><div class="dmr-c">'+escapeHtml(it.name)+'</div><div class="dmr-c right">'+it.count+'</div></div>'; });
+    html += '<div class="dash-ranklist-wrap"><table class="dash-ranklist"><thead><tr>'
+      + '<th class="dr-num-col"></th><th>Ad</th><th class="dr-count-col">'+(headerLabel||"Say")+'</th>'
+      + '</tr></thead><tbody>' + buildRankTableRows(top) + '</tbody></table></div>';
   }
-  html += '</div></div>';
+  html += '</div>';
   return html;
 }
 function dashRenderMobile(agg){
@@ -3112,6 +3108,7 @@ function closeDashModal(){
   document.getElementById("dashModalResults").classList.remove("open");
   document.getElementById("dashResetBtnEl").style.display = "";
   document.getElementById("dashModalTitle").textContent = "Tarix aralığı və filtrlər";
+  document.getElementById("dashSearchWarn").style.display = "none";
 }
 
 function ensureDashFormDataThenBuildChips(){
@@ -3129,6 +3126,8 @@ function buildDashChips(){
     c.textContent = cat.key;
     c.onclick = function(){
       dashActiveChips[cat.key] = !dashActiveChips[cat.key];
+      var warnEl = document.getElementById("dashSearchWarn");
+      if(warnEl) warnEl.style.display = "none";
       c.classList.toggle("active");
       renderDashSubfilters();
     };
@@ -3185,6 +3184,7 @@ function resetDashFilters(){
   document.getElementById("dashModalFilterBody").style.display = "flex";
   document.getElementById("dashModalResults").classList.remove("open");
   document.getElementById("dashModalTitle").textContent = "Tarix aralığı və filtrlər";
+  document.getElementById("dashSearchWarn").style.display = "none";
 }
 
 var dcalYear, dcalMonth, dcalRangeStart=null, dcalRangeEnd=null;
@@ -3220,6 +3220,8 @@ function pickDcalDate(d){
   if(!dcalRangeStart || (dcalRangeStart && dcalRangeEnd)){ dcalRangeStart=d; dcalRangeEnd=null; }
   else { if(d<dcalRangeStart){ dcalRangeEnd=dcalRangeStart; dcalRangeStart=d; } else { dcalRangeEnd=d; } }
   renderDcal();
+  var warnEl = document.getElementById("dashSearchWarn");
+  if(warnEl) warnEl.style.display = "none";
 }
 function fmtDc(d){ return String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0")+"."+d.getFullYear(); }
 function updateDcalTxt(){
@@ -3231,7 +3233,16 @@ function updateDcalTxt(){
 initDcal();
 
 function runDashSearch(){
-  if(dcalRangeStart && dcalRangeEnd){
+  var hasRange = dcalRangeStart && dcalRangeEnd;
+  var hasActiveCat = Object.keys(dashActiveChips).some(function(k){ return dashActiveChips[k]; });
+
+  if(!hasRange && !hasActiveCat){
+    document.getElementById("dashSearchWarn").style.display = "flex";
+    return;
+  }
+  document.getElementById("dashSearchWarn").style.display = "none";
+
+  if(hasRange){
     dashCustomRange = {
       start: new Date(dcalRangeStart.getFullYear(),dcalRangeStart.getMonth(),dcalRangeStart.getDate(),0,0,0),
       end: new Date(dcalRangeEnd.getFullYear(),dcalRangeEnd.getMonth(),dcalRangeEnd.getDate(),23,59,59)
@@ -3258,10 +3269,9 @@ function runDashSearch(){
 function dashPivotBlock(title, items, countLabel, nameHeader){
   if(!items || items.length===0) return '';
   var b = '<div style="font-size:12px;font-weight:700;color:#8CA0BC;margin-bottom:8px;">'+title+'</div>';
-  b += '<div class="dash-ranklist" style="margin-bottom:20px;">';
-  b += '<div class="dash-rank-header"><div class="drh-c">'+(nameHeader||"Ad")+'</div><div class="drh-c right">'+(countLabel||"Servis sayı")+'</div></div>';
-  b += buildRankTableRows(items.slice(0,10));
-  b += '</div>';
+  b += '<div class="dash-ranklist-wrap" style="margin-bottom:20px;"><table class="dash-ranklist"><thead><tr>'
+    + '<th class="dr-num-col"></th><th>'+(nameHeader||"Ad")+'</th><th class="dr-count-col">'+(countLabel||"Servis sayı")+'</th>'
+    + '</tr></thead><tbody>' + buildRankTableRows(items.slice(0,10)) + '</tbody></table></div>';
   return b;
 }
 
