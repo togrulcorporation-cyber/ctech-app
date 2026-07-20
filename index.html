@@ -870,11 +870,11 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
   .rpt-table col.col-carrier,
   .rpt-table th.col-carrier,
   .rpt-table td.col-carrier { display:none; }
-  .rpt-table col.col-id     { width:23%; }
+  .rpt-table col.col-id     { width:21%; }
   .rpt-table col.col-date   { width:18%; }
-  .rpt-table col.col-plate  { width:19%; }
-  .rpt-table col.col-bus    { width:13%; }
-  .rpt-table col.col-act    { width:27%; }
+  .rpt-table col.col-plate  { width:18%; }
+  .rpt-table col.col-bus    { width:12%; }
+  .rpt-table col.col-act    { width:31%; }
 }
 
 @media(max-width:480px){
@@ -884,13 +884,14 @@ body.dark-mode #bs_end_dd { color:#E8EEF5; }
   .rpt-search-wrap { flex:1 1 auto; min-width:0; }
   .rpt-date-box { display:none; }
   .rpt-info { display:none; }
-  .rpt-table-wrap { padding:0 6px; }
-  .rpt-table thead th { padding:7px 4px; font-size:9.5px; }
-  .rpt-table tbody td { padding:7px 4px; font-size:11px; }
-  .rpt-td-id { font-size:10.5px; }
-  .rpt-row-actions { padding-right:0; gap:4px; }
-  .rpt-icon-btn { width:23px; height:23px; }
-  .rpt-icon-btn svg { width:11px; height:11px; }
+  .rpt-table-wrap { padding:0 4px; }
+  .rpt-table thead th { padding:9px 4px; font-size:10.5px; }
+  .rpt-table tbody td { padding:12px 4px; font-size:12px; }
+  .rpt-td-id { font-size:11.5px; }
+  .rpt-table td.col-act { padding-right:10px; }
+  .rpt-row-actions { padding-right:0; gap:7px; }
+  .rpt-icon-btn { width:32px; height:32px; border-radius:9px; }
+  .rpt-icon-btn svg { width:15px; height:15px; }
 }
 
 /* Dark mode - Report view */
@@ -1171,7 +1172,7 @@ body.dark-mode .dv-value { color:#E8EEF5; }
   <div class="rpt-toolbar">
     <div class="rpt-search-wrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" class="rpt-search" id="rptGlobalSearch" placeholder="Ticket ID, D.Q.N., BUS ID və ya Daşıyıcı üzrə axtar..." oninput="applyFilters()">
+      <input type="text" class="rpt-search" id="rptGlobalSearch" placeholder="Ticket ID, Tarix, D.Q.N., BUS ID və ya Daşıyıcı üzrə axtar..." oninput="applyFilters()">
     </div>
     <div class="rpt-date-box">
       <div class="status-dot"></div>
@@ -2447,7 +2448,7 @@ var rptShownCount = 20;   // hazırda göstərilən say
 var rptPageSize = 20;
 var rptAutoRefresh = null;
 
-var RPT_SEARCH_FIELDS = ["Ticket ID", "D.Q.N.", "BUS ID", "Daşıyıcı"];
+var RPT_SEARCH_FIELDS = ["Ticket ID", "Tarix", "D.Q.N.", "BUS ID", "Daşıyıcı"];
 
 function updateRptDate(){
   var dEl = document.getElementById("rptDateBox");
