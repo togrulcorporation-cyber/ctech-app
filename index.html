@@ -223,17 +223,17 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
   background:#FFFFFF;
   border:1px solid #E1EAF6;
   border-radius:16px;
-  padding:16px;
-  margin-bottom:12px;
+  padding:18px;
+  margin-bottom:14px;
 }
 
 .bs-section-title {
-  font-size:11px;
+  font-size:13px;
   font-weight:700;
   color:#8CA0BC;
   text-transform:uppercase;
-  letter-spacing:1px;
-  margin-bottom:12px;
+  letter-spacing:.6px;
+  margin-bottom:14px;
 }
 
 .bs-row { display:flex; gap:10px; }
@@ -252,8 +252,8 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
   min-width:0 !important;
   width:100% !important;
   box-sizing:border-box;
-  font-size:13px !important;
-  padding:10px 6px !important;
+  font-size:15px !important;
+  padding:13px 8px !important;
 }
 
 .bs-field { margin-bottom:12px; }
@@ -261,19 +261,19 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
 
 .bs-label {
   display:block;
-  font-size:12px;
+  font-size:14px;
   font-weight:600;
   color:#5C7089;
-  margin-bottom:5px;
+  margin-bottom:7px;
 }
 
 .bs-input {
   width:100%;
-  padding:10px 12px;
+  padding:13px 14px;
   background:#F8FAFD;
   border:1.5px solid #DCE6F5;
   border-radius:10px;
-  font-size:14px;
+  font-size:16px;
   font-weight:400;
   color:#12233B;
   font-family:'Inter',sans-serif;
@@ -285,11 +285,11 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
 
 .bs-select {
   width:100%;
-  padding:10px 12px;
+  padding:13px 14px;
   background:#F8FAFD;
   border:1.5px solid #DCE6F5;
   border-radius:10px;
-  font-size:14px;
+  font-size:16px;
   color:#12233B;
   font-family:'Inter',sans-serif;
   outline:none;
@@ -306,11 +306,11 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
 /* Picker button */
 .bs-picker-btn {
   width:100%;
-  padding:10px 12px;
+  padding:13px 14px;
   background:#F8FAFD;
   border:1.5px solid #DCE6F5;
   border-radius:10px;
-  font-size:14px;
+  font-size:16px;
   font-weight:400;
   color:#9AACC4;
   font-family:'Inter',sans-serif;
@@ -321,12 +321,12 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
   cursor:pointer;
   transition:border-color .15s;
   box-sizing:border-box;
-  min-height:42px;
+  min-height:48px;
   white-space:normal;
   word-break:break-word;
-  line-height:1.35;
+  line-height:1.4;
 }
-.bs-picker-btn span { font-size:14px; font-weight:400; font-family:'Inter',sans-serif; }
+.bs-picker-btn span { font-size:16px; font-weight:400; font-family:'Inter',sans-serif; }
 .bs-picker-btn.filled { color:#12233B !important; }
 .bs-picker-btn.filled span { color:#12233B !important; font-weight:400 !important; font-size:14px !important; }
 .bs-picker-btn:focus { border-color:#4E93FA; outline:none; }
@@ -457,20 +457,6 @@ input[type="time"]::-webkit-datetime-edit-ampm-field { display:none !important; 
   bottom:0;
 }
 
-/* Saat picker sütun itemləri */
-.bs-t-item {
-  padding:9px 0;
-  text-align:center;
-  cursor:pointer;
-  font-size:14px;
-  color:#12233B;
-  scroll-snap-align:start;
-  transition:background .1s;
-  font-family:IBM Plex Mono,monospace;
-}
-.bs-t-item:hover { background:#F0F5FC; }
-.bs-t-item.sel { background:#E6F1FB; color:#2F6FED; font-weight:700; }
-
 /* Confirm Exit Dialog */
 #bsConfirmOverlay {
   display:none;
@@ -551,14 +537,6 @@ body.dark-mode .modal-text strong { color:#E8EEF5; }
 body.dark-mode .dash-connector { background:linear-gradient(to bottom,#2A3B52,rgba(42,59,82,0)); }
 body.dark-mode #busServiceView { background:#0F1826; }
 /* home btn artıq .bs-home-btn class ilə idarə olunur */
-body.dark-mode .bs-t-item { color:#E8EEF5 !important; background:#16212E; }
-body.dark-mode .bs-t-item.sel { background:#2F6FED !important; color:#FFFFFF !important; }
-body.dark-mode #bs_time_dd .bs-t-item:hover,
-body.dark-mode #bs_start_dd .bs-t-item:hover,
-body.dark-mode #bs_end_dd .bs-t-item:hover { background:#25374F !important; color:#E8EEF5 !important; }
-body.dark-mode #bs_h_list, body.dark-mode #bs_m_list,
-body.dark-mode #bs_sh_list, body.dark-mode #bs_sm_list,
-body.dark-mode #bs_eh_list, body.dark-mode #bs_em_list { background:#16212E; }
 body.dark-mode .bs-header { background:#141F30; border-bottom-color:#4A6182; }
 body.dark-mode .bs-header span[style*="Rajdhani"] { 
   background:#1C2A3D; 
@@ -578,9 +556,6 @@ body.dark-mode .bs-picker-btn span { color:#5C7089; font-size:14px; font-weight:
 body.dark-mode .bs-picker-btn span.filled { color:#E8EEF5 !important; font-weight:400 !important; }
 body.dark-mode .bs-input::placeholder, body.dark-mode .bs-textarea::placeholder { color:#5C7089; }
 body.dark-mode .bs-picker-btn span.filled { color:#E8EEF5 !important; }
-body.dark-mode #bs_time_lbl.filled,
-body.dark-mode #bs_start_lbl.filled,
-body.dark-mode #bs_end_lbl.filled { color:#E8EEF5 !important; }
 body.dark-mode .bs-picker-btn { color:#5C7089; }
 body.dark-mode .bs-picker-btn.filled { color:#E8EEF5 !important; }
 body.dark-mode .bs-picker-btn .filled,
@@ -591,15 +566,6 @@ body.dark-mode .bs-dd-item { color:#E8EEF5; border-bottom-color:#1C2A3D; }
 body.dark-mode .bs-dd-item:hover { background:#1C2A3D; }
 body.dark-mode .bs-dd-item.selected { color:#8FB4EA; }
 body.dark-mode .bs-dd-check { border-color:#4A6182; }
-body.dark-mode #bs_time_dd,
-body.dark-mode #bs_start_dd,
-body.dark-mode #bs_end_dd { background:#16212E; border-color:#4A6182; }
-body.dark-mode #bs_time_dd div[style*="color:#12233B"],
-body.dark-mode #bs_start_dd div[style*="color:#12233B"],
-body.dark-mode #bs_end_dd div[style*="color:#12233B"] { color:#E8EEF5 !important; }
-body.dark-mode .bs-t-item { color:#E8EEF5; }
-body.dark-mode .bs-t-item:hover { background:#1C2A3D; }
-body.dark-mode .bs-t-item.sel { background:#1C2A3D; color:#8FB4EA; }
 body.dark-mode .bs-picker-title { color:#E8EEF5; }
 body.dark-mode .bs-picker-search { background:#1C2A3D; border-color:#4A6182; color:#E8EEF5; }
 body.dark-mode .bs-picker-item { color:#E8EEF5; border-bottom-color:#1C2A3D; }
@@ -612,14 +578,6 @@ body.dark-mode #bsLoadingOverlay { background:rgba(15,24,38,.92); }
 body.dark-mode #busOpenOverlay { background:rgba(15,24,38,0.95) !important; }
 body.dark-mode #busOpenOverlay div[style*="color:#2F4C6E"] { color:#8FB4EA !important; }
 body.dark-mode #busOpenOverlay div[style*="color:#8CA0BC"] { color:#5C7089 !important; }
-body.dark-mode .bs-time-colon { color:#E8EEF5 !important; }
-body.dark-mode #bs_time_dd, body.dark-mode #bs_start_dd, body.dark-mode #bs_end_dd { color:#E8EEF5; }
-body.dark-mode #bs_time_dd div[style*="color:#8CA0BC"],
-body.dark-mode #bs_start_dd div[style*="color:#8CA0BC"],
-body.dark-mode #bs_end_dd div[style*="color:#8CA0BC"] { color:#5C7089 !important; }
-body.dark-mode #bs_time_dd,
-body.dark-mode #bs_start_dd,
-body.dark-mode #bs_end_dd { color:#E8EEF5; }
 
 
 /* ===== BUS REPORT VIEW ===== */
@@ -952,11 +910,11 @@ body.dark-mode .dash-tab { color:#8FA0B8; }
 .dash-container { max-width:1120px; margin:0 auto; padding:20px 20px 50px; }
 
 .dash-top-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
-.dash-metric { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:12px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 10px 24px rgba(30,68,130,.06); }
+.dash-metric { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 10px 24px rgba(30,68,130,.06); }
 body.dark-mode .dash-metric { background:#16212E; border-color:#4A6182; box-shadow:none; }
-.dash-metric-label { font-size:10.5px; font-weight:700; color:#8CA0BC; text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px; }
-body.dark-mode .dash-metric-label { color:#5C7089; }
-.dash-metric-value { font-family:'Rajdhani',sans-serif; font-size:26px; font-weight:700; color:#12233B; }
+.dash-metric-label { font-size:11.5px; font-weight:700; color:#8CA0BC; text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px; }
+body.dark-mode .dash-metric-label { color:#8FA0B8; }
+.dash-metric-value { font-family:'Rajdhani',sans-serif; font-size:32px; font-weight:700; color:#12233B; }
 body.dark-mode .dash-metric-value { color:#E8EEF5; }
 .dash-metric-icon { width:38px; height:38px; border-radius:10px; background:#F0F5FC; color:#2F6FED; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 body.dark-mode .dash-metric-icon { background:#1C2A3D; color:#4E93FA; }
@@ -965,65 +923,61 @@ body.dark-mode .dash-range-btn { background:linear-gradient(135deg,#1C2A3D,#1621
 .dash-range-btn .ic { width:34px; height:34px; border-radius:9px; background:#FFFFFF; color:#2F6FED; display:flex; align-items:center; justify-content:center; }
 body.dark-mode .dash-range-btn .ic { background:#16212E; color:#4E93FA; }
 
-.dash-section-title { font-size:12px; font-weight:700; color:#8CA0BC; text-transform:uppercase; letter-spacing:.6px; margin:20px 0 10px; }
-body.dark-mode .dash-section-title { color:#5C7089; }
+.dash-section-title { font-size:14px; font-weight:800; color:#12233B; letter-spacing:.2px; margin:24px 0 12px; }
+body.dark-mode .dash-section-title { color:#E8EEF5; }
 
-.dash-radial-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-.dash-radial-card { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:12px; padding:16px 10px; text-align:center; box-shadow:0 10px 24px rgba(30,68,130,.06); }
+.dash-radial-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.dash-radial-card { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:18px; text-align:center; box-shadow:0 10px 24px rgba(30,68,130,.06); }
 body.dark-mode .dash-radial-card { background:#16212E; border-color:#4A6182; box-shadow:none; }
-.dash-radial-name { font-size:11.5px; color:#12233B; font-weight:600; margin-top:8px; line-height:1.3; min-height:28px; }
-body.dark-mode .dash-radial-name { color:#E8EEF5; }
-.dash-radial-count { font-size:10px; color:#8CA0BC; margin-top:2px; }
-body.dark-mode .dash-radial-count { color:#5C7089; }
+.dash-radial-textbox { background:#F7FAFD; border:1px solid #EEF3FB; border-radius:10px; padding:10px 12px; font-size:14px; color:#12233B; font-weight:600; margin-top:12px; line-height:1.45; text-align:left; }
+body.dark-mode .dash-radial-textbox { background:#1C2A3D; border-color:#233248; color:#E8EEF5; }
+.dash-radial-count { font-size:12px; color:#8CA0BC; margin-top:8px; font-weight:600; }
+body.dark-mode .dash-radial-count { color:#8FA0B8; }
 
-.dash-ranklist { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:12px; padding:4px 16px; box-shadow:0 10px 24px rgba(30,68,130,.06); }
+.dash-ranklist { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:0 18px; box-shadow:0 10px 24px rgba(30,68,130,.06); overflow:hidden; }
 body.dark-mode .dash-ranklist { background:#16212E; border-color:#4A6182; box-shadow:none; }
-.dash-rank-row { display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid #F0F5FC; }
+.dash-rank-header { display:flex; justify-content:space-between; padding:12px 0; border-bottom:2px solid #E1EAF6; font-size:11px; font-weight:700; color:#8CA0BC; text-transform:uppercase; letter-spacing:.4px; }
+body.dark-mode .dash-rank-header { border-bottom-color:#4A6182; color:#8FA0B8; }
+.dash-rank-row { display:flex; align-items:flex-start; gap:14px; padding:14px 0; border-bottom:1px solid #F0F5FC; }
 body.dark-mode .dash-rank-row { border-bottom-color:#1C2A3D; }
 .dash-rank-row:last-child { border-bottom:none; }
-.dash-rank-num { width:24px; height:24px; border-radius:7px; background:#F0F5FC; color:#2F6FED; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.dash-rank-num { width:26px; height:26px; border-radius:8px; background:#F0F5FC; color:#2F6FED; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
 body.dark-mode .dash-rank-num { background:#1C2A3D; color:#4E93FA; }
-.dash-rank-name { flex:1; font-size:14px; color:#12233B; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dash-rank-name { flex:1; font-size:15px; color:#12233B; font-weight:500; line-height:1.5; white-space:normal; word-break:break-word; }
 body.dark-mode .dash-rank-name { color:#E8EEF5; }
-.dash-rank-count { font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; color:#12233B; flex-shrink:0; }
-body.dark-mode .dash-rank-count { color:#E8EEF5; }
+.dash-rank-count { font-family:'Rajdhani',sans-serif; font-size:19px; font-weight:700; color:#12233B; flex-shrink:0; padding-left:12px; border-left:2px solid #EEF3FB; margin-left:4px; }
+body.dark-mode .dash-rank-count { color:#E8EEF5; border-left-color:#233248; }
 
-.dash-tile-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-.dash-tile { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:12px; padding:14px; display:flex; flex-direction:column; align-items:center; gap:8px; box-shadow:0 10px 24px rgba(30,68,130,.06); }
+.dash-tile-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.dash-tile { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:18px 14px; display:flex; flex-direction:column; align-items:center; gap:10px; box-shadow:0 10px 24px rgba(30,68,130,.06); }
 body.dark-mode .dash-tile { background:#16212E; border-color:#4A6182; box-shadow:none; }
-.dash-tile-icon { width:38px; height:38px; border-radius:10px; background:#FDF1E3; color:#B45309; display:flex; align-items:center; justify-content:center; }
+.dash-tile-icon { width:42px; height:42px; border-radius:11px; background:#FDF1E3; color:#B45309; display:flex; align-items:center; justify-content:center; }
 body.dark-mode .dash-tile-icon { background:#3A2E1C; color:#F0B860; }
-.dash-tile-name { font-size:11.5px; color:#12233B; font-weight:600; text-align:center; }
+.dash-tile-name { font-size:13.5px; color:#12233B; font-weight:600; text-align:center; line-height:1.35; }
 body.dark-mode .dash-tile-name { color:#E8EEF5; }
-.dash-tile-count { font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; color:#12233B; }
+.dash-tile-count { font-family:'Rajdhani',sans-serif; font-size:24px; font-weight:700; color:#12233B; }
 body.dark-mode .dash-tile-count { color:#E8EEF5; }
 
-.dash-lead-card { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:12px; padding:4px 16px; box-shadow:0 10px 24px rgba(30,68,130,.06); }
+.dash-lead-card { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:0 18px; box-shadow:0 10px 24px rgba(30,68,130,.06); }
 body.dark-mode .dash-lead-card { background:#16212E; border-color:#4A6182; box-shadow:none; }
-.dash-lead-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #F0F5FC; }
+.dash-lead-row { display:flex; align-items:center; gap:14px; padding:13px 0; border-bottom:1px solid #F0F5FC; }
 body.dark-mode .dash-lead-row { border-bottom-color:#1C2A3D; }
 .dash-lead-row:last-child { border-bottom:none; }
-.dash-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#4E93FA,#2F6FED); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.dash-lead-name { flex:1; font-size:13.5px; color:#12233B; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dash-avatar { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#4E93FA,#2F6FED); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.dash-lead-name { flex:1; font-size:15px; color:#12233B; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 body.dark-mode .dash-lead-name { color:#E8EEF5; }
-.dash-lead-bar-wrap { width:70px; height:6px; background:#F0F5FC; border-radius:4px; overflow:hidden; flex-shrink:0; }
+.dash-lead-bar-wrap { width:90px; height:7px; background:#F0F5FC; border-radius:4px; overflow:hidden; flex-shrink:0; }
 body.dark-mode .dash-lead-bar-wrap { background:#1C2A3D; }
 .dash-lead-bar { height:100%; background:linear-gradient(90deg,#4E93FA,#2F6FED); }
-.dash-lead-count { font-size:12.5px; font-weight:700; color:#12233B; width:20px; text-align:right; flex-shrink:0; }
+.dash-lead-count { font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; color:#12233B; width:24px; text-align:right; flex-shrink:0; }
 body.dark-mode .dash-lead-count { color:#E8EEF5; }
 
-.dash-line-card { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:12px; padding:16px; box-shadow:0 10px 24px rgba(30,68,130,.06); }
-body.dark-mode .dash-line-card { background:#16212E; border-color:#4A6182; box-shadow:none; }
-
-.dash-alert-panel { background:#FFFFFF; border:1px solid #FCA5A5; border-radius:12px; padding:6px 16px; box-shadow:0 10px 24px rgba(30,68,130,.06); }
+.dash-alert-panel { background:#FFFFFF; border:1.5px solid #FCA5A5; border-radius:14px; padding:0 18px; box-shadow:0 10px 24px rgba(30,68,130,.06); overflow:hidden; }
 body.dark-mode .dash-alert-panel { background:#16212E; border-color:#7F2A2A; box-shadow:none; }
-.dash-alert-row { display:flex; justify-content:space-between; padding:9px 0; font-size:12.5px; color:#A32D2D; border-bottom:1px solid #FEECEC; }
-body.dark-mode .dash-alert-row { color:#F0A0A0; border-bottom-color:#2A1414; }
-.dash-alert-row:last-child { border-bottom:none; }
-.dash-empty-txt { padding:12px 0; font-size:12.5px; color:#8CA0BC; }
-body.dark-mode .dash-empty-txt { color:#5C7089; }
+.dash-empty-txt { padding:16px 4px; font-size:13.5px; color:#8CA0BC; line-height:1.5; }
+body.dark-mode .dash-empty-txt { color:#8FA0B8; }
 
-.dash-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.dash-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
 /* Modal */
 .dash-modal-overlay { display:none; position:fixed; inset:0; background:rgba(18,35,59,.5); align-items:center; justify-content:center; z-index:200; padding:20px; }
@@ -1039,6 +993,8 @@ body.dark-mode .dash-modal-head-btns { background:#1C2A3D; }
 .dash-reset-btn { padding:6px 12px; border-radius:8px; border:none; background:transparent; color:#5C7089; font-size:12px; font-weight:600; cursor:pointer; }
 .dash-close-btn { width:28px; height:28px; border-radius:8px; background:#2F6FED; color:#fff; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 .dash-modal-body { flex:1; display:flex; overflow:hidden; }
+.dash-modal-results { flex:1; display:none; overflow-y:auto; padding:20px 22px; }
+.dash-modal-results.open { display:block; }
 .dash-modal-left { width:42%; border-right:1px solid #E1EAF6; padding:16px 18px; display:flex; flex-direction:column; overflow-y:auto; }
 body.dark-mode .dash-modal-left { border-right-color:#4A6182; }
 .dash-modal-right { width:58%; padding:16px 18px; display:flex; flex-direction:column; overflow-y:auto; }
@@ -1075,15 +1031,24 @@ body.dark-mode .dash-loading-overlay { background:rgba(15,24,38,.88); }
 body.dark-mode .dash-loading-text { color:#8FB4EA; }
 
 /* Mobil sadə görünüş */
-.dash-mobile-view { display:none; padding:16px 18px 40px; }
-.dash-m-section { margin-bottom:18px; }
-.dash-m-title { font-size:11px; font-weight:700; color:#8CA0BC; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
-body.dark-mode .dash-m-title { color:#5C7089; }
-.dash-m-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #EEF3FB; font-size:13.5px; color:#12233B; }
+.dash-mobile-view { display:none; padding:16px 16px 40px; }
+.dash-m-section { margin-bottom:20px; }
+.dash-m-title { font-size:13px; font-weight:800; color:#12233B; margin-bottom:10px; }
+body.dark-mode .dash-m-title { color:#E8EEF5; }
+.dash-m-card { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:0 14px; box-shadow:0 8px 20px rgba(30,68,130,.06); overflow:hidden; }
+body.dark-mode .dash-m-card { background:#16212E; border-color:#4A6182; box-shadow:none; }
+.dash-m-header { display:flex; justify-content:space-between; padding:10px 0; border-bottom:2px solid #E1EAF6; font-size:10.5px; font-weight:700; color:#8CA0BC; text-transform:uppercase; }
+body.dark-mode .dash-m-header { border-bottom-color:#4A6182; color:#8FA0B8; }
+.dash-m-row { display:flex; justify-content:space-between; gap:10px; padding:11px 0; border-bottom:1px solid #EEF3FB; font-size:14.5px; color:#12233B; }
 body.dark-mode .dash-m-row { border-bottom-color:#1C2A3D; color:#E8EEF5; }
-.dash-m-row b { font-weight:700; }
-.dash-m-metrics { font-size:13.5px; color:#12233B; line-height:2; }
+.dash-m-row:last-child { border-bottom:none; }
+.dash-m-row span:first-child { flex:1; line-height:1.4; }
+.dash-m-row b { font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; flex-shrink:0; }
+.dash-m-empty { padding:14px 0; font-size:13px; color:#8CA0BC; }
+body.dark-mode .dash-m-empty { color:#8FA0B8; }
+.dash-m-metrics { font-size:15px; color:#12233B; line-height:2.1; font-weight:500; }
 body.dark-mode .dash-m-metrics { color:#E8EEF5; }
+.dash-m-metrics b { font-family:'Rajdhani',sans-serif; font-size:18px; }
 
 @media(max-width:600px){
   .dash-desktop-view { display:none !important; }
@@ -1473,11 +1438,6 @@ body.dark-mode .dv-value { color:#E8EEF5; }
           </div>
         </div>
 
-        <div class="dash-section-title">Günlük tendensiya</div>
-        <div class="dash-line-card">
-          <svg width="100%" height="90" viewBox="0 0 600 90" preserveAspectRatio="none" id="dashTrendSvg"></svg>
-        </div>
-
         <div class="dash-grid-2" style="margin-top:20px;">
           <div>
             <div class="dash-section-title" style="margin-top:0;">Daşıyıcı firma üzrə statistika</div>
@@ -1512,13 +1472,13 @@ body.dark-mode .dv-value { color:#E8EEF5; }
 <div class="dash-modal-overlay" id="dashModal">
   <div class="dash-modal">
     <div class="dash-modal-head">
-      <div class="dash-modal-head-title">Tarix aralığı və filtrlər</div>
+      <div class="dash-modal-head-title" id="dashModalTitle">Tarix aralığı və filtrlər</div>
       <div class="dash-modal-head-btns">
-        <button class="dash-reset-btn" onclick="resetDashFilters()">Sıfırla</button>
+        <button class="dash-reset-btn" id="dashResetBtnEl" onclick="resetDashFilters()">Sıfırla</button>
         <button class="dash-close-btn" onclick="closeDashModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
     </div>
-    <div class="dash-modal-body">
+    <div class="dash-modal-body" id="dashModalFilterBody">
       <div class="dash-modal-left">
         <div class="dcal-head">
           <div class="dcal-nav" onclick="dcalNav(-1)">‹</div>
@@ -1533,6 +1493,9 @@ body.dark-mode .dv-value { color:#E8EEF5; }
         <div id="dashSubfilters"></div>
         <button class="dash-search-btn" onclick="runDashSearch()">Axtar</button>
       </div>
+    </div>
+    <div class="dash-modal-results" id="dashModalResults">
+      <div id="dashModalResultsBody"></div>
     </div>
   </div>
 </div>
@@ -1569,26 +1532,7 @@ body.dark-mode .dv-value { color:#E8EEF5; }
         </div>
         <div class="bs-field">
           <label class="bs-label">Saat *</label>
-          <div class="bs-inline-dd" id="bs_time_wrap" style="position:relative;">
-            <button type="button" class="bs-picker-btn" id="bs_time_btn" onclick="toggleTimeDD()">
-              <span id="bs_time_lbl" style="font-family:IBM Plex Mono,monospace;font-size:13px;">--:--</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div id="bs_time_dd" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#fff;border:1.5px solid #DCE6F5;border-radius:12px;box-shadow:0 8px 24px rgba(18,35,59,.12);overflow:hidden;">
-              <div style="display:flex;height:200px;">
-                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
-                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">SAAT</div>
-                  <div id="bs_h_list" style="flex:1;overflow-y:auto;width:100%;border-right:1px solid #F0F5FC;scroll-snap-type:y mandatory;"></div>
-                </div>
-                <div class="bs-time-colon" style="display:flex;align-items:center;justify-content:center;padding:0 6px;font-size:20px;font-weight:700;color:#12233B;">:</div>
-                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
-                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">DƏQİQƏ</div>
-                  <div id="bs_m_list" style="flex:1;overflow-y:auto;width:100%;scroll-snap-type:y mandatory;"></div>
-                </div>
-              </div>
-              <button type="button" onclick="confirmTime('main')" style="width:100%;padding:10px;background:#2F6FED;color:#fff;border:none;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Təsdiqlə</button>
-            </div>
-          </div>
+          <input type="text" inputmode="numeric" pattern="[0-9:]*" maxlength="5" id="bs_time_lbl" class="bs-input" placeholder="--:--" autocomplete="off" oninput="formatTimeInput(this)">
         </div>
       </div>
       <div class="bs-field">
@@ -1714,49 +1658,11 @@ body.dark-mode .dv-value { color:#E8EEF5; }
       <div class="bs-row">
         <div class="bs-field">
           <label class="bs-label">Başlanğıc saatı *</label>
-          <div class="bs-inline-dd" id="bs_start_wrap" style="position:relative;">
-            <button type="button" class="bs-picker-btn" onclick="toggleTimeDD('start')">
-              <span id="bs_start_lbl" style="font-family:IBM Plex Mono,monospace;">--:--</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div id="bs_start_dd" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#fff;border:1.5px solid #DCE6F5;border-radius:12px;box-shadow:0 8px 24px rgba(18,35,59,.12);overflow:hidden;">
-              <div style="display:flex;height:200px;">
-                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
-                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">SAAT</div>
-                  <div id="bs_sh_list" style="flex:1;overflow-y:auto;width:100%;border-right:1px solid #F0F5FC;scroll-snap-type:y mandatory;"></div>
-                </div>
-                <div class="bs-time-colon" style="display:flex;align-items:center;justify-content:center;padding:0 6px;font-size:20px;font-weight:700;color:#12233B;">:</div>
-                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
-                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">DƏQİQƏ</div>
-                  <div id="bs_sm_list" style="flex:1;overflow-y:auto;width:100%;scroll-snap-type:y mandatory;"></div>
-                </div>
-              </div>
-              <button type="button" onclick="confirmTime('start')" style="width:100%;padding:10px;background:#2F6FED;color:#fff;border:none;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Təsdiqlə</button>
-            </div>
-          </div>
+          <input type="text" inputmode="numeric" pattern="[0-9:]*" maxlength="5" id="bs_start_lbl" class="bs-input" placeholder="--:--" autocomplete="off" oninput="formatTimeInput(this)">
         </div>
         <div class="bs-field">
           <label class="bs-label">Bitiş saatı *</label>
-          <div class="bs-inline-dd" id="bs_end_wrap" style="position:relative;">
-            <button type="button" class="bs-picker-btn" onclick="toggleTimeDD('end')">
-              <span id="bs_end_lbl" style="font-family:IBM Plex Mono,monospace;">--:--</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div id="bs_end_dd" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#fff;border:1.5px solid #DCE6F5;border-radius:12px;box-shadow:0 8px 24px rgba(18,35,59,.12);overflow:hidden;">
-              <div style="display:flex;height:200px;">
-                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
-                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">SAAT</div>
-                  <div id="bs_eh_list" style="flex:1;overflow-y:auto;width:100%;border-right:1px solid #F0F5FC;scroll-snap-type:y mandatory;"></div>
-                </div>
-                <div class="bs-time-colon" style="display:flex;align-items:center;justify-content:center;padding:0 6px;font-size:20px;font-weight:700;color:#12233B;">:</div>
-                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 0;overflow:hidden;">
-                  <div style="font-size:10px;font-weight:700;color:#8CA0BC;margin-bottom:4px;">DƏQİQƏ</div>
-                  <div id="bs_em_list" style="flex:1;overflow-y:auto;width:100%;scroll-snap-type:y mandatory;"></div>
-                </div>
-              </div>
-              <button type="button" onclick="confirmTime('end')" style="width:100%;padding:10px;background:#2F6FED;color:#fff;border:none;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Təsdiqlə</button>
-            </div>
-          </div>
+          <input type="text" inputmode="numeric" pattern="[0-9:]*" maxlength="5" id="bs_end_lbl" class="bs-input" placeholder="--:--" autocomplete="off" oninput="formatTimeInput(this)">
         </div>
       </div>
       <div class="bs-field">
@@ -2022,10 +1928,6 @@ function closeDD(key){
 
 function closeAllDD(){
   Object.keys(ddMeta).forEach(function(k){ closeDD(k); });
-  ["bs_time_dd","bs_start_dd","bs_end_dd"].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.style.display = "none";
-  });
 }
 
 // Forma dışına tıklayınca kapat
@@ -2167,122 +2069,30 @@ function updateSolutionChips(){
   });
 }
 
-// ── Saat picker (universal) ──────────────────────────
-// state: { main, start, end }
-var timeState = {
-  main:  { h:-1, m:-1 },
-  start: { h:-1, m:-1 },
-  end:   { h:-1, m:-1 }
-};
-
-var activeTimePicker = null;
-
-function toggleTimeDD(which){
-  which = which || "main";
-  var ddId = which==="main" ? "bs_time_dd" : "bs_"+which+"_dd";
-  var dd = document.getElementById(ddId);
-  if(!dd) return;
-  var isOpen = dd.style.display !== "none" && dd.style.display !== "";
-  // Digər bütün DD-ləri bağla
-  ["bs_time_dd","bs_start_dd","bs_end_dd"].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.style.display = "none";
-  });
-  closeAllDD();
-  if(!isOpen){
-    buildTimeDDFor(which);
-    dd.style.display = "block";
-    activeTimePicker = which;
-  } else {
-    activeTimePicker = null;
-  }
-}
-
-function buildTimeDDFor(which){
-  var hListId = which==="main" ? "bs_h_list" : (which==="start" ? "bs_sh_list" : "bs_eh_list");
-  var mListId = which==="main" ? "bs_m_list" : (which==="start" ? "bs_sm_list" : "bs_em_list");
-  var hList = document.getElementById(hListId);
-  var mList = document.getElementById(mListId);
-  if(!hList || !mList) return;
-  var st = timeState[which];
-  hList.innerHTML = ""; mList.innerHTML = "";
-
-  for(var h=0; h<24; h++){
-    (function(hh){
-      var d = document.createElement("div");
-      d.className = "bs-t-item" + (hh===st.h?" sel":"");
-      d.textContent = (hh<10?"0":"")+hh;
-      d.addEventListener("click", function(e){
-        e.stopPropagation();
-        st.h = hh;
-        buildTimeDDFor(which);
-        // Saat seçildi, dəqiqəyə fokusla
-        var mEl = document.getElementById(mListId);
-        if(mEl) mEl.focus();
-      });
-      hList.appendChild(d);
-    })(h);
-  }
-  for(var m=0; m<60; m++){
-    (function(mm){
-      var d = document.createElement("div");
-      d.className = "bs-t-item" + (mm===st.m?" sel":"");
-      d.textContent = (mm<10?"0":"")+mm;
-      d.addEventListener("click", function(e){
-        e.stopPropagation();
-        st.m = mm;
-        // Dəqiqə seçiləndə: saat seçilmişsə avtomatik təsdiqlə
-        if(st.h >= 0){
-          applyTime(which);
-        } else {
-          buildTimeDDFor(which);
-        }
-      });
-      mList.appendChild(d);
-    })(m);
-  }
-  // Seçilmişə scroll et
-  setTimeout(function(){
-    if(st.h>=0){ var el=hList.querySelectorAll(".bs-t-item")[st.h]; if(el) el.scrollIntoView({block:"center"}); }
-    if(st.m>=0){ var el2=mList.querySelectorAll(".bs-t-item")[st.m]; if(el2) el2.scrollIntoView({block:"center"}); }
-  }, 30);
-}
-
-function applyTime(which){
-  which = which || "main";
-  var st = timeState[which];
-  var h = st.h >= 0 ? st.h : 0;
-  var m = st.m >= 0 ? st.m : 0;
-  var str = (h<10?"0":"")+h+":"+(m<10?"0":"")+m;
-  var lblId = which==="main" ? "bs_time_lbl" : "bs_"+which+"_lbl";
-  var ddId  = which==="main" ? "bs_time_dd"  : "bs_"+which+"_dd";
-  var lbl = document.getElementById(lblId);
-  if(lbl){ 
-    lbl.textContent=str; 
-    lbl.style.color="#12233B"; 
-    lbl.style.fontSize="14px";
-    lbl.style.fontFamily="IBM Plex Mono,monospace";
-    lbl.classList.add("filled"); 
-  }
-  var dd = document.getElementById(ddId);
-  if(dd) dd.style.display="none";
-  activeTimePicker = null;
+// ── Saat sahələri (əl ilə yazma, avtomatik format) ───
+// İstifadəçi rəqəm yazdıqca "HH:MM" formatına avtomatik çevrilir.
+function formatTimeInput(el){
+  var digits = el.value.replace(/[^0-9]/g,"").slice(0,4);
+  var formatted = digits.length > 2 ? digits.slice(0,2)+":"+digits.slice(2) : digits;
+  el.value = formatted;
+  el.setSelectionRange(formatted.length, formatted.length);
   bsFormDirty = true;
 }
 
-function confirmTime(which){
-  which = which || "main";
-  var st = timeState[which];
-  if(st.h < 0) st.h = 0;
-  if(st.m < 0) st.m = 0;
-  applyTime(which);
+// Yalnız düzgün "HH:MM" (00-23 : 00-59) formatındadırsa dəyəri qaytarır, əks halda ""
+function getTimeInputValue(id){
+  var el = document.getElementById(id);
+  if(!el) return "";
+  var v = el.value.trim();
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : "";
 }
 
-function getTimeValue(){
-  var lbl = document.getElementById("bs_time_lbl");
-  if(!lbl || lbl.textContent==="--:--") return "";
-  return lbl.textContent;
+function setTimeInputValue(id, hhmm){
+  var el = document.getElementById(id);
+  if(el && hhmm) el.value = hhmm;
 }
+
+function getTimeValue(){ return getTimeInputValue("bs_time_lbl"); }
 
 // ── fillDD: API datası gəldikdə siyahıları hazırla ──
 function fillAllDDs(data){
@@ -2333,11 +2143,10 @@ function preloadBusData(callback){
 }
 
 function resetBusFormFields(){
-  // Saat: manual seçim, --:-- başlasın
-  timeState = { main:{h:-1,m:-1}, start:{h:-1,m:-1}, end:{h:-1,m:-1} };
+  // Saat sahələrini təmizlə
   ["bs_time_lbl","bs_start_lbl","bs_end_lbl"].forEach(function(id){
     var el = document.getElementById(id);
-    if(el){ el.textContent="--:--"; el.style.color="#9AACC4"; el.classList.remove("filled"); }
+    if(el){ el.value = ""; }
   });
 
   bsFormDirty = false;
@@ -2449,20 +2258,8 @@ function setDDValue(key, value){
 
 function setTimeLabel(which, hhmm){
   if(!hhmm) return;
-  var parts = hhmm.split(":");
-  if(parts.length !== 2) return;
-  var h = parseInt(parts[0],10), m = parseInt(parts[1],10);
-  if(isNaN(h) || isNaN(m)) return;
-  timeState[which] = { h:h, m:m };
   var lblId = which==="main" ? "bs_time_lbl" : "bs_"+which+"_lbl";
-  var lbl = document.getElementById(lblId);
-  if(lbl){
-    lbl.textContent = hhmm;
-    lbl.style.color = "#12233B";
-    lbl.style.fontSize = "14px";
-    lbl.style.fontFamily = "IBM Plex Mono,monospace";
-    lbl.classList.add("filled");
-  }
+  setTimeInputValue(lblId, hhmm);
 }
 
 function openBusServiceForEdit(ticketId){
@@ -2570,8 +2367,8 @@ function submitBusService(){
   if(bsSelected.solution.length===0){ alert("Həll / Açıqlama seçin"); return; }
   if(!bsSelected.equipment){ alert("Servis Kategoriyasını seçin"); return; }
   if(!document.getElementById("bs_plate").value.trim()){ alert("D.Q.N. daxil edin"); return; }
-  var startVal=(function(){ var l=document.getElementById("bs_start_lbl"); return l&&l.textContent!=="--:--"?l.textContent:""; })();
-  var endVal=(function(){ var l=document.getElementById("bs_end_lbl"); return l&&l.textContent!=="--:--"?l.textContent:""; })();
+  var startVal = getTimeInputValue("bs_start_lbl");
+  var endVal = getTimeInputValue("bs_end_lbl");
   if(!startVal){ alert("Başlanğıc saatını seçin"); return; }
   if(!endVal){ alert("Bitiş saatını seçin"); return; }
   if(!bsSelected.location){ alert("Servis verilən ünvanı seçin"); return; }
@@ -2600,8 +2397,8 @@ function submitBusService(){
     changed_device_type: bsSelected.equipment || "",
     old_sn: document.getElementById("bs_old_sn").value,
     new_sn: document.getElementById("bs_new_sn").value,
-    service_start_time: (function(){ var l=document.getElementById("bs_start_lbl"); return l&&l.textContent!=="--:--"?l.textContent:""; })(),
-    service_end_time:   (function(){ var l=document.getElementById("bs_end_lbl");   return l&&l.textContent!=="--:--"?l.textContent:""; })(),
+    service_start_time: getTimeInputValue("bs_start_lbl"),
+    service_end_time: getTimeInputValue("bs_end_lbl"),
     service_location: bsSelected.location,
     service_location_note: document.getElementById("bs_location_note").value,
     technician_1: bsSelected.tech1,
@@ -2989,19 +2786,13 @@ function bakuNowDate(){
   var p = getBakuNowParts();
   return new Date(p.y, p.mo-1, p.d, p.h, p.mi, p.s);
 }
-function mostRecentSevenAM(){
-  var now = bakuNowDate();
-  var boundary = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 7,0,0);
-  if(now < boundary){ boundary.setDate(boundary.getDate()-1); }
-  return boundary;
-}
 function daysInCurrentMonth(){
   var p = getBakuNowParts();
   return new Date(p.y, p.mo, 0).getDate();
 }
 function dashComputeRange(period){
   if(period === "all") return {start:null, end:null};
-  var end = mostRecentSevenAM();
+  var end = bakuNowDate();
   var start = new Date(end);
   if(period === "24h") start.setDate(start.getDate()-1);
   else if(period === "week") start.setDate(start.getDate()-7);
@@ -3109,28 +2900,6 @@ function dashCountRecurringBuses(rows){
   return Object.keys(map).map(function(id){ return {busId:id, plate:map[id].plate, count:map[id].count}; })
     .filter(function(x){ return x.count>=3; }).sort(function(a,b){ return b.count-a.count; });
 }
-function dashDailyTrend(rows, range){
-  var start = range.start, end = range.end;
-  if(!start || !end){ end = mostRecentSevenAM(); start = new Date(end); start.setDate(start.getDate()-30); }
-  var buckets = {};
-  rows.forEach(function(r){
-    var rd = rowDate(r); if(!rd) return;
-    if(rd < start || rd > end) return;
-    var key = rd.getFullYear()+"-"+(rd.getMonth()+1)+"-"+rd.getDate();
-    buckets[key]=(buckets[key]||0)+1;
-  });
-  var points=[]; var cur=new Date(start.getFullYear(),start.getMonth(),start.getDate());
-  var endDay = new Date(end.getFullYear(),end.getMonth(),end.getDate());
-  var guard=0;
-  while(cur<=endDay && guard<400){
-    var key = cur.getFullYear()+"-"+(cur.getMonth()+1)+"-"+cur.getDate();
-    points.push(buckets[key]||0);
-    cur.setDate(cur.getDate()+1);
-    guard++;
-  }
-  return points;
-}
-
 function dashFixedMetrics(){
   var now = bakuNowDate();
   var todayStart = new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0);
@@ -3148,23 +2917,27 @@ function dashRenderRadial(containerId, items, total){
   var el = document.getElementById(containerId);
   var top = items.slice(0,4);
   if(top.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>'; return; }
-  var R=26, C=2*Math.PI*R, html="";
+  var R=30, C=2*Math.PI*R, html="";
   top.forEach(function(it){
     var pct = total>0 ? Math.round(it.count/total*100) : 0;
     var offset = C - (C*pct/100);
-    html += '<div class="dash-radial-card"><svg width="60" height="60" viewBox="0 0 64 64">'
-      + '<circle cx="32" cy="32" r="'+R+'" fill="none" stroke="#E6F1FB" stroke-width="7"/>'
-      + '<circle cx="32" cy="32" r="'+R+'" fill="none" stroke="#2F6FED" stroke-width="7" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" stroke-linecap="round" transform="rotate(-90 32 32)"/>'
-      + '<text x="32" y="37" text-anchor="middle" font-family="Rajdhani" font-weight="700" font-size="16" fill="#12233B">'+pct+'%</text></svg>'
-      + '<div class="dash-radial-name">'+escapeHtml(it.name)+'</div><div class="dash-radial-count">'+it.count+' servis</div></div>';
+    html += '<div class="dash-radial-card">'
+      + '<svg width="68" height="68" viewBox="0 0 72 72">'
+      +   '<circle cx="36" cy="36" r="'+R+'" fill="none" stroke="#E6F1FB" stroke-width="8"/>'
+      +   '<circle cx="36" cy="36" r="'+R+'" fill="none" stroke="#2F6FED" stroke-width="8" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" stroke-linecap="round" transform="rotate(-90 36 36)"/>'
+      +   '<text x="36" y="41" text-anchor="middle" font-family="Rajdhani" font-weight="700" font-size="17" fill="#12233B">'+pct+'%</text>'
+      + '</svg>'
+      + '<div class="dash-radial-textbox">'+escapeHtml(it.name)+'</div>'
+      + '<div class="dash-radial-count">'+it.count+' servis</div>'
+      + '</div>';
   });
   el.innerHTML = html;
 }
-function dashRenderRankList(containerId, items, max){
+function dashRenderRankList(containerId, items, max, headerLabel){
   var el = document.getElementById(containerId);
   var top = items.slice(0, max||6);
   if(top.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>'; return; }
-  var html="";
+  var html = '<div class="dash-rank-header"><span>Ad</span><span>'+(headerLabel||"Servis sayı")+'</span></div>';
   top.forEach(function(it,i){
     html += '<div class="dash-rank-row"><div class="dash-rank-num">'+(i+1)+'</div><div class="dash-rank-name">'+escapeHtml(it.name)+'</div><div class="dash-rank-count">'+it.count+'</div></div>';
   });
@@ -3174,7 +2947,7 @@ function dashRenderTiles(containerId, items, max){
   var el = document.getElementById(containerId);
   var top = items.slice(0, max||8);
   if(top.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>'; return; }
-  var icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6"/></svg>';
+  var icon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6"/></svg>';
   var html="";
   top.forEach(function(it){
     html += '<div class="dash-tile"><div class="dash-tile-icon">'+icon+'</div><div class="dash-tile-name">'+escapeHtml(it.name)+'</div><div class="dash-tile-count">'+it.count+'</div></div>';
@@ -3195,50 +2968,42 @@ function dashRenderLeaders(containerId, items, max){
 }
 function dashRenderRecurring(containerId, items){
   var el = document.getElementById(containerId);
-  if(items.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>'; return; }
-  var html="";
-  items.slice(0,8).forEach(function(it){
-    html += '<div class="dash-alert-row"><span>'+escapeHtml(it.plate||"")+' · BUS '+escapeHtml(it.busId)+'</span><span>'+it.count+' servis</span></div>';
+  if(items.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün heç bir avtobus 3 və ya daha çox servis almayıb — təkrarlanan problem qeydə alınmayıb.</div>'; return; }
+  var html = '<div class="dash-rank-header"><span>Avtobus (D.Q.N. · BUS ID)</span><span>Servis sayı</span></div>';
+  items.slice(0,15).forEach(function(it,i){
+    html += '<div class="dash-rank-row"><div class="dash-rank-num" style="background:#FEECEC;color:#A32D2D;">'+(i+1)+'</div><div class="dash-rank-name">'+escapeHtml(it.plate||"—")+' · BUS '+escapeHtml(it.busId)+'</div><div class="dash-rank-count" style="color:#A32D2D;">'+it.count+'</div></div>';
   });
   el.innerHTML = html;
 }
-function dashRenderTrend(points){
-  var svg = document.getElementById("dashTrendSvg");
-  if(!points.length){ svg.innerHTML=""; return; }
-  var max = Math.max.apply(null, points.concat([1]));
-  var w=600, h=90, pad=6;
-  var stepX = points.length>1 ? (w/(points.length-1)) : w;
-  var pts = points.map(function(v,i){
-    var x=i*stepX, y=h-pad-(v/max)*(h-pad*2);
-    return x.toFixed(1)+","+y.toFixed(1);
-  }).join(" ");
-  svg.innerHTML = '<polyline points="'+pts+'" fill="none" stroke="#2F6FED" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+function dashMobileSection(title, items, max, headerLabel){
+  var top = items.slice(0, max||6);
+  var html = '<div class="dash-m-section"><div class="dash-m-title">'+title+'</div><div class="dash-m-card">';
+  if(top.length===0){
+    html += '<div class="dash-m-empty">Bu dövr üçün qeydə alınmayıb.</div>';
+  } else {
+    html += '<div class="dash-m-header"><span>Ad</span><span>'+(headerLabel||"Say")+'</span></div>';
+    top.forEach(function(it){ html += '<div class="dash-m-row"><span>'+escapeHtml(it.name)+'</span><b>'+it.count+'</b></div>'; });
+  }
+  html += '</div></div>';
+  return html;
 }
 function dashRenderMobile(agg){
   document.getElementById("dashMTotalAll").textContent = agg.totalAll;
   document.getElementById("dashMTotalToday").textContent = agg.totalToday;
   document.getElementById("dashMTotalWeek").textContent = agg.totalWeek;
-  function section(title, items, max){
-    var top = items.slice(0, max||5);
-    var html = '<div class="dash-m-section"><div class="dash-m-title">'+title+'</div>';
-    if(top.length===0){ html += '<div class="dash-m-row" style="color:#8CA0BC;">Qeydə alınmayıb</div>'; }
-    else { top.forEach(function(it){ html += '<div class="dash-m-row"><span>'+escapeHtml(it.name)+'</span><b>'+it.count+'</b></div>'; }); }
-    html += '</div>';
-    return html;
-  }
+
   var html = "";
-  html += section("Ən çox rast gəlinən problem", agg.problems, 4);
-  html += section("Ən çox rast gəlinən həll", agg.solutions, 4);
-  html += section("Servis kateqoriyaları", agg.categories, 6);
-  html += section("Texnik fəaliyyəti", agg.tech, 6);
-  html += section("Qrup rəhbəri fəaliyyəti", agg.leaders, 6);
-  html += section("Daşıyıcı firma üzrə statistika", agg.carriers, 6);
-  html += section("Servis verilən ünvan", agg.locations, 6);
-  var recHtml = '<div class="dash-m-section"><div class="dash-m-title">Təkrarlanan problemli avtobuslar</div>';
-  if(agg.recurring.length===0){ recHtml += '<div class="dash-m-row" style="color:#8CA0BC;">Bu dövr üçün qeydə alınmayıb.</div>'; }
-  else { agg.recurring.forEach(function(it){ recHtml += '<div class="dash-m-row"><span>'+escapeHtml(it.plate||"")+' · BUS '+escapeHtml(it.busId)+'</span><b>'+it.count+'</b></div>'; }); }
-  recHtml += '</div>';
-  html += recHtml;
+  html += dashMobileSection("Ən çox rast gəlinən problem", agg.problems, 4);
+  html += dashMobileSection("Ən çox rast gəlinən həll", agg.solutions, 4);
+  html += dashMobileSection("Servis kateqoriyaları", agg.categories, 8);
+  html += dashMobileSection("Texnik fəaliyyəti", agg.tech, 8);
+  html += dashMobileSection("Qrup rəhbəri fəaliyyəti", agg.leaders, 8);
+  html += dashMobileSection("Daşıyıcı firma üzrə statistika", agg.carriers, 8);
+  html += dashMobileSection("Servis verilən ünvan", agg.locations, 8);
+
+  var recItems = agg.recurring.map(function(it){ return {name:(it.plate||"—")+" · BUS "+it.busId, count:it.count}; });
+  html += dashMobileSection("Təkrarlanan problemli avtobuslar", recItems, 15, "Servis sayı");
+
   document.getElementById("dashMobileSections").innerHTML = html;
 }
 
@@ -3259,17 +3024,15 @@ function dashComputeAndRender(){
   var carriers = dashCount(filtered, "Daşıyıcı", false);
   var locations = dashCountLocation(filtered);
   var recurring = dashCountRecurringBuses(filtered);
-  var trend = dashDailyTrend(filtered, range);
 
   dashRenderRadial("dashProblemGrid", problems, filtered.length);
   dashRenderRankList("dashSolutionList", solutions, 4);
   dashRenderTiles("dashCategoryGrid", categories, 8);
-  dashRenderLeaders("dashTechList", tech, 6);
-  dashRenderLeaders("dashLeaderList", leaders, 6);
-  dashRenderRankList("dashCarrierList", carriers, 6);
-  dashRenderRankList("dashLocationList", locations, 6);
+  dashRenderLeaders("dashTechList", tech, 8);
+  dashRenderLeaders("dashLeaderList", leaders, 8);
+  dashRenderRankList("dashCarrierList", carriers, 8);
+  dashRenderRankList("dashLocationList", locations, 8);
   dashRenderRecurring("dashRecurringPanel", recurring);
-  dashRenderTrend(trend);
 
   dashRenderMobile({
     totalAll:fixed.totalAll, totalToday:fixed.totalToday, totalWeek:fixed.totalWeek,
@@ -3329,7 +3092,14 @@ function openDashModal(){
   ensureDashFormDataThenBuildChips();
   document.getElementById("dashModal").classList.add("open");
 }
-function closeDashModal(){ document.getElementById("dashModal").classList.remove("open"); }
+function closeDashModal(){
+  document.getElementById("dashModal").classList.remove("open");
+  // Növbəti açılış üçün filtr görünüşünə qaytar
+  document.getElementById("dashModalFilterBody").style.display = "flex";
+  document.getElementById("dashModalResults").classList.remove("open");
+  document.getElementById("dashResetBtnEl").style.display = "";
+  document.getElementById("dashModalTitle").textContent = "Tarix aralığı və filtrlər";
+}
 
 function ensureDashFormDataThenBuildChips(){
   if(bsFormData && bsFormData.carriers){ buildDashChips(); }
@@ -3451,13 +3221,52 @@ function runDashSearch(){
     };
     document.querySelectorAll("#dashTabs .dash-tab").forEach(function(t){ t.classList.remove("active"); });
   }
-  closeDashModal();
-  var ov = document.getElementById("dashLoading");
-  ov.classList.add("open");
+
+  // Filtr görünüşünü gizlət, nəticə panelini göstər (pəncərə açıq qalır)
+  document.getElementById("dashModalFilterBody").style.display = "none";
+  document.getElementById("dashResetBtnEl").style.display = "none";
+  document.getElementById("dashModalTitle").textContent = "Nəticələr";
+  var resultsPanel = document.getElementById("dashModalResults");
+  resultsPanel.classList.add("open");
+  document.getElementById("dashModalResultsBody").innerHTML =
+    '<div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:50px 0;">'
+    + '<div class="spinner" style="width:38px;height:38px;border-width:4px;"></div>'
+    + '<div style="font-size:13.5px;color:#5C7089;font-weight:600;">Hazırlanır...</div></div>';
+
   setTimeout(function(){
-    ov.classList.remove("open");
     dashComputeAndRender();
-  }, 1500);
+    renderDashModalResults();
+  }, 1400);
+}
+
+function renderDashModalResults(){
+  var filtered = dashGetFilteredRows();
+  var problems = dashCount(filtered,"Problem",false);
+  var recurring = dashCountRecurringBuses(filtered);
+
+  var html = '<div style="font-size:13.5px;color:#5C7089;margin-bottom:16px;">Seçilmiş aralıqda <b style="color:#12233B;font-family:\'Rajdhani\',sans-serif;font-size:19px;">'+filtered.length+'</b> nəticə tapıldı.</div>';
+
+  if(problems.length){
+    html += '<div style="font-size:11px;font-weight:700;color:#8CA0BC;text-transform:uppercase;margin-bottom:8px;">Ən çox rast gəlinən problem</div>';
+    html += '<div style="border:1px solid #E1EAF6;border-radius:10px;padding:0 12px;margin-bottom:16px;">';
+    problems.slice(0,4).forEach(function(it,i){
+      html += '<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;'+(i<3?'border-bottom:1px solid #F0F5FC;':'')+'font-size:13px;color:#12233B;"><span>'+escapeHtml(it.name)+'</span><b>'+it.count+'</b></div>';
+    });
+    html += '</div>';
+  }
+
+  if(recurring.length){
+    html += '<div style="font-size:11px;font-weight:700;color:#A32D2D;text-transform:uppercase;margin-bottom:8px;">Təkrarlanan problemli avtobuslar</div>';
+    html += '<div style="border:1px solid #FCA5A5;border-radius:10px;padding:0 12px;margin-bottom:16px;">';
+    recurring.slice(0,5).forEach(function(it,i){
+      html += '<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;'+(i<Math.min(recurring.length,5)-1?'border-bottom:1px solid #FEECEC;':'')+'font-size:13px;color:#A32D2D;"><span>'+escapeHtml(it.plate||"")+' · BUS '+escapeHtml(it.busId)+'</span><b>'+it.count+'</b></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<div style="font-size:12px;color:#8CA0BC;line-height:1.5;">Tam hesabat əsas Dashboard səhifəsində yeniləndi. Bağlamaq üçün yuxarıdakı X düyməsinə basın.</div>';
+
+  document.getElementById("dashModalResultsBody").innerHTML = html;
 }
 
 function exportDashboardExcel(){
