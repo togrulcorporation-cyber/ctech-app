@@ -90,7 +90,7 @@ button.primary:disabled { opacity:.6; cursor:default; }
 .modal-title { font-family:'Inter',sans-serif; font-weight:700; font-size:18px; color:#12233B; margin-bottom:14px; text-align:center; }
 .modal-text { font-size:14px; color:#3A4A5E; line-height:1.65; margin-bottom:12px; text-align:justify; text-justify:inter-word; }
 .modal-text strong { color:#12233B; }
-.modal-subtitle { font-size:13px; font-weight:700; color:#12233B; text-transform:uppercase; letter-spacing:.5px; margin:18px 0 12px; }
+.modal-subtitle { font-size:13.5px; font-weight:700; color:#12233B; letter-spacing:.1px; margin:18px 0 12px; }
 .modal-steps { display:flex; flex-direction:column; gap:12px; margin-bottom:16px; }
 .modal-step { display:flex; align-items:flex-start; gap:12px; }
 .modal-step-num { width:24px; height:24px; border-radius:8px; background:#E6F1FB; color:#1B4A8A; font-family:'Inter',sans-serif; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
@@ -230,9 +230,8 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
 .bs-section-title {
   font-size:13px;
   font-weight:700;
-  color:#8CA0BC;
-  text-transform:uppercase;
-  letter-spacing:.6px;
+  color:#5C7089;
+  letter-spacing:.2px;
   margin-bottom:14px;
 }
 
@@ -609,9 +608,8 @@ body.dark-mode #busOpenOverlay div[style*="color:#8CA0BC"] { color:#5C7089 !impo
   font-family:'Rajdhani',sans-serif;
   font-weight:700;
   font-size:18px;
-  letter-spacing:1px;
+  letter-spacing:.3px;
   color:#12233B;
-  text-transform:uppercase;
   text-align:center;
 }
 .rpt-title span { color:#2F6FED; }
@@ -734,10 +732,9 @@ body.dark-mode #busOpenOverlay div[style*="color:#8CA0BC"] { color:#5C7089 !impo
   z-index:2;
   background:#E6F1FB;
   color:#1B4A8A;
-  font-size:11px;
+  font-size:11.5px;
   font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.3px;
+  letter-spacing:.1px;
   padding:11px 10px;
   border-bottom:3px solid #B9D2F5;
   border-right:1.5px solid #D2E2F7;
@@ -912,7 +909,7 @@ body.dark-mode .dash-tab { color:#8FA0B8; }
 .dash-top-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
 .dash-metric { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 10px 24px rgba(30,68,130,.06); }
 body.dark-mode .dash-metric { background:#16212E; border-color:#4A6182; box-shadow:none; }
-.dash-metric-label { font-size:11.5px; font-weight:700; color:#8CA0BC; text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px; }
+.dash-metric-label { font-size:12px; font-weight:700; color:#8CA0BC; letter-spacing:.2px; margin-bottom:8px; }
 body.dark-mode .dash-metric-label { color:#8FA0B8; }
 .dash-metric-value { font-family:'Rajdhani',sans-serif; font-size:32px; font-weight:700; color:#12233B; }
 body.dark-mode .dash-metric-value { color:#E8EEF5; }
@@ -923,7 +920,7 @@ body.dark-mode .dash-range-btn { background:linear-gradient(135deg,#1C2A3D,#1621
 .dash-range-btn .ic { width:34px; height:34px; border-radius:9px; background:#FFFFFF; color:#2F6FED; display:flex; align-items:center; justify-content:center; }
 body.dark-mode .dash-range-btn .ic { background:#16212E; color:#4E93FA; }
 
-.dash-section-title { font-size:14px; font-weight:800; color:#12233B; letter-spacing:.2px; margin:24px 0 12px; }
+.dash-section-title { font-size:14px; font-weight:700; color:#12233B; letter-spacing:.1px; margin:24px 0 12px; }
 body.dark-mode .dash-section-title { color:#E8EEF5; }
 
 .dash-radial-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
@@ -931,21 +928,26 @@ body.dark-mode .dash-section-title { color:#E8EEF5; }
 body.dark-mode .dash-radial-card { background:#16212E; border-color:#4A6182; box-shadow:none; }
 .dash-radial-textbox { background:#F7FAFD; border:1px solid #EEF3FB; border-radius:10px; padding:10px 12px; font-size:14px; color:#12233B; font-weight:600; margin-top:12px; line-height:1.45; text-align:left; }
 body.dark-mode .dash-radial-textbox { background:#1C2A3D; border-color:#233248; color:#E8EEF5; }
-.dash-radial-count { font-size:12px; color:#8CA0BC; margin-top:8px; font-weight:600; }
-body.dark-mode .dash-radial-count { color:#8FA0B8; }
+.dash-radial-count { display:inline-flex; align-items:center; gap:5px; background:#F0F5FC; color:#1B4A8A; font-size:12.5px; font-weight:700; padding:5px 12px; border-radius:20px; margin-top:10px; }
+body.dark-mode .dash-radial-count { background:#1C2A3D; color:#8FB4EA; }
 
-.dash-ranklist { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:0 18px; box-shadow:0 10px 24px rgba(30,68,130,.06); overflow:hidden; }
+.dash-ranklist { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:0 18px; box-shadow:0 10px 24px rgba(30,68,130,.06); display:table; width:100%; border-collapse:collapse; }
 body.dark-mode .dash-ranklist { background:#16212E; border-color:#4A6182; box-shadow:none; }
-.dash-rank-header { display:flex; justify-content:space-between; padding:12px 0; border-bottom:2px solid #E1EAF6; font-size:11px; font-weight:700; color:#8CA0BC; text-transform:uppercase; letter-spacing:.4px; }
-body.dark-mode .dash-rank-header { border-bottom-color:#4A6182; color:#8FA0B8; }
-.dash-rank-row { display:flex; align-items:flex-start; gap:14px; padding:14px 0; border-bottom:1px solid #F0F5FC; }
-body.dark-mode .dash-rank-row { border-bottom-color:#1C2A3D; }
-.dash-rank-row:last-child { border-bottom:none; }
-.dash-rank-num { width:26px; height:26px; border-radius:8px; background:#F0F5FC; color:#2F6FED; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
-body.dark-mode .dash-rank-num { background:#1C2A3D; color:#4E93FA; }
-.dash-rank-name { flex:1; font-size:15px; color:#12233B; font-weight:500; line-height:1.5; white-space:normal; word-break:break-word; }
+.dash-rank-header { display:table-row; }
+.dash-rank-header .drh-c { display:table-cell; padding:12px 0; border-bottom:2px solid #E1EAF6; font-size:11.5px; font-weight:700; color:#8CA0BC; letter-spacing:.2px; }
+.dash-rank-header .drh-c.right { text-align:right; padding-left:16px; border-left:2px solid #E1EAF6; white-space:nowrap; }
+body.dark-mode .dash-rank-header .drh-c { border-bottom-color:#4A6182; color:#8FA0B8; }
+body.dark-mode .dash-rank-header .drh-c.right { border-left-color:#4A6182; }
+.dash-rank-row { display:table-row; }
+.dash-rank-row > * { display:table-cell; padding:13px 0; border-bottom:1px solid #F0F5FC; vertical-align:middle; }
+body.dark-mode .dash-rank-row > * { border-bottom-color:#1C2A3D; }
+.dash-rank-row:last-child > * { border-bottom:none; }
+.dash-rank-num { width:34px; }
+.dash-rank-num span { width:26px; height:26px; border-radius:8px; background:#F0F5FC; color:#2F6FED; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; }
+body.dark-mode .dash-rank-num span { background:#1C2A3D; color:#4E93FA; }
+.dash-rank-name { font-size:15px; color:#12233B; font-weight:500; line-height:1.5; padding-right:14px; }
 body.dark-mode .dash-rank-name { color:#E8EEF5; }
-.dash-rank-count { font-family:'Rajdhani',sans-serif; font-size:19px; font-weight:700; color:#12233B; flex-shrink:0; padding-left:12px; border-left:2px solid #EEF3FB; margin-left:4px; }
+.dash-rank-count { font-family:'Rajdhani',sans-serif; font-size:19px; font-weight:700; color:#12233B; text-align:right; white-space:nowrap; padding-left:16px; border-left:2px solid #EEF3FB; }
 body.dark-mode .dash-rank-count { color:#E8EEF5; border-left-color:#233248; }
 
 .dash-tile-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
@@ -1017,7 +1019,7 @@ body.dark-mode .dash-modal-left { border-right-color:#4A6182; }
 .dash-chip { padding:6px 12px; border-radius:20px; border:1.5px solid #DCE6F5; font-size:11px; font-weight:600; color:#5C7089; cursor:pointer; background:#F8FAFD; }
 .dash-chip.active { background:#2F6FED; border-color:#2F6FED; color:#fff; }
 .dash-subfilter { border:1px solid #E1EAF6; border-radius:10px; padding:10px 12px; margin-bottom:8px; }
-.dash-subfilter-title { font-size:10.5px; font-weight:700; color:#8CA0BC; text-transform:uppercase; margin-bottom:7px; }
+.dash-subfilter-title { font-size:11.5px; font-weight:700; color:#8CA0BC; margin-bottom:7px; }
 .dash-subfilter-opts { display:flex; flex-wrap:wrap; gap:5px; }
 .dash-opt-chip { padding:4px 10px; border-radius:14px; border:1px solid #DCE6F5; font-size:10.5px; color:#12233B; cursor:pointer; background:#fff; }
 .dash-opt-chip.sel { background:#E6F1FB; border-color:#2F6FED; color:#0C447C; font-weight:600; }
@@ -1035,15 +1037,19 @@ body.dark-mode .dash-loading-text { color:#8FB4EA; }
 .dash-m-section { margin-bottom:20px; }
 .dash-m-title { font-size:13px; font-weight:800; color:#12233B; margin-bottom:10px; }
 body.dark-mode .dash-m-title { color:#E8EEF5; }
-.dash-m-card { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:0 14px; box-shadow:0 8px 20px rgba(30,68,130,.06); overflow:hidden; }
+.dash-m-card { background:#FFFFFF; border:1px solid #E1EAF6; border-radius:14px; padding:0 14px; box-shadow:0 8px 20px rgba(30,68,130,.06); display:table; width:100%; border-collapse:collapse; }
 body.dark-mode .dash-m-card { background:#16212E; border-color:#4A6182; box-shadow:none; }
-.dash-m-header { display:flex; justify-content:space-between; padding:10px 0; border-bottom:2px solid #E1EAF6; font-size:10.5px; font-weight:700; color:#8CA0BC; text-transform:uppercase; }
-body.dark-mode .dash-m-header { border-bottom-color:#4A6182; color:#8FA0B8; }
-.dash-m-row { display:flex; justify-content:space-between; gap:10px; padding:11px 0; border-bottom:1px solid #EEF3FB; font-size:14.5px; color:#12233B; }
-body.dark-mode .dash-m-row { border-bottom-color:#1C2A3D; color:#E8EEF5; }
-.dash-m-row:last-child { border-bottom:none; }
-.dash-m-row span:first-child { flex:1; line-height:1.4; }
-.dash-m-row b { font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; flex-shrink:0; }
+.dash-m-header { display:table-row; }
+.dash-m-header .dmh-c { display:table-cell; padding:10px 0; border-bottom:2px solid #E1EAF6; font-size:11.5px; font-weight:700; color:#8CA0BC; }
+.dash-m-header .dmh-c.right { text-align:right; padding-left:14px; border-left:2px solid #E1EAF6; white-space:nowrap; }
+body.dark-mode .dash-m-header .dmh-c { border-bottom-color:#4A6182; color:#8FA0B8; }
+body.dark-mode .dash-m-header .dmh-c.right { border-left-color:#4A6182; }
+.dash-m-row { display:table-row; }
+.dash-m-row .dmr-c { display:table-cell; padding:12px 0; border-bottom:1px solid #EEF3FB; font-size:14.5px; color:#12233B; vertical-align:middle; }
+body.dark-mode .dash-m-row .dmr-c { border-bottom-color:#1C2A3D; color:#E8EEF5; }
+.dash-m-row:last-child .dmr-c { border-bottom:none; }
+.dash-m-row .dmr-c.right { text-align:right; font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; white-space:nowrap; padding-left:14px; border-left:2px solid #EEF3FB; }
+body.dark-mode .dash-m-row .dmr-c.right { border-left-color:#233248; }
 .dash-m-empty { padding:14px 0; font-size:13px; color:#8CA0BC; }
 body.dark-mode .dash-m-empty { color:#8FA0B8; }
 .dash-m-metrics { font-size:15px; color:#12233B; line-height:2.1; font-weight:500; }
@@ -1079,11 +1085,10 @@ body.dark-mode .dash-m-metrics { color:#E8EEF5; }
   margin-bottom:12px;
 }
 .dv-section-title {
-  font-size:11px;
+  font-size:12.5px;
   font-weight:700;
-  color:#8CA0BC;
-  text-transform:uppercase;
-  letter-spacing:1px;
+  color:#5C7089;
+  letter-spacing:.2px;
   margin-bottom:12px;
 }
 .dv-row { display:flex; justify-content:space-between; gap:14px; padding:8px 0; border-bottom:1px solid #F0F5FC; }
@@ -2933,14 +2938,23 @@ function dashRenderRadial(containerId, items, total){
   });
   el.innerHTML = html;
 }
-function dashRenderRankList(containerId, items, max, headerLabel){
+function buildRankTableRows(items, numStyle, countStyle){
+  var html = "";
+  items.forEach(function(it,i){
+    html += '<div class="dash-rank-row">'
+      + '<div class="dash-rank-num"><span'+(numStyle?' style="'+numStyle+'"':'')+'>'+(i+1)+'</span></div>'
+      + '<div class="dash-rank-name">'+escapeHtml(it.name)+'</div>'
+      + '<div class="dash-rank-count"'+(countStyle?' style="'+countStyle+'"':'')+'>'+it.count+'</div>'
+      + '</div>';
+  });
+  return html;
+}
+function dashRenderRankList(containerId, items, max, headerLabel, nameHeader){
   var el = document.getElementById(containerId);
   var top = items.slice(0, max||6);
   if(top.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>'; return; }
-  var html = '<div class="dash-rank-header"><span>Ad</span><span>'+(headerLabel||"Servis sayı")+'</span></div>';
-  top.forEach(function(it,i){
-    html += '<div class="dash-rank-row"><div class="dash-rank-num">'+(i+1)+'</div><div class="dash-rank-name">'+escapeHtml(it.name)+'</div><div class="dash-rank-count">'+it.count+'</div></div>';
-  });
+  var html = '<div class="dash-rank-header"><div class="drh-c">'+(nameHeader||"Ad")+'</div><div class="drh-c right">'+(headerLabel||"Servis sayı")+'</div></div>';
+  html += buildRankTableRows(top);
   el.innerHTML = html;
 }
 function dashRenderTiles(containerId, items, max){
@@ -2969,10 +2983,9 @@ function dashRenderLeaders(containerId, items, max){
 function dashRenderRecurring(containerId, items){
   var el = document.getElementById(containerId);
   if(items.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün heç bir avtobus 3 və ya daha çox servis almayıb — təkrarlanan problem qeydə alınmayıb.</div>'; return; }
-  var html = '<div class="dash-rank-header"><span>Avtobus (D.Q.N. · BUS ID)</span><span>Servis sayı</span></div>';
-  items.slice(0,15).forEach(function(it,i){
-    html += '<div class="dash-rank-row"><div class="dash-rank-num" style="background:#FEECEC;color:#A32D2D;">'+(i+1)+'</div><div class="dash-rank-name">'+escapeHtml(it.plate||"—")+' · BUS '+escapeHtml(it.busId)+'</div><div class="dash-rank-count" style="color:#A32D2D;">'+it.count+'</div></div>';
-  });
+  var mapped = items.slice(0,15).map(function(it){ return { name:(it.plate||"—")+" · BUS "+it.busId, count:it.count }; });
+  var html = '<div class="dash-rank-header"><div class="drh-c">Avtobus (D.Q.N. · BUS ID)</div><div class="drh-c right">Servis sayı</div></div>';
+  html += buildRankTableRows(mapped, "background:#FEECEC;color:#A32D2D;", "color:#A32D2D;");
   el.innerHTML = html;
 }
 function dashMobileSection(title, items, max, headerLabel){
@@ -2981,8 +2994,8 @@ function dashMobileSection(title, items, max, headerLabel){
   if(top.length===0){
     html += '<div class="dash-m-empty">Bu dövr üçün qeydə alınmayıb.</div>';
   } else {
-    html += '<div class="dash-m-header"><span>Ad</span><span>'+(headerLabel||"Say")+'</span></div>';
-    top.forEach(function(it){ html += '<div class="dash-m-row"><span>'+escapeHtml(it.name)+'</span><b>'+it.count+'</b></div>'; });
+    html += '<div class="dash-m-header"><div class="dmh-c">Ad</div><div class="dmh-c right">'+(headerLabel||"Say")+'</div></div>';
+    top.forEach(function(it){ html += '<div class="dash-m-row"><div class="dmr-c">'+escapeHtml(it.name)+'</div><div class="dmr-c right">'+it.count+'</div></div>'; });
   }
   html += '</div></div>';
   return html;
@@ -3168,6 +3181,10 @@ function resetDashFilters(){
   dcalRangeStart = null; dcalRangeEnd = null;
   buildDashChips();
   renderDcal();
+  // Nəticə rejimindəyiksə filtr görünüşünə qayıt
+  document.getElementById("dashModalFilterBody").style.display = "flex";
+  document.getElementById("dashModalResults").classList.remove("open");
+  document.getElementById("dashModalTitle").textContent = "Tarix aralığı və filtrlər";
 }
 
 var dcalYear, dcalMonth, dcalRangeStart=null, dcalRangeEnd=null;
@@ -3222,9 +3239,8 @@ function runDashSearch(){
     document.querySelectorAll("#dashTabs .dash-tab").forEach(function(t){ t.classList.remove("active"); });
   }
 
-  // Filtr görünüşünü gizlət, nəticə panelini göstər (pəncərə açıq qalır)
+  // Filtr görünüşünü gizlət, nəticə panelini göstər (pəncərə açıq qalır, Sıfırla/X aktiv qalır)
   document.getElementById("dashModalFilterBody").style.display = "none";
-  document.getElementById("dashResetBtnEl").style.display = "none";
   document.getElementById("dashModalTitle").textContent = "Nəticələr";
   var resultsPanel = document.getElementById("dashModalResults");
   resultsPanel.classList.add("open");
@@ -3239,32 +3255,43 @@ function runDashSearch(){
   }, 1400);
 }
 
+function dashPivotBlock(title, items, countLabel, nameHeader){
+  if(!items || items.length===0) return '';
+  var b = '<div style="font-size:12px;font-weight:700;color:#8CA0BC;margin-bottom:8px;">'+title+'</div>';
+  b += '<div class="dash-ranklist" style="margin-bottom:20px;">';
+  b += '<div class="dash-rank-header"><div class="drh-c">'+(nameHeader||"Ad")+'</div><div class="drh-c right">'+(countLabel||"Servis sayı")+'</div></div>';
+  b += buildRankTableRows(items.slice(0,10));
+  b += '</div>';
+  return b;
+}
+
 function renderDashModalResults(){
   var filtered = dashGetFilteredRows();
-  var problems = dashCount(filtered,"Problem",false);
-  var recurring = dashCountRecurringBuses(filtered);
+  var activeAny = Object.keys(dashActiveChips).some(function(k){ return dashActiveChips[k]; });
 
-  var html = '<div style="font-size:13.5px;color:#5C7089;margin-bottom:16px;">Seçilmiş aralıqda <b style="color:#12233B;font-family:\'Rajdhani\',sans-serif;font-size:19px;">'+filtered.length+'</b> nəticə tapıldı.</div>';
+  var html = '<div style="font-size:13.5px;color:#5C7089;margin-bottom:18px;">Seçilmiş aralıqda <b style="color:#12233B;font-family:\'Rajdhani\',sans-serif;font-size:19px;">'+filtered.length+'</b> nəticə tapıldı.</div>';
 
-  if(problems.length){
-    html += '<div style="font-size:11px;font-weight:700;color:#8CA0BC;text-transform:uppercase;margin-bottom:8px;">Ən çox rast gəlinən problem</div>';
-    html += '<div style="border:1px solid #E1EAF6;border-radius:10px;padding:0 12px;margin-bottom:16px;">';
-    problems.slice(0,4).forEach(function(it,i){
-      html += '<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;'+(i<3?'border-bottom:1px solid #F0F5FC;':'')+'font-size:13px;color:#12233B;"><span>'+escapeHtml(it.name)+'</span><b>'+it.count+'</b></div>';
+  if(dashActiveChips["Problem"]) html += dashPivotBlock("Problem üzrə bölgü", dashCount(filtered,"Problem",false), "Servis sayı", "Problem");
+  if(dashActiveChips["Həll"]) html += dashPivotBlock("Həll üzrə bölgü", dashCount(filtered,"Həll",true), "Servis sayı", "Həll");
+  if(dashActiveChips["Daşıyıcı"]) html += dashPivotBlock("Daşıyıcı üzrə bölgü", dashCount(filtered,"Daşıyıcı",false), "Servis sayı", "Daşıyıcı");
+  if(dashActiveChips["Qrup Rəhbəri"]) html += dashPivotBlock("Qrup Rəhbəri üzrə bölgü", dashCount(filtered,"Qrup rəhbəri",false), "Servis sayı", "Qrup Rəhbəri");
+  if(dashActiveChips["Texnik"]) html += dashPivotBlock("Texnik üzrə bölgü", dashCountTech(filtered), "Servis sayı", "Texnik");
+  if(dashActiveChips["Servis verilən Ünvan"]) html += dashPivotBlock("Servis verilən ünvan üzrə bölgü", dashCountLocation(filtered), "Servis sayı", "Ünvan");
+  if(dashActiveChips["Servis Kateqoriyaları"]) html += dashPivotBlock("Servis kateqoriyası üzrə bölgü", dashCount(filtered,"Servis Kat.",false), "Servis sayı", "Kateqoriya");
+
+  if(dashActiveChips["D.Q.N."] || dashActiveChips["BUS ID"]){
+    var ticketItems = filtered.slice(0,15).map(function(r){
+      return { name:(r["Ticket ID"]||"")+" · "+(r["Tarix"]||"")+" · "+(r["D.Q.N."]||""), count:(r["BUS ID"]||"") };
     });
-    html += '</div>';
+    html += dashPivotBlock("Uyğun gələn ticket-lər", ticketItems, "BUS ID", "Ticket");
   }
 
-  if(recurring.length){
-    html += '<div style="font-size:11px;font-weight:700;color:#A32D2D;text-transform:uppercase;margin-bottom:8px;">Təkrarlanan problemli avtobuslar</div>';
-    html += '<div style="border:1px solid #FCA5A5;border-radius:10px;padding:0 12px;margin-bottom:16px;">';
-    recurring.slice(0,5).forEach(function(it,i){
-      html += '<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;'+(i<Math.min(recurring.length,5)-1?'border-bottom:1px solid #FEECEC;':'')+'font-size:13px;color:#A32D2D;"><span>'+escapeHtml(it.plate||"")+' · BUS '+escapeHtml(it.busId)+'</span><b>'+it.count+'</b></div>';
-    });
-    html += '</div>';
+  if(!activeAny){
+    // Heç bir kateqoriya seçilməyib — yalnız tarix aralığı üzrə ümumi baxış göstər
+    html += dashPivotBlock("Ən çox rast gəlinən problem (ümumi baxış)", dashCount(filtered,"Problem",false).slice(0,4), "Servis sayı", "Problem");
   }
 
-  html += '<div style="font-size:12px;color:#8CA0BC;line-height:1.5;">Tam hesabat əsas Dashboard səhifəsində yeniləndi. Bağlamaq üçün yuxarıdakı X düyməsinə basın.</div>';
+  html += '<div style="font-size:12px;color:#8CA0BC;line-height:1.5;">Tam hesabat əsas Dashboard səhifəsində də yeniləndi. Bağlamaq üçün yuxarıdakı X düyməsinə basın.</div>';
 
   document.getElementById("dashModalResultsBody").innerHTML = html;
 }
