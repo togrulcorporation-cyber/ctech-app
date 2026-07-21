@@ -26,7 +26,7 @@
 <style>
 
 * { box-sizing:border-box; }
-html,body { height:100%; margin:0; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+html,body { height:100%; margin:0; -webkit-text-size-adjust:100%; text-size-adjust:100%; overscroll-behavior-y:contain; }
 body { min-height:100vh; background:#F4F8FD; background-image:radial-gradient(circle at 12% 8%,rgba(59,130,246,.10),transparent 45%),radial-gradient(circle at 90% 90%,rgba(78,147,250,.10),transparent 45%); font-family:'Inter',Arial,sans-serif; }
 
 /* ===== LOGIN ===== */
@@ -1998,6 +1998,7 @@ function getListForKey(key){
 function selectDDItem(key, item){
   var meta = ddMeta[key];
   bsFormDirty = true;
+  scheduleBsDraftSave();
 
   if(meta.multi){
     var arr = bsSelected[key];
@@ -2181,6 +2182,17 @@ function openBusService(){
   document.getElementById("busReportView").style.display = "none";
   document.getElementById("busServiceView").style.display = "block";
   document.getElementById("busServiceView").scrollTop = 0;
+
+  // Yarımçıq qalmış qaralama varsa bərpa təklif et (səhifə yenidən yüklənəndə/bağlananda itməsin deyə)
+  var draft = loadBsDraft();
+  if(draft){
+    var minsAgo = Math.max(1, Math.round((Date.now() - (draft.savedAt||0)) / 60000));
+    if(confirm("Yarımçıq qalmış BUS Service məlumatı tapıldı (~"+minsAgo+" dəqiqə əvvəl). Davam etmək istəyirsiniz?")){
+      restoreBsDraft(draft);
+    } else {
+      clearBsDraft();
+    }
+  }
 
   var btn = document.getElementById("bsSubmitBtn");
   if(btn) btn.textContent = "Göndər";
@@ -2424,6 +2436,7 @@ function submitBusService(){
       ov.classList.remove("open");
       if(result.status==="OK"){
         bsFormDirty=false;
+        if(!bsEditMode) clearBsDraft();
         var wasEdit = bsEditMode;
         bsGoBack();
         if(wasEdit){ loadReportData(); }
@@ -2445,6 +2458,7 @@ function attemptBusHome(){
 function closeConfirm(){ document.getElementById("bsConfirmOverlay").classList.remove("open"); }
 function confirmExit(){
   document.getElementById("bsConfirmOverlay").classList.remove("open");
+  if(!bsEditMode) clearBsDraft();
   var ov=document.getElementById("bsLoadingOverlay");
   var sp=document.getElementById("bsSpinner");
   var tx=document.getElementById("bsLoadingText");
@@ -2524,12 +2538,94 @@ document.addEventListener("keydown", function(e){
   if(idx !== -1 && idx < focusable.length-1) focusable[idx+1].focus();
 });
 
+// ── Qaralama (draft) avtomatik saxlama ───────────────
+// Səhifə təsadüfən yenidən yüklənərsə (pull-to-refresh, yaddaş təzyiqi və s.)
+// yarımçıq qalmış BUS Service məlumatı itməsin deyə.
+function bsDraftKey(){ return "ctech_bs_draft"; }
+
+function saveBsDraft(){
+  if(bsEditMode) return; // redaktə zamanı draft saxlanmır (təhlükəsizlik üçün)
+  try{
+    var draft = {
+      date: (document.getElementById("bs_date")||{}).value || "",
+      time: (document.getElementById("bs_time_lbl")||{}).value || "",
+      requester: (document.getElementById("bs_requester")||{}).value || "",
+      phone: (document.getElementById("bs_phone")||{}).value || "",
+      route: (document.getElementById("bs_route")||{}).value || "",
+      busid: (document.getElementById("bs_busid")||{}).value || "",
+      plate: (document.getElementById("bs_plate")||{}).value || "",
+      oldsn: (document.getElementById("bs_old_sn")||{}).value || "",
+      newsn: (document.getElementById("bs_new_sn")||{}).value || "",
+      start: (document.getElementById("bs_start_lbl")||{}).value || "",
+      end: (document.getElementById("bs_end_lbl")||{}).value || "",
+      note: (document.getElementById("bs_note")||{}).value || "",
+      locationNote: (document.getElementById("bs_location_note")||{}).value || "",
+      selected: bsSelected,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(bsDraftKey(), JSON.stringify(draft));
+  }catch(e){ /* localStorage yoxdursa səssizcə keç */ }
+}
+
+var bsDraftSaveTimer = null;
+function scheduleBsDraftSave(){
+  if(bsDraftSaveTimer) clearTimeout(bsDraftSaveTimer);
+  bsDraftSaveTimer = setTimeout(saveBsDraft, 500);
+}
+
+function clearBsDraft(){
+  try{ localStorage.removeItem(bsDraftKey()); }catch(e){}
+}
+
+function loadBsDraft(){
+  try{
+    var raw = localStorage.getItem(bsDraftKey());
+    if(!raw) return null;
+    var d = JSON.parse(raw);
+    // Boş draft-ı (heç nə yazılmayıb) təklif etmə
+    var hasContent = d.requester || d.phone || d.route || d.busid || d.plate || d.note ||
+      (d.selected && (d.selected.carrier || d.selected.brand || d.selected.problem || (d.selected.solution&&d.selected.solution.length)));
+    return hasContent ? d : null;
+  }catch(e){ return null; }
+}
+
+function restoreBsDraft(draft){
+  if(draft.date) document.getElementById("bs_date").value = draft.date;
+  setTimeInputValue("bs_time_lbl", draft.time);
+  document.getElementById("bs_requester").value = draft.requester || "";
+  document.getElementById("bs_phone").value = draft.phone || "";
+  document.getElementById("bs_route").value = draft.route || "";
+  document.getElementById("bs_busid").value = draft.busid || "";
+  document.getElementById("bs_plate").value = draft.plate || "";
+  document.getElementById("bs_old_sn").value = draft.oldsn || "";
+  document.getElementById("bs_new_sn").value = draft.newsn || "";
+  setTimeInputValue("bs_start_lbl", draft.start);
+  setTimeInputValue("bs_end_lbl", draft.end);
+  document.getElementById("bs_note").value = draft.note || "";
+  document.getElementById("bs_location_note").value = draft.locationNote || "";
+
+  bsSelected = draft.selected || bsSelected;
+  Object.keys(ddMeta).forEach(function(k){
+    if(k==="solution"){
+      updateMultiLabel("solution");
+      updateSolutionChips();
+    } else if(bsSelected[k]){
+      setDDValue(k, bsSelected[k]);
+    }
+  });
+  var probDigar = (bsSelected.problem||"").toLowerCase().indexOf("digər")!==-1;
+  var solDigar = (bsSelected.solution||[]).some(function(s){ return s.toLowerCase().indexOf("digər")!==-1; });
+  document.getElementById("bs_location_note_wrap").style.display = (bsSelected.location||"").toLowerCase().indexOf("digər")!==-1 ? "block" : "none";
+
+  bsFormDirty = true;
+}
+
 // ── Dirty flag ───────────────────────────────────────
 document.addEventListener("DOMContentLoaded", function(){
   var inputs = document.querySelectorAll("#busServiceView input, #busServiceView select, #busServiceView textarea");
   inputs.forEach(function(el){
-    el.addEventListener("input",function(){bsFormDirty=true;});
-    el.addEventListener("change",function(){bsFormDirty=true;});
+    el.addEventListener("input",function(){bsFormDirty=true; scheduleBsDraftSave();});
+    el.addEventListener("change",function(){bsFormDirty=true; scheduleBsDraftSave();});
   });
 });
 
