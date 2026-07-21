@@ -457,6 +457,60 @@ input[type="time"]::-webkit-datetime-edit-ampm-field { display:none !important; 
   bottom:0;
 }
 
+/* ── BUS ID Registry Autocomplete ──────────────────────────── */
+.bs-busid-wrap { position:relative; }
+.bs-registry-dd {
+  display:none;
+  position:absolute;
+  top:calc(100% + 4px);
+  left:0; right:0;
+  z-index:55;
+  background:#FFFFFF;
+  border:1.5px solid #DCE6F5;
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(18,35,59,.13);
+  overflow-y:auto;
+  max-height:240px;
+}
+.bs-registry-dd.open { display:block; }
+.bs-registry-item {
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  padding:10px 14px;
+  border-bottom:1px solid #F4F8FD;
+  cursor:pointer;
+  transition:background .1s;
+}
+.bs-registry-item:last-child { border-bottom:none; }
+.bs-registry-item:hover { background:#F0F5FC; }
+.bs-registry-item .reg-id { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13px; color:#2F6FED; }
+.bs-registry-item .reg-meta { font-size:11.5px; color:#5C7089; margin-top:1px; }
+.bs-registry-empty { padding:12px 14px; font-size:12.5px; color:#9AACC4; }
+.bs-locked {
+  background:#EEF2F7 !important;
+  color:#5C7089 !important;
+  cursor:not-allowed !important;
+  pointer-events:none;
+  opacity:.9;
+}
+.bs-registry-reset {
+  margin-top:6px;
+  font-size:12px;
+  color:#2F6FED;
+  font-weight:600;
+  cursor:pointer;
+  display:none;
+  user-select:none;
+}
+.bs-registry-reset.show { display:inline-block; }
+body.dark-mode .bs-registry-dd { background:#16212E; border-color:#4A6182; }
+body.dark-mode .bs-registry-item { border-bottom-color:#1C2A3D; }
+body.dark-mode .bs-registry-item:hover { background:#1C2A3D; }
+body.dark-mode .bs-registry-item .reg-meta { color:#8CA0BC; }
+body.dark-mode .bs-registry-empty { color:#5C7089; }
+body.dark-mode .bs-locked { background:#1C2A3D !important; color:#8CA0BC !important; }
+
 /* Confirm Exit Dialog */
 #bsConfirmOverlay {
   display:none;
@@ -469,22 +523,6 @@ input[type="time"]::-webkit-datetime-edit-ampm-field { display:none !important; 
   padding:24px;
 }
 #bsConfirmOverlay.open { display:flex; }
-
-/* 6.1 / 6.2 — Draft bərpa və Pull-to-refresh təsdiq pəncərələri (eyni bs-confirm-box dizaynı) */
-#bsDraftConfirmOverlay,
-#bsRefreshConfirmOverlay {
-  display:none;
-  position:fixed;
-  top:0; left:0; width:100%; height:100%;
-  background:rgba(18,35,59,.5);
-  z-index:95;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-}
-#bsDraftConfirmOverlay.open,
-#bsRefreshConfirmOverlay.open { display:flex; }
-
 .bs-confirm-box {
   background:#FFFFFF;
   border-radius:18px;
@@ -1570,7 +1608,11 @@ body.dark-mode .dv-value { color:#E8EEF5; }
         </div>
         <div class="bs-field">
           <label class="bs-label">BUS ID *</label>
-          <input type="text" id="bs_busid" class="bs-input" placeholder="ID" inputmode="numeric" pattern="[0-9]*" maxlength="5">
+          <div class="bs-busid-wrap" id="busid_wrap">
+            <input type="text" id="bs_busid" class="bs-input" placeholder="ID" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off">
+            <div class="bs-registry-dd" id="bs_registry_dd"></div>
+          </div>
+          <div class="bs-registry-reset" id="bs_registry_reset" onclick="resetRegistrySelection()">✕ Reyestr seçimini ləğv et</div>
         </div>
       </div>
       <div class="bs-field">
@@ -1597,6 +1639,16 @@ body.dark-mode .dv-value { color:#E8EEF5; }
             </button>
             <div class="bs-dd-list" id="dd_brand_list"></div>
           </div>
+        </div>
+      </div>
+      <div class="bs-field">
+        <label class="bs-label">Sistem *</label>
+        <div class="bs-inline-dd" id="dd_system">
+          <button type="button" class="bs-picker-btn" id="bs_system_btn" onclick="toggleDD('system')">
+            <span id="bs_system_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_system_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_system_list"></div>
         </div>
       </div>
     </div>
@@ -1744,7 +1796,7 @@ body.dark-mode .dv-value { color:#E8EEF5; }
 </div>
 
 <!-- Draft Bərpa Təsdiq Dialoqu (6.2) -->
-<div id="bsDraftConfirmOverlay">
+<div id="bsDraftConfirmOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(18,35,59,.5);z-index:95;align-items:center;justify-content:center;padding:24px;">
   <div class="bs-confirm-box">
     <div class="bs-confirm-title">Yarımçıq qalmış məlumat tapıldı</div>
     <div class="bs-confirm-text" id="bsDraftConfirmText">Bu formada natamam saxlanılmış məlumat var. Davam etmək istəyirsiniz?</div>
@@ -1756,7 +1808,7 @@ body.dark-mode .dv-value { color:#E8EEF5; }
 </div>
 
 <!-- Pull-to-refresh Təsdiq Dialoqu (6.1) -->
-<div id="bsRefreshConfirmOverlay">
+<div id="bsRefreshConfirmOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(18,35,59,.5);z-index:95;align-items:center;justify-content:center;padding:24px;">
   <div class="bs-confirm-box">
     <div class="bs-confirm-title">Səhifəni yeniləmək istəyirsiniz?</div>
     <div class="bs-confirm-text">Daxil etdiyiniz məlumatlar yadda saxlanılmayıb — yeniləsəniz silinəcək.</div>
@@ -1911,8 +1963,9 @@ try{ var savedTheme=localStorage.getItem("ctech_theme"); if(savedTheme==="dark")
 var bsFormData = {};
 var bsFormDirty = false;
 var bsNextTicketId = "";
+var bsRegistryLocked = false;
 var bsSelected = {
-  carrier:"", brand:"", problem:"", solution:[], equipment:"", location:"", tech1:"", tech2:"", leader:""
+  carrier:"", brand:"", problem:"", solution:[], system:"", equipment:"", location:"", tech1:"", tech2:"", leader:""
 };
 var activeDDKey = null; // hal-hazırda açıq olan dropdown
 
@@ -1920,6 +1973,7 @@ var activeDDKey = null; // hal-hazırda açıq olan dropdown
 var ddMeta = {
   carrier:   { lbl:"bs_carrier_lbl",   list:"dd_carrier_list",   multi:false, onSelect: null },
   brand:     { lbl:"bs_brand_lbl",     list:"dd_brand_list",     multi:false, onSelect: null },
+  system:    { lbl:"bs_system_lbl",    list:"dd_system_list",    multi:false, onSelect: null },
   equipment: { lbl:"bs_equipment_lbl", list:"dd_equipment_list", multi:false, onSelect: null },
   problem:   { lbl:"bs_problem_lbl",   list:"dd_problem_list",   multi:false, onSelect: onProblemSelect },
   solution:  { lbl:"bs_solution_lbl",  list:"dd_solution_list",  multi:true,  onSelect: onSolutionSelect },
@@ -1931,6 +1985,7 @@ var ddMeta = {
 
 // ── DD aç/qapat ─────────────────────────────────────
 function toggleDD(key){
+  if((key==="carrier" || key==="brand") && bsRegistryLocked) return;
   if(activeDDKey && activeDDKey !== key){ closeDD(activeDDKey); }
   var listEl = document.getElementById("dd_" + key + "_list");
   var arrow  = document.getElementById("dd_" + key + "_arrow");
@@ -2011,6 +2066,7 @@ function getListForKey(key){
   var map = {
     carrier:   bsFormData.carriers || [],
     brand:     bsFormData.busModels || [],
+    system:    bsFormData.systems || [],
     equipment: bsFormData.busEquipment || [],
     problem:   bsFormData.busProblems || [],
     solution:  bsFormData.solutions || [],
@@ -2117,7 +2173,10 @@ function setTimeInputValue(id, hhmm){
 function getTimeValue(){ return getTimeInputValue("bs_time_lbl"); }
 
 // ── fillDD: API datası gəldikdə siyahıları hazırla ──
-function fillAllDDs(data){ bsFormData = data; }
+function fillAllDDs(data){
+  bsFormData = data;
+  // Sistemlər burdaca dolsun ki cavabsız qalmasın
+}
 
 // ── Form açılışı ─────────────────────────────────────
 // ── Redaktə (edit) rejimi dəyişənləri ────────────────
@@ -2169,7 +2228,7 @@ function resetBusFormFields(){
   });
 
   bsFormDirty = false;
-  bsSelected = {carrier:"",brand:"",problem:"",solution:[],equipment:"",location:"",tech1:"",tech2:"",leader:""};
+  bsSelected = {carrier:"",brand:"",problem:"",solution:[],system:"",equipment:"",location:"",tech1:"",tech2:"",leader:""};
 
   Object.keys(ddMeta).forEach(function(k){
     var m = ddMeta[k];
@@ -2190,6 +2249,13 @@ function resetBusFormFields(){
   });
   document.getElementById("bs_solution_chips").innerHTML = "";
   document.getElementById("bs_location_note_wrap").style.display = "none";
+  if(typeof unlockRegistryFields === "function") unlockRegistryFields();
+  closeBusRegistryDD();
+}
+
+function closeBusRegistryDD(){
+  var dd = document.getElementById("bs_registry_dd");
+  if(dd) dd.classList.remove("open");
 }
 
 function openBusService(){
@@ -2208,11 +2274,9 @@ function openBusService(){
   document.getElementById("busServiceView").style.display = "block";
   document.getElementById("busServiceView").scrollTop = 0;
 
-  // Yarımçıq qalmış qaralama varsa bərpa təklif et (səhifə yenidən yüklənəndə/bağlananda itməsin deyə)
+  // Yarımçıq qalmış qaralama varsa bərpa təklif et (widget ilə)
   var draft = loadBsDraft();
-  if(draft){
-    offerBsDraftRestore(draft);
-  }
+  if(draft){ offerBsDraftRestore(draft); }
 
   var btn = document.getElementById("bsSubmitBtn");
   if(btn) btn.textContent = "Göndər";
@@ -2252,6 +2316,7 @@ function loadBusFormData(){
       busProblems:["Validator ödəniş kartını qəbul etmir","Validator açılmır","Validator elektrik almır","Digər"],
       solutions:["Validator dəyişdirildi","Problem aşkar olunmadı","Elektrik söndürülüb-yandırıldı","Digər"],
       busEquipment:["Validator","SAM Card","Ethernet Cable","RJ45","Broket","Avtobus elektrik problemi","Demontaj","Montaj","Təmir sonrası baxış","Call center vasitəsilə uzaqdan servis","Route-Update","Distributions"],
+      systems:["LIT","LIT-2"],
       locations:["Daşıyıcı qarajı","Son dayanacaq","Dayanacaq","Digər"],
       technicians:["Tural Əmmədov","Amil İbrahimov","Rövşən Nurəhmədov","Sənan Nuriyev","Surxay Qasımov","Hikmət Musazadə"],
       leaders:["Mustafa Salmanov","Ramil İbrahimov","Elvin Şamilov","Vüsal Məmmədov","Toğrul Əliyev","Nazim Dinavasov"]
@@ -2350,6 +2415,7 @@ function openBusServiceForEdit(ticketId){
     // Dropdown-lar
     setDDValue("carrier", d.carrier);
     setDDValue("brand", d.brand_model);
+    setDDValue("system", d.system);
     setDDValue("equipment", d.changed_device_type);
     setDDValue("problem", d.problem);
     setDDValue("location", d.service_location);
@@ -2379,6 +2445,7 @@ function submitBusService(){
   if(!document.getElementById("bs_requester").value.trim()){ alert("Müraciət edəni daxil edin"); return; }
   if(!bsSelected.carrier){ alert("Daşıyıcı şirkəti seçin"); return; }
   if(!bsSelected.brand){ alert("Marka/Modeli seçin"); return; }
+  if(!bsSelected.system){ alert("Sistemi seçin"); return; }
   if(!bsSelected.problem){ alert("Müraciət/Problemi seçin"); return; }
   if(bsSelected.problem.toLowerCase().indexOf("digər")!==-1 && !document.getElementById("bs_note").value.trim()){ alert("Problem üçün qeyd yazın"); return; }
   if(bsSelected.solution.length===0){ alert("Həll / Açıqlama seçin"); return; }
@@ -2406,6 +2473,7 @@ function submitBusService(){
     carrier: bsSelected.carrier,
     license_plate: document.getElementById("bs_plate").value,
     brand_model: bsSelected.brand,
+    system: bsSelected.system,
     problem: bsSelected.problem,
     request: bsSelected.problem,
     solution: bsSelected.solution,
@@ -2497,13 +2565,122 @@ function bsGoBack(){
 }
 
 
-// ── BUS ID: rəqəm only ───────────────────────────────
+// ═══════════════════════════════════════════════════
+// BUS ID REYESTR AXTARIŞI (Bənd 1.1)
+// Reyestr form açılışında BİR DƏFƏ yüklənir (bsFormData.busRegistry),
+// axtarış tamamilə lokal (client-side) — sıfır şəbəkə gecikməsi.
+// ═══════════════════════════════════════════════════
+
+var bsRegistryLocked = false;
+
+function filterBusRegistry(query){
+  var reg = (bsFormData && bsFormData.busRegistry) || [];
+  if(!query) return [];
+  return reg.filter(function(r){ return String(r.id||"").indexOf(query) === 0; });
+}
+
+function renderBusRegistryDropdown(matches){
+  var dd = document.getElementById("bs_registry_dd");
+  if(!dd) return;
+  if(!matches.length){
+    dd.innerHTML = '<div class="bs-registry-empty">Uyğun BUS ID tapılmadı — məlumatları əl ilə daxil edin</div>';
+  } else {
+    dd.innerHTML = matches.slice(0,8).map(function(m){
+      return '<div class="bs-registry-item" data-id="'+ m.id +'">'
+        + '<span class="reg-id">'+ m.id +'</span>'
+        + '<span class="reg-meta">'+ (m.dqn||"—") +' · '+ (m.carrier||"—") +' · '+ (m.model||"—") +'</span>'
+        + '</div>';
+    }).join("");
+    Array.from(dd.querySelectorAll(".bs-registry-item")).forEach(function(el){
+      el.addEventListener("click", function(e){
+        e.stopPropagation();
+        var id = el.getAttribute("data-id");
+        var match = matches.find(function(m){ return String(m.id) === String(id); });
+        if(match) selectBusRegistryMatch(match);
+      });
+    });
+  }
+  dd.classList.add("open");
+}
+
+function closeBusRegistryDD(){
+  var dd = document.getElementById("bs_registry_dd");
+  if(dd) dd.classList.remove("open");
+}
+
+function selectBusRegistryMatch(match){
+  document.getElementById("bs_busid").value = match.id;
+  closeBusRegistryDD();
+  var plateEl = document.getElementById("bs_plate");
+  plateEl.value = match.dqn || "";
+  if(match.carrier) setDDValue("carrier", match.carrier);
+  if(match.model)   setDDValue("brand", match.model);
+  lockRegistryFields();
+  bsFormDirty = true;
+  scheduleBsDraftSave();
+}
+
+function lockRegistryFields(){
+  bsRegistryLocked = true;
+  var plateEl = document.getElementById("bs_plate");
+  plateEl.classList.add("bs-locked");
+  plateEl.setAttribute("readonly","readonly");
+  document.getElementById("bs_carrier_btn").classList.add("bs-locked");
+  document.getElementById("bs_brand_btn").classList.add("bs-locked");
+  document.getElementById("bs_registry_reset").classList.add("show");
+}
+
+function unlockRegistryFields(){
+  bsRegistryLocked = false;
+  var plateEl = document.getElementById("bs_plate");
+  plateEl.classList.remove("bs-locked");
+  plateEl.removeAttribute("readonly");
+  document.getElementById("bs_carrier_btn").classList.remove("bs-locked");
+  document.getElementById("bs_brand_btn").classList.remove("bs-locked");
+  document.getElementById("bs_registry_reset").classList.remove("show");
+}
+
+function resetRegistrySelection(){
+  document.getElementById("bs_busid").value = "";
+  document.getElementById("bs_plate").value = "";
+  bsSelected.carrier = "";
+  var cLbl = document.getElementById("bs_carrier_lbl");
+  if(cLbl){ cLbl.textContent="Seçin"; cLbl.style.color="#9AACC4"; cLbl.classList.remove("filled"); }
+  bsSelected.brand = "";
+  var bLbl = document.getElementById("bs_brand_lbl");
+  if(bLbl){ bLbl.textContent="Seçin"; bLbl.style.color="#9AACC4"; bLbl.classList.remove("filled"); }
+  unlockRegistryFields();
+  closeBusRegistryDD();
+  bsFormDirty = true;
+  scheduleBsDraftSave();
+}
+
+// Close registry DD when clicking outside
+document.addEventListener("click", function(e){
+  if(!e.target.closest(".bs-busid-wrap")){
+    closeBusRegistryDD();
+  }
+});
+
+// ── BUS ID: rəqəm only + reyestr axtarışı ────────────
 document.addEventListener("DOMContentLoaded", function(){
   var busidEl = document.getElementById("bs_busid");
   if(busidEl){
     busidEl.addEventListener("input", function(){
       this.value = this.value.replace(/[^0-9]/g,"").slice(0,5);
       bsFormDirty = true;
+      scheduleBsDraftSave();
+      if(bsRegistryLocked) unlockRegistryFields();
+      if(this.value.length >= 1){
+        renderBusRegistryDropdown(filterBusRegistry(this.value));
+      } else {
+        closeBusRegistryDD();
+      }
+    });
+    busidEl.addEventListener("focus", function(){
+      if(this.value.length >= 1 && !bsRegistryLocked){
+        renderBusRegistryDropdown(filterBusRegistry(this.value));
+      }
     });
   }
 });
@@ -2603,30 +2780,6 @@ function loadBsDraft(){
       (d.selected && (d.selected.carrier || d.selected.brand || d.selected.problem || (d.selected.solution&&d.selected.solution.length)));
     return hasContent ? d : null;
   }catch(e){ return null; }
-}
-
-// ── Draft bərpa təklifi (6.2 — widget ilə, native confirm() əvəzinə) ──
-var pendingBsDraft = null;
-
-function offerBsDraftRestore(draft){
-  pendingBsDraft = draft;
-  var minsAgo = Math.max(1, Math.round((Date.now() - (draft.savedAt||0)) / 60000));
-  var timeText = minsAgo < 60 ? (minsAgo + " dəqiqə əvvəl") : (Math.round(minsAgo/60) + " saat əvvəl");
-  document.getElementById("bsDraftConfirmText").textContent =
-    "Bu formada " + timeText + " saxlanılmış yarımçıq məlumat var. Davam etmək istəyirsiniz?";
-  document.getElementById("bsDraftConfirmOverlay").classList.add("open");
-}
-
-function acceptBsDraft(){
-  document.getElementById("bsDraftConfirmOverlay").classList.remove("open");
-  if(pendingBsDraft) restoreBsDraft(pendingBsDraft);
-  pendingBsDraft = null;
-}
-
-function declineBsDraft(){
-  document.getElementById("bsDraftConfirmOverlay").classList.remove("open");
-  clearBsDraft();
-  pendingBsDraft = null;
 }
 
 function restoreBsDraft(draft){
@@ -2843,7 +2996,7 @@ var DV_FIELD_MAP = [
   ]},
   { section:"Avtobus məlumatları", rows:[
     ["Marşrut №","Marşrut №"], ["BUS ID","BUS ID"], ["Daşıyıcı","Daşıyıcı"],
-    ["D.Q.N.","D.Q.N."], ["Marka/Model","Marka/Model"]
+    ["D.Q.N.","D.Q.N."], ["Marka/Model","Marka/Model"], ["Sistem","Sistem"]
   ]},
   { section:"Servis məlumatları", rows:[
     ["Problem","Problem"], ["Həll","Həll"], ["Qeyd","Qeyd"]
@@ -3518,11 +3671,38 @@ function exportToExcel(){
 }
 
 // ═══════════════════════════════════════════════════
-// PULL-TO-REFRESH (6.1) — öz idarəmizdə, öz widget-imizlə
+// DRAFT BƏRPA WİDGET (6.2)
+// ═══════════════════════════════════════════════════
+var pendingBsDraft = null;
+
+function offerBsDraftRestore(draft){
+  pendingBsDraft = draft;
+  var minsAgo = Math.max(1, Math.round((Date.now() - (draft.savedAt||0)) / 60000));
+  var timeText = minsAgo < 60 ? (minsAgo + " dəqiqə əvvəl") : (Math.round(minsAgo/60) + " saat əvvəl");
+  document.getElementById("bsDraftConfirmText").textContent =
+    "Bu formada " + timeText + " saxlanılmış yarımçıq məlumat var. Davam etmək istəyirsiniz?";
+  var ov = document.getElementById("bsDraftConfirmOverlay");
+  ov.style.display = "flex";
+}
+
+function acceptBsDraft(){
+  document.getElementById("bsDraftConfirmOverlay").style.display = "none";
+  if(pendingBsDraft) restoreBsDraft(pendingBsDraft);
+  pendingBsDraft = null;
+}
+
+function declineBsDraft(){
+  document.getElementById("bsDraftConfirmOverlay").style.display = "none";
+  clearBsDraft();
+  pendingBsDraft = null;
+}
+
+// ═══════════════════════════════════════════════════
+// PULL-TO-REFRESH (6.1) — öz widget-imizlə
 // ═══════════════════════════════════════════════════
 var ptrStartY = 0;
 var ptrTracking = false;
-var PTR_THRESHOLD = 80; // px
+var PTR_THRESHOLD = 80;
 
 function isUnsavedWorkPresent(){
   var bsView = document.getElementById("busServiceView");
@@ -3546,22 +3726,20 @@ document.addEventListener("touchend", function(){ ptrTracking = false; });
 
 function triggerPullRefresh(){
   if(isUnsavedWorkPresent()){
-    document.getElementById("bsRefreshConfirmOverlay").classList.add("open");
+    document.getElementById("bsRefreshConfirmOverlay").style.display = "flex";
   } else {
     location.reload();
   }
 }
 function cancelPullRefresh(){
-  document.getElementById("bsRefreshConfirmOverlay").classList.remove("open");
+  document.getElementById("bsRefreshConfirmOverlay").style.display = "none";
 }
 function confirmPullRefresh(){
-  document.getElementById("bsRefreshConfirmOverlay").classList.remove("open");
+  document.getElementById("bsRefreshConfirmOverlay").style.display = "none";
   clearBsDraft();
   location.reload();
 }
 
-// Brauzerin öz F5/bağlama xəbərdarlığı — YALNIZ native mesaj göstərilir,
-// dizaynı dəyişdirilə bilməz (brauzer təhlükəsizlik məhdudiyyəti).
 window.addEventListener("beforeunload", function(e){
   if(isUnsavedWorkPresent()){ e.preventDefault(); e.returnValue = ""; }
 });
