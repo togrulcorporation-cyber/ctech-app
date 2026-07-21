@@ -1601,20 +1601,24 @@ body.dark-mode .dv-value { color:#E8EEF5; }
     <!-- Avtobus məlumatları -->
     <div class="bs-section">
       <div class="bs-section-title">Avtobus məlumatları</div>
+
+      <!-- D.Q.N. — axtarış buradan başlayır -->
       <div class="bs-row">
         <div class="bs-field">
-          <label class="bs-label">Marşrut nömrəsi *</label>
-          <input type="text" id="bs_route" class="bs-input" placeholder="Məs. 125A" autocapitalize="characters">
-        </div>
-        <div class="bs-field">
-          <label class="bs-label">BUS ID *</label>
+          <label class="bs-label">D.Q.N. *</label>
           <div class="bs-busid-wrap" id="busid_wrap">
-            <input type="text" id="bs_busid" class="bs-input" placeholder="ID" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off">
+            <input type="text" id="bs_plate" class="bs-input" placeholder="99-AA-000" maxlength="10" autocomplete="off" autocapitalize="characters">
             <div class="bs-registry-dd" id="bs_registry_dd"></div>
           </div>
           <div class="bs-registry-reset" id="bs_registry_reset" onclick="resetRegistrySelection()">✕ Reyestr seçimini ləğv et</div>
         </div>
+        <div class="bs-field">
+          <label class="bs-label">BUS ID *</label>
+          <input type="text" id="bs_busid" class="bs-input" placeholder="ID" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off">
+        </div>
       </div>
+
+      <!-- Daşıyıcı -->
       <div class="bs-field">
         <label class="bs-label">Daşıyıcı şirkət *</label>
         <div class="bs-inline-dd" id="dd_carrier">
@@ -1625,11 +1629,9 @@ body.dark-mode .dv-value { color:#E8EEF5; }
           <div class="bs-dd-list" id="dd_carrier_list"></div>
         </div>
       </div>
+
+      <!-- Marka/Model + Marşrut -->
       <div class="bs-row">
-        <div class="bs-field">
-          <label class="bs-label">D.Q.N. *</label>
-          <input type="text" id="bs_plate" class="bs-input" placeholder="90-AA-000" maxlength="10" autocomplete="off" autocapitalize="characters">
-        </div>
         <div class="bs-field">
           <label class="bs-label">Marka/Modeli *</label>
           <div class="bs-inline-dd" id="dd_brand">
@@ -1640,17 +1642,12 @@ body.dark-mode .dv-value { color:#E8EEF5; }
             <div class="bs-dd-list" id="dd_brand_list"></div>
           </div>
         </div>
-      </div>
-      <div class="bs-field">
-        <label class="bs-label">Sistem *</label>
-        <div class="bs-inline-dd" id="dd_system">
-          <button type="button" class="bs-picker-btn" id="bs_system_btn" onclick="toggleDD('system')">
-            <span id="bs_system_lbl" style="color:#9AACC4;">Seçin</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_system_arrow"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <div class="bs-dd-list" id="dd_system_list"></div>
+        <div class="bs-field">
+          <label class="bs-label">Marşrut nömrəsi *</label>
+          <input type="text" id="bs_route" class="bs-input" placeholder="Məs. 125A" autocapitalize="characters">
         </div>
       </div>
+
     </div>
 
     <!-- Problem / Həll -->
@@ -1965,7 +1962,7 @@ var bsFormDirty = false;
 var bsNextTicketId = "";
 var bsRegistryLocked = false;
 var bsSelected = {
-  carrier:"", brand:"", problem:"", solution:[], system:"", equipment:"", location:"", tech1:"", tech2:"", leader:""
+  carrier:"", brand:"", problem:"", solution:[], equipment:"", location:"", tech1:"", tech2:"", leader:""
 };
 var activeDDKey = null; // hal-hazırda açıq olan dropdown
 
@@ -2066,7 +2063,6 @@ function getListForKey(key){
   var map = {
     carrier:   bsFormData.carriers || [],
     brand:     bsFormData.busModels || [],
-    system:    bsFormData.systems || [],
     equipment: bsFormData.busEquipment || [],
     problem:   bsFormData.busProblems || [],
     solution:  bsFormData.solutions || [],
@@ -2228,7 +2224,7 @@ function resetBusFormFields(){
   });
 
   bsFormDirty = false;
-  bsSelected = {carrier:"",brand:"",problem:"",solution:[],system:"",equipment:"",location:"",tech1:"",tech2:"",leader:""};
+  bsSelected = {carrier:"",brand:"",problem:"",solution:[],equipment:"",location:"",tech1:"",tech2:"",leader:""};
 
   Object.keys(ddMeta).forEach(function(k){
     var m = ddMeta[k];
@@ -2415,7 +2411,6 @@ function openBusServiceForEdit(ticketId){
     // Dropdown-lar
     setDDValue("carrier", d.carrier);
     setDDValue("brand", d.brand_model);
-    setDDValue("system", d.system);
     setDDValue("equipment", d.changed_device_type);
     setDDValue("problem", d.problem);
     setDDValue("location", d.service_location);
@@ -2443,14 +2438,14 @@ function submitBusService(){
   if(!document.getElementById("bs_date").value){ alert("Tarix daxil edin"); return; }
   if(getTimeValue()===""){ alert("Saat seçin"); return; }
   if(!document.getElementById("bs_requester").value.trim()){ alert("Müraciət edəni daxil edin"); return; }
+  if(!document.getElementById("bs_plate").value.trim()){ alert("D.Q.N. daxil edin"); return; }
+  if(!document.getElementById("bs_busid").value.trim()){ alert("BUS ID daxil edin"); return; }
   if(!bsSelected.carrier){ alert("Daşıyıcı şirkəti seçin"); return; }
   if(!bsSelected.brand){ alert("Marka/Modeli seçin"); return; }
-  if(!bsSelected.system){ alert("Sistemi seçin"); return; }
   if(!bsSelected.problem){ alert("Müraciət/Problemi seçin"); return; }
   if(bsSelected.problem.toLowerCase().indexOf("digər")!==-1 && !document.getElementById("bs_note").value.trim()){ alert("Problem üçün qeyd yazın"); return; }
   if(bsSelected.solution.length===0){ alert("Həll / Açıqlama seçin"); return; }
   if(!bsSelected.equipment){ alert("Servis Kategoriyasını seçin"); return; }
-  if(!document.getElementById("bs_plate").value.trim()){ alert("D.Q.N. daxil edin"); return; }
   var startVal = getTimeInputValue("bs_start_lbl");
   var endVal = getTimeInputValue("bs_end_lbl");
   if(!startVal){ alert("Başlanğıc saatını seçin"); return; }
@@ -2473,7 +2468,6 @@ function submitBusService(){
     carrier: bsSelected.carrier,
     license_plate: document.getElementById("bs_plate").value,
     brand_model: bsSelected.brand,
-    system: bsSelected.system,
     problem: bsSelected.problem,
     request: bsSelected.problem,
     solution: bsSelected.solution,
@@ -2566,36 +2560,49 @@ function bsGoBack(){
 
 
 // ═══════════════════════════════════════════════════
-// BUS ID REYESTR AXTARIŞI (Bənd 1.1)
+// DQN REYESTR AXTARIŞI (Bənd 1.1)
+// Texnik D.Q.N. xanasına yazır → reyestrdən uyğunu tapılır →
+// BUS ID, Daşıyıcı, Model avtomatik dolur və kilidlənir.
 // Reyestr form açılışında BİR DƏFƏ yüklənir (bsFormData.busRegistry),
-// axtarış tamamilə lokal (client-side) — sıfır şəbəkə gecikməsi.
+// axtarış tamamilə lokal — sıfır şəbəkə gecikməsi.
 // ═══════════════════════════════════════════════════
 
 var bsRegistryLocked = false;
 
+function normalizeDqn(s){
+  // "99JV697" → "99-JV-697", artıq formatlanmışsa saxla
+  return String(s||"").toUpperCase().replace(/[^0-9A-Z]/g,"")
+    .replace(/^(\d{2})([A-Z]{2})(\d{3})$/, "$1-$2-$3")
+    || String(s||"").toUpperCase();
+}
+
 function filterBusRegistry(query){
   var reg = (bsFormData && bsFormData.busRegistry) || [];
-  if(!query) return [];
-  return reg.filter(function(r){ return String(r.id||"").indexOf(query) === 0; });
+  if(!query || query.length < 2) return [];
+  var q = query.toUpperCase().replace(/\s/g,"");
+  return reg.filter(function(r){
+    var dqn = String(r.dqn||"").toUpperCase().replace(/\s/g,"");
+    return dqn.indexOf(q) === 0;
+  });
 }
 
 function renderBusRegistryDropdown(matches){
   var dd = document.getElementById("bs_registry_dd");
   if(!dd) return;
   if(!matches.length){
-    dd.innerHTML = '<div class="bs-registry-empty">Uyğun BUS ID tapılmadı — məlumatları əl ilə daxil edin</div>';
+    dd.innerHTML = '<div class="bs-registry-empty">Uyğun D.Q.N. tapılmadı — məlumatları əl ilə daxil edin</div>';
   } else {
     dd.innerHTML = matches.slice(0,8).map(function(m){
-      return '<div class="bs-registry-item" data-id="'+ m.id +'">'
-        + '<span class="reg-id">'+ m.id +'</span>'
-        + '<span class="reg-meta">'+ (m.dqn||"—") +' · '+ (m.carrier||"—") +' · '+ (m.model||"—") +'</span>'
+      return '<div class="bs-registry-item" data-dqn="'+ (m.dqn||"") +'">'
+        + '<span class="reg-id">'+ (m.dqn||"—") +'</span>'
+        + '<span class="reg-meta">BUS ID: '+ (m.id||"—") +' · '+ (m.carrier||"—") +' · '+ (m.model||"—") +'</span>'
         + '</div>';
     }).join("");
     Array.from(dd.querySelectorAll(".bs-registry-item")).forEach(function(el){
       el.addEventListener("click", function(e){
         e.stopPropagation();
-        var id = el.getAttribute("data-id");
-        var match = matches.find(function(m){ return String(m.id) === String(id); });
+        var dqn = el.getAttribute("data-dqn");
+        var match = matches.find(function(m){ return String(m.dqn) === String(dqn); });
         if(match) selectBusRegistryMatch(match);
       });
     });
@@ -2609,12 +2616,19 @@ function closeBusRegistryDD(){
 }
 
 function selectBusRegistryMatch(match){
-  document.getElementById("bs_busid").value = match.id;
-  closeBusRegistryDD();
+  // DQN xanasına seçilən dəyəri yaz
   var plateEl = document.getElementById("bs_plate");
   plateEl.value = match.dqn || "";
+
+  // BUS ID avtomatik doldur
+  var busidEl = document.getElementById("bs_busid");
+  busidEl.value = match.id || "";
+
+  // Daşıyıcı və Model dropdown-larını doldur
   if(match.carrier) setDDValue("carrier", match.carrier);
-  if(match.model)   setDDValue("brand", match.model);
+  if(match.model)   setDDValue("brand",   match.model);
+
+  closeBusRegistryDD();
   lockRegistryFields();
   bsFormDirty = true;
   scheduleBsDraftSave();
@@ -2622,27 +2636,30 @@ function selectBusRegistryMatch(match){
 
 function lockRegistryFields(){
   bsRegistryLocked = true;
-  var plateEl = document.getElementById("bs_plate");
-  plateEl.classList.add("bs-locked");
-  plateEl.setAttribute("readonly","readonly");
+  // BUS ID kilidlə (DQN-dən avtomatik gəlib)
+  var busidEl = document.getElementById("bs_busid");
+  busidEl.classList.add("bs-locked");
+  busidEl.setAttribute("readonly","readonly");
+  // Daşıyıcı və Model kilidlə
   document.getElementById("bs_carrier_btn").classList.add("bs-locked");
   document.getElementById("bs_brand_btn").classList.add("bs-locked");
+  // Reset linki göstər
   document.getElementById("bs_registry_reset").classList.add("show");
 }
 
 function unlockRegistryFields(){
   bsRegistryLocked = false;
-  var plateEl = document.getElementById("bs_plate");
-  plateEl.classList.remove("bs-locked");
-  plateEl.removeAttribute("readonly");
+  var busidEl = document.getElementById("bs_busid");
+  busidEl.classList.remove("bs-locked");
+  busidEl.removeAttribute("readonly");
   document.getElementById("bs_carrier_btn").classList.remove("bs-locked");
   document.getElementById("bs_brand_btn").classList.remove("bs-locked");
   document.getElementById("bs_registry_reset").classList.remove("show");
 }
 
 function resetRegistrySelection(){
-  document.getElementById("bs_busid").value = "";
   document.getElementById("bs_plate").value = "";
+  document.getElementById("bs_busid").value = "";
   bsSelected.carrier = "";
   var cLbl = document.getElementById("bs_carrier_lbl");
   if(cLbl){ cLbl.textContent="Seçin"; cLbl.style.color="#9AACC4"; cLbl.classList.remove("filled"); }
@@ -2655,14 +2672,54 @@ function resetRegistrySelection(){
   scheduleBsDraftSave();
 }
 
-// Close registry DD when clicking outside
+// Kənarə klikləndikdə dropdown bağlansın
 document.addEventListener("click", function(e){
   if(!e.target.closest(".bs-busid-wrap")){
     closeBusRegistryDD();
   }
 });
 
-// ── BUS ID: rəqəm only + reyestr axtarışı ────────────
+// ── D.Q.N. xanası — avtomatik format + reyestr axtarışı ──
+document.addEventListener("DOMContentLoaded", function(){
+  var plateEl = document.getElementById("bs_plate");
+  if(!plateEl) return;
+
+  plateEl.addEventListener("input", function(e){
+    if(bsRegistryLocked){ unlockRegistryFields(); }
+
+    // Avtomatik XX-XX-XXX formatı
+    var raw = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g,"");
+    if(raw.length > 8) raw = raw.slice(0,8);
+    var res = "";
+    if(raw.length <= 2)      res = raw.replace(/[^0-9]/g,"").slice(0,2);
+    else if(raw.length <= 4){ var d1=raw.slice(0,2).replace(/[^0-9]/g,""); var l=raw.slice(2).replace(/[^A-Z]/g,"").slice(0,2); res=d1+(d1.length===2?"-":"")+l; }
+    else { var d1=raw.slice(0,2).replace(/[^0-9]/g,""); var l=raw.slice(2,4).replace(/[^A-Z]/g,"").slice(0,2); var d2=raw.slice(4).replace(/[^0-9]/g,"").slice(0,3); res=d1; if(d1.length===2)res+="-"; res+=l; if(l.length===2)res+="-"; res+=d2; }
+    e.target.value = res;
+    e.target.setSelectionRange(res.length, res.length);
+    bsFormDirty = true;
+    scheduleBsDraftSave();
+
+    // Reyestr axtarışı — ən azı 2 simvol yazılanda başlasın
+    if(res.replace(/[^0-9A-Z]/g,"").length >= 2){
+      renderBusRegistryDropdown(filterBusRegistry(res));
+    } else {
+      closeBusRegistryDD();
+    }
+  });
+
+  plateEl.addEventListener("focus", function(){
+    var v = this.value;
+    if(v.replace(/[^0-9A-Z]/g,"").length >= 2 && !bsRegistryLocked){
+      renderBusRegistryDropdown(filterBusRegistry(v));
+    }
+  });
+
+  plateEl.addEventListener("paste", function(){
+    setTimeout(function(){ plateEl.dispatchEvent(new Event("input")); }, 0);
+  });
+});
+
+// ── BUS ID: yalnız rəqəm (əl ilə yazılanda) ──────────
 document.addEventListener("DOMContentLoaded", function(){
   var busidEl = document.getElementById("bs_busid");
   if(busidEl){
@@ -2670,17 +2727,6 @@ document.addEventListener("DOMContentLoaded", function(){
       this.value = this.value.replace(/[^0-9]/g,"").slice(0,5);
       bsFormDirty = true;
       scheduleBsDraftSave();
-      if(bsRegistryLocked) unlockRegistryFields();
-      if(this.value.length >= 1){
-        renderBusRegistryDropdown(filterBusRegistry(this.value));
-      } else {
-        closeBusRegistryDD();
-      }
-    });
-    busidEl.addEventListener("focus", function(){
-      if(this.value.length >= 1 && !bsRegistryLocked){
-        renderBusRegistryDropdown(filterBusRegistry(this.value));
-      }
     });
   }
 });
@@ -2696,24 +2742,6 @@ document.addEventListener("DOMContentLoaded", function(){
       bsFormDirty = true;
     });
   }
-});
-
-// ── D.Q.N. avtomatik format ──────────────────────────
-document.addEventListener("DOMContentLoaded", function(){
-  var plateEl = document.getElementById("bs_plate");
-  if(!plateEl) return;
-  plateEl.addEventListener("input", function(e){
-    var raw = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g,"");
-    if(raw.length > 8) raw = raw.slice(0,8);
-    var result = "";
-    if(raw.length <= 2) result = raw.replace(/[^0-9]/g,"").slice(0,2);
-    else if(raw.length <= 4){ var d1=raw.slice(0,2).replace(/[^0-9]/g,""); var l=raw.slice(2).replace(/[^A-Z]/g,"").slice(0,2); result=d1+(d1.length===2?"-":"")+l; }
-    else { var d1=raw.slice(0,2).replace(/[^0-9]/g,""); var l=raw.slice(2,4).replace(/[^A-Z]/g,"").slice(0,2); var d2=raw.slice(4).replace(/[^0-9]/g,"").slice(0,3); result=d1; if(d1.length===2)result+="-"; result+=l; if(l.length===2)result+="-"; result+=d2; }
-    e.target.value = result;
-    e.target.setSelectionRange(result.length, result.length);
-    bsFormDirty = true;
-  });
-  plateEl.addEventListener("paste", function(){ setTimeout(function(){ plateEl.dispatchEvent(new Event("input")); },0); });
 });
 
 // ── Enter → Tab (yalnız BUS Service formasında) ─────
