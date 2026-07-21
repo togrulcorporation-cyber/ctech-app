@@ -242,6 +242,7 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
   grid-template-columns:1fr 1fr;
   gap:10px;
   align-items:start;
+  margin-bottom:14px;
 }
 .bs-date-time-row .bs-field { margin-bottom:0; }
 /* iOS date input fix */
@@ -1618,10 +1619,10 @@ body.dark-mode .dv-value { color:#E8EEF5; }
         </div>
         <div class="bs-chips" id="bs_solution_chips"></div>
       </div>
-      <!-- Note: yalnız "Digər" seçiləndə görünür -->
-      <div class="bs-field" id="bs_note_wrap" style="display:none;">
-        <label class="bs-label">Qeyd *</label>
-        <textarea id="bs_note" class="bs-textarea" placeholder="Problemi ətraflı yazın..."></textarea>
+      <!-- Note: həmişə görünür, könüllüdür (yalnız Problem/Həll "Digər" olduqda məcburidir) -->
+      <div class="bs-field" id="bs_note_wrap">
+        <label class="bs-label">Qeyd</label>
+        <textarea id="bs_note" class="bs-textarea" placeholder="Əlavə qeyd yazın (könüllü)..."></textarea>
       </div>
     </div>
 
@@ -1683,10 +1684,10 @@ body.dark-mode .dv-value { color:#E8EEF5; }
     <div class="bs-section">
       <div class="bs-section-title">Texnik heyət</div>
       <div class="bs-field">
-        <label class="bs-label">1. Texnik *</label>
+        <label class="bs-label">1. Texnik</label>
         <div class="bs-inline-dd" id="dd_tech1">
           <button type="button" class="bs-picker-btn" id="bs_tech1_btn" onclick="toggleDD('tech1')">
-            <span id="bs_tech1_lbl" style="color:#9AACC4;">Seçin</span>
+            <span id="bs_tech1_lbl" style="color:#9AACC4;">Seçin (könüllü)</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_tech1_arrow"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           <div class="bs-dd-list" id="dd_tech1_list"></div>
@@ -2036,17 +2037,11 @@ function updateMultiLabel(key){
 
 // ── Xüsusi onSelect callback-lər ────────────────────
 function onProblemSelect(item){
-  var isDigar = item.toLowerCase().indexOf("digər") !== -1;
-  document.getElementById("bs_note_wrap").style.display = isDigar ? "block" : "none";
-  if(!isDigar) document.getElementById("bs_note").value = "";
+  // Qeyd sahəsi artıq həmişə görünür, xüsusi əməliyyat lazım deyil
 }
 
 function onSolutionSelect(item){
   updateSolutionChips();
-  // Həll/Açıqlama-da "Digər" seçiləndə note açılsın
-  var arr = bsSelected.solution;
-  var hasDigar = arr.some(function(s){ return s.toLowerCase().indexOf("digər") !== -1; });
-  document.getElementById("bs_note_wrap").style.display = hasDigar ? "block" : "none";
 }
 
 function onLocationSelect(item){
@@ -2154,7 +2149,7 @@ function resetBusFormFields(){
     var m = ddMeta[k];
     var el = document.getElementById(m.lbl);
     if(el){
-      el.textContent = k==="tech2" ? "Seçin (könüllü)" : k==="solution" ? "Seçin (çoxlu seçim)" : "Seçin";
+      el.textContent = (k==="tech2"||k==="tech1") ? "Seçin (könüllü)" : k==="solution" ? "Seçin (çoxlu seçim)" : "Seçin";
       el.style.color = "#9AACC4";
       el.style.fontSize = "";
       el.style.fontWeight = "";
@@ -2167,7 +2162,6 @@ function resetBusFormFields(){
     var el = document.getElementById(id);
     if(el) el.value = "";
   });
-  document.getElementById("bs_note_wrap").style.display = "none";
   document.getElementById("bs_solution_chips").innerHTML = "";
   document.getElementById("bs_location_note_wrap").style.display = "none";
 }
@@ -2338,10 +2332,6 @@ function openBusServiceForEdit(ticketId){
     updateMultiLabel("solution");
     updateSolutionChips();
 
-    // "Digər" qeyd xanalarını aç
-    var problemDigar = (d.problem||"").toLowerCase().indexOf("digər")!==-1;
-    var solutionDigar = bsSelected.solution.some(function(s){ return s.toLowerCase().indexOf("digər")!==-1; });
-    document.getElementById("bs_note_wrap").style.display = (problemDigar || solutionDigar) ? "block" : "none";
     document.getElementById("bs_location_note_wrap").style.display = (d.service_location||"").toLowerCase().indexOf("digər")!==-1 ? "block" : "none";
 
     bsFormDirty = false;
@@ -2371,7 +2361,6 @@ function submitBusService(){
   if(!endVal){ alert("Bitiş saatını seçin"); return; }
   if(!bsSelected.location){ alert("Servis verilən ünvanı seçin"); return; }
   if(bsSelected.location.toLowerCase().indexOf("digər")!==-1 && !document.getElementById("bs_location_note").value.trim()){ alert("Ünvan qeydi yazın"); return; }
-  if(!bsSelected.tech1){ alert("1. Texniki seçin"); return; }
   if(!bsSelected.leader){ alert("Qrup rəhbərini seçin"); return; }
 
   // Həll/Açıqlama "Digər" seçimidir
