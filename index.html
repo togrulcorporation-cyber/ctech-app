@@ -469,6 +469,22 @@ input[type="time"]::-webkit-datetime-edit-ampm-field { display:none !important; 
   padding:24px;
 }
 #bsConfirmOverlay.open { display:flex; }
+
+/* 6.1 / 6.2 — Draft bərpa və Pull-to-refresh təsdiq pəncərələri (eyni bs-confirm-box dizaynı) */
+#bsDraftConfirmOverlay,
+#bsRefreshConfirmOverlay {
+  display:none;
+  position:fixed;
+  top:0; left:0; width:100%; height:100%;
+  background:rgba(18,35,59,.5);
+  z-index:95;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+#bsDraftConfirmOverlay.open,
+#bsRefreshConfirmOverlay.open { display:flex; }
+
 .bs-confirm-box {
   background:#FFFFFF;
   border-radius:18px;
@@ -1737,6 +1753,30 @@ body.dark-mode .dv-value { color:#E8EEF5; }
   </div>
 </div>
 
+<!-- Draft Bərpa Təsdiq Dialoqu (6.2) -->
+<div id="bsDraftConfirmOverlay">
+  <div class="bs-confirm-box">
+    <div class="bs-confirm-title">Yarımçıq qalmış məlumat tapıldı</div>
+    <div class="bs-confirm-text" id="bsDraftConfirmText">Bu formada natamam saxlanılmış məlumat var. Davam etmək istəyirsiniz?</div>
+    <div class="bs-confirm-btns">
+      <button class="bs-confirm-no" onclick="declineBsDraft()">Xeyr</button>
+      <button class="bs-confirm-yes" onclick="acceptBsDraft()">Bəli</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pull-to-refresh Təsdiq Dialoqu (6.1) -->
+<div id="bsRefreshConfirmOverlay">
+  <div class="bs-confirm-box">
+    <div class="bs-confirm-title">Səhifəni yeniləmək istəyirsiniz?</div>
+    <div class="bs-confirm-text">Daxil etdiyiniz məlumatlar yadda saxlanılmayıb — yeniləsəniz silinəcək.</div>
+    <div class="bs-confirm-btns">
+      <button class="bs-confirm-no" onclick="cancelPullRefresh()">Xeyr</button>
+      <button class="bs-confirm-yes" onclick="confirmPullRefresh()">Bəli</button>
+    </div>
+  </div>
+</div>
+
 <!-- BUS Submit Loading Overlay -->
 <div id="bsLoadingOverlay">
   <div class="spinner" id="bsSpinner"></div>
@@ -2186,12 +2226,7 @@ function openBusService(){
   // Yarımçıq qalmış qaralama varsa bərpa təklif et (səhifə yenidən yüklənəndə/bağlananda itməsin deyə)
   var draft = loadBsDraft();
   if(draft){
-    var minsAgo = Math.max(1, Math.round((Date.now() - (draft.savedAt||0)) / 60000));
-    if(confirm("Yarımçıq qalmış BUS Service məlumatı tapıldı (~"+minsAgo+" dəqiqə əvvəl). Davam etmək istəyirsiniz?")){
-      restoreBsDraft(draft);
-    } else {
-      clearBsDraft();
-    }
+    offerBsDraftRestore(draft);
   }
 
   var btn = document.getElementById("bsSubmitBtn");
@@ -2587,6 +2622,30 @@ function loadBsDraft(){
       (d.selected && (d.selected.carrier || d.selected.brand || d.selected.problem || (d.selected.solution&&d.selected.solution.length)));
     return hasContent ? d : null;
   }catch(e){ return null; }
+}
+
+// ── Draft bərpa təklifi (6.2 — widget ilə, native confirm() əvəzinə) ──
+var pendingBsDraft = null;
+
+function offerBsDraftRestore(draft){
+  pendingBsDraft = draft;
+  var minsAgo = Math.max(1, Math.round((Date.now() - (draft.savedAt||0)) / 60000));
+  var timeText = minsAgo < 60 ? (minsAgo + " dəqiqə əvvəl") : (Math.round(minsAgo/60) + " saat əvvəl");
+  document.getElementById("bsDraftConfirmText").textContent =
+    "Bu formada " + timeText + " saxlanılmış yarımçıq məlumat var. Davam etmək istəyirsiniz?";
+  document.getElementById("bsDraftConfirmOverlay").classList.add("open");
+}
+
+function acceptBsDraft(){
+  document.getElementById("bsDraftConfirmOverlay").classList.remove("open");
+  if(pendingBsDraft) restoreBsDraft(pendingBsDraft);
+  pendingBsDraft = null;
+}
+
+function declineBsDraft(){
+  document.getElementById("bsDraftConfirmOverlay").classList.remove("open");
+  clearBsDraft();
+  pendingBsDraft = null;
 }
 
 function restoreBsDraft(draft){
@@ -3476,6 +3535,55 @@ function exportToExcel(){
 
   XLSX.writeFile(wb, fname);
 }
+
+// ═══════════════════════════════════════════════════
+// PULL-TO-REFRESH (6.1) — öz idarəmizdə, öz widget-imizlə
+// ═══════════════════════════════════════════════════
+var ptrStartY = 0;
+var ptrTracking = false;
+var PTR_THRESHOLD = 80; // px
+
+function isUnsavedWorkPresent(){
+  var bsView = document.getElementById("busServiceView");
+  return bsFormDirty && bsView && bsView.style.display !== "none";
+}
+
+document.addEventListener("touchstart", function(e){
+  ptrTracking = (window.scrollY === 0 && document.documentElement.scrollTop === 0);
+  ptrStartY = e.touches[0].clientY;
+}, {passive:true});
+
+document.addEventListener("touchmove", function(e){
+  if(!ptrTracking) return;
+  if(e.touches[0].clientY - ptrStartY > PTR_THRESHOLD){
+    ptrTracking = false;
+    triggerPullRefresh();
+  }
+}, {passive:true});
+
+document.addEventListener("touchend", function(){ ptrTracking = false; });
+
+function triggerPullRefresh(){
+  if(isUnsavedWorkPresent()){
+    document.getElementById("bsRefreshConfirmOverlay").classList.add("open");
+  } else {
+    location.reload();
+  }
+}
+function cancelPullRefresh(){
+  document.getElementById("bsRefreshConfirmOverlay").classList.remove("open");
+}
+function confirmPullRefresh(){
+  document.getElementById("bsRefreshConfirmOverlay").classList.remove("open");
+  clearBsDraft();
+  location.reload();
+}
+
+// Brauzerin öz F5/bağlama xəbərdarlığı — YALNIZ native mesaj göstərilir,
+// dizaynı dəyişdirilə bilməz (brauzer təhlükəsizlik məhdudiyyəti).
+window.addEventListener("beforeunload", function(e){
+  if(isUnsavedWorkPresent()){ e.preventDefault(); e.returnValue = ""; }
+});
 
 </script>
 </body>
