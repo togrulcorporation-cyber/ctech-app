@@ -2109,10 +2109,24 @@ function filterRegistry(query){
 function selectRegistryBus(bus, silent){
   if(!bus) return;
 
-  document.getElementById("bs_plate").value = bus.dqn || "";
-  document.getElementById("bs_busid").value = bus.bus_id || "";
-  document.getElementById("bs_carrier").value = bus.carrier || "";
-  document.getElementById("bs_brand").value = bus.model || "";
+  console.log("✅ Seçilən avtobus:", bus);
+
+  var plateEl = document.getElementById("bs_plate");
+  var busidEl = document.getElementById("bs_busid");
+  var carrierEl = document.getElementById("bs_carrier");
+  var brandEl = document.getElementById("bs_brand");
+
+  if(plateEl) plateEl.value = bus.dqn || "";
+  if(busidEl) busidEl.value = bus.bus_id || "";
+  if(carrierEl) carrierEl.value = bus.carrier || "";
+  if(brandEl) brandEl.value = bus.model || "";
+
+  console.log("✅ Dolduruldu:", {
+    plate: plateEl ? plateEl.value : "tapılmadı",
+    busid: busidEl ? busidEl.value : "tapılmadı",
+    carrier: carrierEl ? carrierEl.value : "tapılmadı",
+    brand: brandEl ? brandEl.value : "tapılmadı"
+  });
 
   bsSelectedRegistry = bus;
   setRegistryFieldsLocked(true);
