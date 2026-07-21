@@ -1599,16 +1599,6 @@ body.dark-mode .dv-value { color:#E8EEF5; }
           </div>
         </div>
       </div>
-      <div class="bs-field">
-        <label class="bs-label">Sistem *</label>
-        <div class="bs-inline-dd" id="dd_system">
-          <button type="button" class="bs-picker-btn" id="bs_system_btn" onclick="toggleDD('system')">
-            <span id="bs_system_lbl" style="color:#9AACC4;">Seçin</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_system_arrow"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <div class="bs-dd-list" id="dd_system_list"></div>
-        </div>
-      </div>
     </div>
 
     <!-- Problem / Həll -->
@@ -1922,7 +1912,7 @@ var bsFormData = {};
 var bsFormDirty = false;
 var bsNextTicketId = "";
 var bsSelected = {
-  carrier:"", brand:"", problem:"", solution:[], system:"", equipment:"", location:"", tech1:"", tech2:"", leader:""
+  carrier:"", brand:"", problem:"", solution:[], equipment:"", location:"", tech1:"", tech2:"", leader:""
 };
 var activeDDKey = null; // hal-hazırda açıq olan dropdown
 
@@ -1930,7 +1920,6 @@ var activeDDKey = null; // hal-hazırda açıq olan dropdown
 var ddMeta = {
   carrier:   { lbl:"bs_carrier_lbl",   list:"dd_carrier_list",   multi:false, onSelect: null },
   brand:     { lbl:"bs_brand_lbl",     list:"dd_brand_list",     multi:false, onSelect: null },
-  system:    { lbl:"bs_system_lbl",    list:"dd_system_list",    multi:false, onSelect: null },
   equipment: { lbl:"bs_equipment_lbl", list:"dd_equipment_list", multi:false, onSelect: null },
   problem:   { lbl:"bs_problem_lbl",   list:"dd_problem_list",   multi:false, onSelect: onProblemSelect },
   solution:  { lbl:"bs_solution_lbl",  list:"dd_solution_list",  multi:true,  onSelect: onSolutionSelect },
@@ -2022,7 +2011,6 @@ function getListForKey(key){
   var map = {
     carrier:   bsFormData.carriers || [],
     brand:     bsFormData.busModels || [],
-    system:    bsFormData.systems || [],
     equipment: bsFormData.busEquipment || [],
     problem:   bsFormData.busProblems || [],
     solution:  bsFormData.solutions || [],
@@ -2129,10 +2117,7 @@ function setTimeInputValue(id, hhmm){
 function getTimeValue(){ return getTimeInputValue("bs_time_lbl"); }
 
 // ── fillDD: API datası gəldikdə siyahıları hazırla ──
-function fillAllDDs(data){
-  bsFormData = data;
-  // Sistemlər burdaca dolsun ki cavabsız qalmasın
-}
+function fillAllDDs(data){ bsFormData = data; }
 
 // ── Form açılışı ─────────────────────────────────────
 // ── Redaktə (edit) rejimi dəyişənləri ────────────────
@@ -2184,7 +2169,7 @@ function resetBusFormFields(){
   });
 
   bsFormDirty = false;
-  bsSelected = {carrier:"",brand:"",problem:"",solution:[],system:"",equipment:"",location:"",tech1:"",tech2:"",leader:""};
+  bsSelected = {carrier:"",brand:"",problem:"",solution:[],equipment:"",location:"",tech1:"",tech2:"",leader:""};
 
   Object.keys(ddMeta).forEach(function(k){
     var m = ddMeta[k];
@@ -2267,7 +2252,6 @@ function loadBusFormData(){
       busProblems:["Validator ödəniş kartını qəbul etmir","Validator açılmır","Validator elektrik almır","Digər"],
       solutions:["Validator dəyişdirildi","Problem aşkar olunmadı","Elektrik söndürülüb-yandırıldı","Digər"],
       busEquipment:["Validator","SAM Card","Ethernet Cable","RJ45","Broket","Avtobus elektrik problemi","Demontaj","Montaj","Təmir sonrası baxış","Call center vasitəsilə uzaqdan servis","Route-Update","Distributions"],
-      systems:["LIT","LIT-2"],
       locations:["Daşıyıcı qarajı","Son dayanacaq","Dayanacaq","Digər"],
       technicians:["Tural Əmmədov","Amil İbrahimov","Rövşən Nurəhmədov","Sənan Nuriyev","Surxay Qasımov","Hikmət Musazadə"],
       leaders:["Mustafa Salmanov","Ramil İbrahimov","Elvin Şamilov","Vüsal Məmmədov","Toğrul Əliyev","Nazim Dinavasov"]
@@ -2366,7 +2350,6 @@ function openBusServiceForEdit(ticketId){
     // Dropdown-lar
     setDDValue("carrier", d.carrier);
     setDDValue("brand", d.brand_model);
-    setDDValue("system", d.system);
     setDDValue("equipment", d.changed_device_type);
     setDDValue("problem", d.problem);
     setDDValue("location", d.service_location);
@@ -2396,7 +2379,6 @@ function submitBusService(){
   if(!document.getElementById("bs_requester").value.trim()){ alert("Müraciət edəni daxil edin"); return; }
   if(!bsSelected.carrier){ alert("Daşıyıcı şirkəti seçin"); return; }
   if(!bsSelected.brand){ alert("Marka/Modeli seçin"); return; }
-  if(!bsSelected.system){ alert("Sistemi seçin"); return; }
   if(!bsSelected.problem){ alert("Müraciət/Problemi seçin"); return; }
   if(bsSelected.problem.toLowerCase().indexOf("digər")!==-1 && !document.getElementById("bs_note").value.trim()){ alert("Problem üçün qeyd yazın"); return; }
   if(bsSelected.solution.length===0){ alert("Həll / Açıqlama seçin"); return; }
@@ -2424,7 +2406,6 @@ function submitBusService(){
     carrier: bsSelected.carrier,
     license_plate: document.getElementById("bs_plate").value,
     brand_model: bsSelected.brand,
-    system: bsSelected.system,
     problem: bsSelected.problem,
     request: bsSelected.problem,
     solution: bsSelected.solution,
@@ -2862,7 +2843,7 @@ var DV_FIELD_MAP = [
   ]},
   { section:"Avtobus məlumatları", rows:[
     ["Marşrut №","Marşrut №"], ["BUS ID","BUS ID"], ["Daşıyıcı","Daşıyıcı"],
-    ["D.Q.N.","D.Q.N."], ["Marka/Model","Marka/Model"], ["Sistem","Sistem"]
+    ["D.Q.N.","D.Q.N."], ["Marka/Model","Marka/Model"]
   ]},
   { section:"Servis məlumatları", rows:[
     ["Problem","Problem"], ["Həll","Həll"], ["Qeyd","Qeyd"]
