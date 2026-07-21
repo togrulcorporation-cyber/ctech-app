@@ -2031,7 +2031,10 @@ function setTimeInputValue(id, hhmm){
 
 function getTimeValue(){ return getTimeInputValue("bs_time_lbl"); }
 
-// ── BUS REGISTRY AUTOCOMPLETE (D.Q.N. əsasında) ────
+// ============================================================
+// BUS REGISTRY AUTOCOMPLETE (D.Q.N. əsasında)
+// ============================================================
+
 function hideRegistrySuggestions(){
   var box = document.getElementById("bsRegistrySuggestions");
   if(box){ box.classList.remove("open"); box.innerHTML = ""; }
@@ -2061,28 +2064,33 @@ function filterRegistry(query){
   var box = document.getElementById("bsRegistrySuggestions");
   if(!box) return;
 
+  // Əgər artıq seçilmiş D.Q.N. varsa və o cari query ilə eynidirsə, siyahını gizlət
   if(bsSelectedRegistry && bsSelectedRegistry.dqn === query){
     hideRegistrySuggestions();
     return;
   }
 
-  if(!query || query.length < 1){
+  // Əgər query boşdursa və ya 3 simvoldan azdırsa, siyahını gizlət (performans üçün)
+  if(!query || query.length < 3){
     hideRegistrySuggestions();
     return;
   }
 
+  // D.Q.N. üzərindən axtar (case-insensitive, contains)
   var matches = bsRegistry.filter(function(item){
     return item.dqn.toUpperCase().indexOf(query.toUpperCase()) !== -1;
   });
 
   if(matches.length === 0){
+    // Heç nə tapılmadısa, bütün sahələri unlock et
     resetRegistrySelection(false);
     hideRegistrySuggestions();
     return;
   }
 
+  // Nəticələri göstər (maksimum 10)
   box.innerHTML = "";
-  matches.forEach(function(bus){
+  matches.slice(0, 10).forEach(function(bus){
     var option = document.createElement("button");
     option.type = "button";
     option.className = "bs-registry-option";
@@ -2115,6 +2123,52 @@ function selectRegistryBus(bus, silent){
     scheduleBsDraftSave();
   }
 }
+
+// ── D.Q.N. input hadisəsi (avtomatik format + autocomplete) ──
+document.addEventListener("DOMContentLoaded", function(){
+  var plateEl = document.getElementById("bs_plate");
+  if(!plateEl) return;
+  
+  plateEl.addEventListener("input", function(e){
+    // Yalnız rəqəm və hərfləri saxla
+    var raw = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, "");
+    if(raw.length > 8) raw = raw.slice(0, 8);
+    
+    // Formatla: XX-AA-XXX (2 rəqəm - 2 hərf - 3 rəqəm)
+    var result = "";
+    if(raw.length <= 2) {
+      result = raw;
+    } else if(raw.length <= 4) {
+      result = raw.slice(0, 2) + "-" + raw.slice(2);
+    } else {
+      result = raw.slice(0, 2) + "-" + raw.slice(2, 4) + "-" + raw.slice(4);
+    }
+    
+    e.target.value = result;
+    e.target.setSelectionRange(result.length, result.length);
+    
+    // Əgər seçilmiş avtobus varsa və D.Q.N. dəyişibsə, seçimi sıfırla
+    if(bsSelectedRegistry && bsSelectedRegistry.dqn !== result){
+      resetRegistrySelection(true);
+    }
+    
+    // Autocomplete üçün filter
+    if(bsRegistry.length > 0) {
+      filterRegistry(result);
+    }
+    
+    bsFormDirty = true;
+    scheduleBsDraftSave();
+  });
+  
+  plateEl.addEventListener("paste", function(){
+    setTimeout(function(){ plateEl.dispatchEvent(new Event("input")); }, 0);
+  });
+  
+  plateEl.addEventListener("blur", function(){
+    setTimeout(hideRegistrySuggestions, 200);
+  });
+});
 
 // ── Form açılışı ─────────────────────────────────────
 var bsEditMode = false;
@@ -2518,29 +2572,7 @@ function bsGoBack(){
   bsReturnTarget = "dashboard";
 }
 
-// ── D.Q.N. input hadisəsi ──────────────────────────
-document.addEventListener("DOMContentLoaded", function(){
-  var plateEl = document.getElementById("bs_plate");
-  if(plateEl){
-    plateEl.addEventListener("input", function(){
-      var val = this.value.toUpperCase().replace(/[^0-9A-Z-]/g, "");
-      this.value = val;
-
-      if(bsSelectedRegistry && bsSelectedRegistry.dqn !== val){
-        resetRegistrySelection(true);
-      }
-
-      filterRegistry(val);
-      bsFormDirty = true;
-      scheduleBsDraftSave();
-    });
-
-    plateEl.addEventListener("blur", function(){
-      setTimeout(hideRegistrySuggestions, 160);
-    });
-  }
-});
-
+// ── Marşrut: böyük hərf ──────────────────────────────
 document.addEventListener("DOMContentLoaded", function(){
   var routeEl = document.getElementById("bs_route");
   if(routeEl){
