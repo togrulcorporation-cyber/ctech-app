@@ -733,7 +733,7 @@
   </div>
 </div>
 
-<!-- ===== BUS BULK SERVICE VIEW (YENİ DİZAYN - Ön baxış yoxdur) ===== -->
+<!-- ===== BUS BULK SERVICE VIEW ===== -->
 <div id="busBulkView">
   <!-- HEADER -->
   <div class="bk-header">
@@ -775,8 +775,15 @@
               <div class="bk-cal-label" id="bkCalLabel">İyul 2026</div>
               <button class="bk-cal-nav" onclick="bkCalNav(1)">›</button>
             </div>
-            <div class="bk-cal-grid" id="bkCalDays">
-              <!-- JS tərəfindən doldurulur -->
+            <div class="bk-cal-grid">
+              <div class="bk-cal-dow">B</div>
+              <div class="bk-cal-dow">E</div>
+              <div class="bk-cal-dow">Ç</div>
+              <div class="bk-cal-dow">A</div>
+              <div class="bk-cal-dow">C</div>
+              <div class="bk-cal-dow">Ş</div>
+              <div class="bk-cal-dow">B</div>
+              <div id="bkCalDays" style="display:contents;"></div>
             </div>
           </div>
           
@@ -800,14 +807,12 @@
               <label class="bk-label">Servis kateqoriyası *</label>
               <select class="bk-select" id="bk_category">
                 <option value="">Seçin</option>
-                <!-- JS tərəfindən doldurulur -->
               </select>
             </div>
             <div class="bk-field">
               <label class="bk-label">Servis ünvanı</label>
               <select class="bk-select" id="bk_location">
                 <option value="">Seçin (könüllü)</option>
-                <!-- JS tərəfindən doldurulur -->
               </select>
             </div>
             <div class="bk-field" id="bk_location_note_wrap" style="display:none;">
@@ -829,7 +834,6 @@
             <label class="bk-label">Daşıyıcı firma *</label>
             <select class="bk-select" id="bk_carrier" onchange="bkOnCarrierChange()">
               <option value="">Seçin</option>
-              <!-- JS tərəfindən doldurulur -->
             </select>
           </div>
           <div id="bkCarrierCountWrap">
@@ -871,21 +875,18 @@
             <label class="bk-label">Texnik 1 *</label>
             <select class="bk-select" id="bk_tech1">
               <option value="">Seçin</option>
-              <!-- JS tərəfindən doldurulur -->
             </select>
           </div>
           <div class="bk-field">
             <label class="bk-label">Texnik 2</label>
             <select class="bk-select" id="bk_tech2">
               <option value="">Seçin (könüllü)</option>
-              <!-- JS tərəfindən doldurulur -->
             </select>
           </div>
           <div class="bk-field">
             <label class="bk-label">Qrup rəhbəri *</label>
             <select class="bk-select" id="bk_leader">
               <option value="">Seçin</option>
-              <!-- JS tərəfindən doldurulur -->
             </select>
           </div>
         </div>
@@ -894,7 +895,7 @@
     </div><!-- /bk-main-layout -->
   </div><!-- /bk-body -->
 
-  <!-- FOOTER (sabit) - ÖN BAXIŞ BUTTONU YOXDUR -->
+  <!-- FOOTER -->
   <div class="bk-footer">
     <div class="bk-footer-hint">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
@@ -907,7 +908,7 @@
   </div>
 </div>
 
-<!-- Bulk Submit Loading Overlay (idxal prosesi üçün) -->
+<!-- Bulk Submit Loading Overlay -->
 <div id="bkLoadingOverlay">
   <div class="bk-loading-box">
     <div class="spinner" id="bkSpinner"></div>

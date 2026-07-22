@@ -453,160 +453,318 @@ function bsGoBack(){
 }
 
 // ═══════════════════════════════════════════════════
-// DQN REYESTR AXTARIŞI
+// DQN REYESTR AXTARIŞI - DÜZƏLDİLMİŞ VERSİYA
 // ═══════════════════════════════════════════════════
-function normalizeDqn(s){ return String(s).toUpperCase().replace(/[^0-9A-Z]/g,'').replace(/^(\d{2})([A-Z]{2})(\d{3})$/,'$1-$2-$3')||String(s).toUpperCase(); }
+
+var bsRegistryLocked = false;
+
+function normalizeDqn(s){
+  return String(s||"").toUpperCase().replace(/[^0-9A-Z]/g,'');
+}
 
 function filterBusRegistry(query){
-  var reg=(bsFormData&&bsFormData.busRegistry)||[];
-  if(!query||query.length<2)return[];
-  var q=query.toUpperCase().replace(/\s/g,'');
-  return reg.filter(function(r){ var dqn=String(r.dqn).toUpperCase().replace(/\s/g,''); return dqn.indexOf(q)===0; });
+  var reg = (bsFormData && bsFormData.busRegistry) || [];
+  if(!query || query.length < 2) return [];
+  var q = query.toUpperCase().replace(/\s/g,'');
+  return reg.filter(function(r){
+    var dqn = String(r.dqn || "").toUpperCase().replace(/\s/g,'');
+    return dqn.indexOf(q) !== -1;
+  });
 }
+
 function renderBusRegistryDropdown(matches){
-  var dd=document.getElementById('bs_registry_dd'); if(!dd)return;
-  if(!matches.length){
-    dd.innerHTML='<div class="bs-registry-empty">Uyğun D.Q.N. tapılmadı — məlumatları əl ilə daxil edin</div>';
+  var dd = document.getElementById('bs_registry_dd');
+  if(!dd) return;
+  
+  if(!matches || matches.length === 0){
+    dd.innerHTML = '<div class="bs-registry-empty">Uyğun D.Q.N. tapılmadı — məlumatları əl ilə daxil edin</div>';
   } else {
-    dd.innerHTML=matches.slice(0,8).map(function(m){
-      return '<div class="bs-registry-item" data-dqn="'+(m.dqn||'')+'"><span class="reg-id">'+(m.dqn||'—')+'</span><span class="reg-meta">BUS ID '+(m.id||'—')+' · '+(m.carrier||'—')+' · '+(m.model||'—')+'</span></div>';
+    dd.innerHTML = matches.slice(0, 8).map(function(m){
+      return '<div class="bs-registry-item" data-dqn="' + (m.dqn || '') + '" data-id="' + (m.id || '') + '" data-carrier="' + (m.carrier || '') + '" data-model="' + (m.model || '') + '">' +
+        '<span class="reg-id">' + (m.dqn || '—') + '</span>' +
+        '<span class="reg-meta">BUS ID: ' + (m.id || '—') + ' · ' + (m.carrier || '—') + ' · ' + (m.model || '—') + '</span>' +
+        '</div>';
     }).join('');
+    
     Array.from(dd.querySelectorAll('.bs-registry-item')).forEach(function(el){
-      el.addEventListener('click',function(e){ e.stopPropagation(); var dqn=el.getAttribute('data-dqn'); var match=matches.find(function(m){return String(m.dqn)===String(dqn);}); if(match)selectBusRegistryMatch(match); });
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
+        var match = {
+          dqn: el.getAttribute('data-dqn'),
+          id: el.getAttribute('data-id'),
+          carrier: el.getAttribute('data-carrier'),
+          model: el.getAttribute('data-model')
+        };
+        if(match.dqn) selectBusRegistryMatch(match);
+      });
     });
   }
   dd.classList.add('open');
 }
-function closeBusRegistryDD(){ var dd=document.getElementById('bs_registry_dd'); if(dd)dd.classList.remove('open'); }
-function selectBusRegistryMatch(match){
-  document.getElementById('bs_plate').value=match.dqn||'';
-  document.getElementById('bs_busid').value=match.id||'';
-  if(match.carrier)setDDValue('carrier',match.carrier);
-  if(match.model)setDDValue('brand',match.model);
-  closeBusRegistryDD(); lockRegistryFields(); bsFormDirty=true; scheduleBsDraftSave();
-}
-function lockRegistryFields(){
-  bsRegistryLocked=true;
-  var busidEl=document.getElementById('bs_busid'); busidEl.classList.add('bs-locked'); busidEl.setAttribute('readonly','readonly');
-  document.getElementById('bs_carrier_btn').classList.add('bs-locked');
-  document.getElementById('bs_brand_btn').classList.add('bs-locked');
-  document.getElementById('bs_registry_reset').classList.add('show');
-}
-function unlockRegistryFields(){
-  bsRegistryLocked=false;
-  var busidEl=document.getElementById('bs_busid'); busidEl.classList.remove('bs-locked'); busidEl.removeAttribute('readonly');
-  document.getElementById('bs_carrier_btn').classList.remove('bs-locked');
-  document.getElementById('bs_brand_btn').classList.remove('bs-locked');
-  document.getElementById('bs_registry_reset').classList.remove('show');
-}
-function resetRegistrySelection(){
-  document.getElementById('bs_plate').value=''; document.getElementById('bs_busid').value='';
-  bsSelected.carrier=''; var cLbl=document.getElementById('bs_carrier_lbl');
-  if(cLbl){cLbl.textContent='Seçin';cLbl.style.color='#9AACC4';cLbl.classList.remove('filled');}
-  bsSelected.brand=''; var bLbl=document.getElementById('bs_brand_lbl');
-  if(bLbl){bLbl.textContent='Seçin';bLbl.style.color='#9AACC4';bLbl.classList.remove('filled');}
-  unlockRegistryFields(); closeBusRegistryDD(); bsFormDirty=true; scheduleBsDraftSave();
-}
-document.addEventListener('click',function(e){ if(!e.target.closest('.bs-busid-wrap'))closeBusRegistryDD(); });
 
-document.addEventListener('DOMContentLoaded',function(){
-  var plateEl=document.getElementById('bs_plate'); if(!plateEl)return;
-  plateEl.addEventListener('input',function(e){
-    if(bsRegistryLocked)unlockRegistryFields();
-    var raw=e.target.value.toUpperCase().replace(/[^0-9A-Z]/g,'');
-    if(raw.length>8)raw=raw.slice(0,8);
-    var res='';
-    if(raw.length<=2)res=raw.replace(/[^0-9]/g,'').slice(0,2);
-    else if(raw.length<=4){var d1=raw.slice(0,2).replace(/[^0-9]/g,'');var l=raw.slice(2).replace(/[^A-Z]/g,'').slice(0,2);res=d1+(d1.length===2?'-':'')+l;}
-    else{var d1=raw.slice(0,2).replace(/[^0-9]/g,'');var l=raw.slice(2,4).replace(/[^A-Z]/g,'').slice(0,2);var d2=raw.slice(4).replace(/[^0-9]/g,'').slice(0,3);res=d1;if(d1.length===2)res+='-';res+=l;if(l.length===2)res+='-';res+=d2;}
-    e.target.value=res; e.target.setSelectionRange(res.length,res.length); bsFormDirty=true; scheduleBsDraftSave();
-    if(res.replace(/[^0-9A-Z]/g,'').length>=2){renderBusRegistryDropdown(filterBusRegistry(res));}else{closeBusRegistryDD();}
-  });
-  plateEl.addEventListener('focus',function(){ var v=this.value; if(v.replace(/[^0-9A-Z]/g,'').length>=2&&!bsRegistryLocked)renderBusRegistryDropdown(filterBusRegistry(v)); });
-  plateEl.addEventListener('paste',function(){ setTimeout(function(){plateEl.dispatchEvent(new Event('input'));},0); });
+function closeBusRegistryDD(){
+  var dd = document.getElementById('bs_registry_dd');
+  if(dd) dd.classList.remove('open');
+}
+
+function selectBusRegistryMatch(match){
+  var plateEl = document.getElementById('bs_plate');
+  var busidEl = document.getElementById('bs_busid');
+  
+  if(plateEl && match.dqn) plateEl.value = match.dqn;
+  if(busidEl && match.id) busidEl.value = match.id;
+  
+  if(match.carrier) setDDValue('carrier', match.carrier);
+  if(match.model) setDDValue('brand', match.model);
+  
+  closeBusRegistryDD();
+  lockRegistryFields();
+  bsFormDirty = true;
+  scheduleBsDraftSave();
+}
+
+function lockRegistryFields(){
+  bsRegistryLocked = true;
+  var busidEl = document.getElementById('bs_busid');
+  if(busidEl){
+    busidEl.classList.add('bs-locked');
+    busidEl.setAttribute('readonly', 'readonly');
+  }
+  var carrierBtn = document.getElementById('bs_carrier_btn');
+  var brandBtn = document.getElementById('bs_brand_btn');
+  if(carrierBtn) carrierBtn.classList.add('bs-locked');
+  if(brandBtn) brandBtn.classList.add('bs-locked');
+  
+  var resetEl = document.getElementById('bs_registry_reset');
+  if(resetEl) resetEl.classList.add('show');
+}
+
+function unlockRegistryFields(){
+  bsRegistryLocked = false;
+  var busidEl = document.getElementById('bs_busid');
+  if(busidEl){
+    busidEl.classList.remove('bs-locked');
+    busidEl.removeAttribute('readonly');
+  }
+  var carrierBtn = document.getElementById('bs_carrier_btn');
+  var brandBtn = document.getElementById('bs_brand_btn');
+  if(carrierBtn) carrierBtn.classList.remove('bs-locked');
+  if(brandBtn) brandBtn.classList.remove('bs-locked');
+  
+  var resetEl = document.getElementById('bs_registry_reset');
+  if(resetEl) resetEl.classList.remove('show');
+}
+
+function resetRegistrySelection(){
+  var plateEl = document.getElementById('bs_plate');
+  var busidEl = document.getElementById('bs_busid');
+  if(plateEl) plateEl.value = '';
+  if(busidEl) busidEl.value = '';
+  
+  bsSelected.carrier = '';
+  var cLbl = document.getElementById('bs_carrier_lbl');
+  if(cLbl){
+    cLbl.textContent = 'Seçin';
+    cLbl.style.color = '#9AACC4';
+    cLbl.classList.remove('filled');
+  }
+  
+  bsSelected.brand = '';
+  var bLbl = document.getElementById('bs_brand_lbl');
+  if(bLbl){
+    bLbl.textContent = 'Seçin';
+    bLbl.style.color = '#9AACC4';
+    bLbl.classList.remove('filled');
+  }
+  
+  unlockRegistryFields();
+  closeBusRegistryDD();
+  bsFormDirty = true;
+  scheduleBsDraftSave();
+}
+
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.bs-busid-wrap')){
+    closeBusRegistryDD();
+  }
 });
-document.addEventListener('DOMContentLoaded',function(){ var busidEl=document.getElementById('bs_busid'); if(busidEl){busidEl.addEventListener('input',function(){this.value=this.value.replace(/[^0-9]/g,'').slice(0,5);bsFormDirty=true;scheduleBsDraftSave();});} });
-document.addEventListener('DOMContentLoaded',function(){ var routeEl=document.getElementById('bs_route'); if(routeEl){routeEl.addEventListener('input',function(){var pos=this.selectionStart;this.value=this.value.toUpperCase();this.setSelectionRange(pos,pos);bsFormDirty=true;});} });
-document.addEventListener('keydown',function(e){
-  if(e.key!=='Enter')return;
-  var view=document.getElementById('busServiceView'); if(!view||view.style.display==='none')return;
-  var active=document.activeElement; if(!active||!view.contains(active))return;
-  if(active.tagName==='BUTTON'||active.tagName==='TEXTAREA')return;
+
+// ── D.Q.N. xanası — avtomatik format + reyestr axtarışı ──
+document.addEventListener('DOMContentLoaded', function(){
+  var plateEl = document.getElementById('bs_plate');
+  if(!plateEl) return;
+
+  plateEl.addEventListener('input', function(e){
+    if(bsRegistryLocked) unlockRegistryFields();
+    
+    // Avtomatik format
+    var raw = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '');
+    if(raw.length > 8) raw = raw.slice(0, 8);
+    var res = '';
+    if(raw.length <= 2){
+      res = raw.replace(/[^0-9]/g, '').slice(0, 2);
+    } else if(raw.length <= 4){
+      var d1 = raw.slice(0, 2).replace(/[^0-9]/g, '');
+      var l = raw.slice(2).replace(/[^A-Z]/g, '').slice(0, 2);
+      res = d1 + (d1.length === 2 ? '-' : '') + l;
+    } else {
+      var d1 = raw.slice(0, 2).replace(/[^0-9]/g, '');
+      var l = raw.slice(2, 4).replace(/[^A-Z]/g, '').slice(0, 2);
+      var d2 = raw.slice(4).replace(/[^0-9]/g, '').slice(0, 3);
+      res = d1;
+      if(d1.length === 2) res += '-';
+      res += l;
+      if(l.length === 2) res += '-';
+      res += d2;
+    }
+    e.target.value = res;
+    e.target.setSelectionRange(res.length, res.length);
+    bsFormDirty = true;
+    scheduleBsDraftSave();
+
+    // Reyestr axtarışı — ən azı 2 simvol yazılanda
+    if(res.replace(/[^0-9A-Z]/g, '').length >= 2){
+      renderBusRegistryDropdown(filterBusRegistry(res));
+    } else {
+      closeBusRegistryDD();
+    }
+  });
+
+  plateEl.addEventListener('focus', function(){
+    var v = this.value;
+    if(v.replace(/[^0-9A-Z]/g, '').length >= 2 && !bsRegistryLocked){
+      renderBusRegistryDropdown(filterBusRegistry(v));
+    }
+  });
+
+  plateEl.addEventListener('paste', function(){
+    setTimeout(function(){ plateEl.dispatchEvent(new Event('input')); }, 0);
+  });
+});
+
+// ── BUS ID: yalnız rəqəm (əl ilə yazılanda) ──────────
+document.addEventListener('DOMContentLoaded', function(){
+  var busidEl = document.getElementById('bs_busid');
+  if(busidEl){
+    busidEl.addEventListener('input', function(){
+      this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);
+      bsFormDirty = true;
+      scheduleBsDraftSave();
+    });
+  }
+});
+
+// ── Marşrut: böyük hərf ──────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  var routeEl = document.getElementById('bs_route');
+  if(routeEl){
+    routeEl.addEventListener('input', function(){
+      var pos = this.selectionStart;
+      this.value = this.value.toUpperCase();
+      this.setSelectionRange(pos, pos);
+      bsFormDirty = true;
+    });
+  }
+});
+
+// ── Enter → Tab (yalnız BUS Service formasında) ─────
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Enter') return;
+  var view = document.getElementById('busServiceView');
+  if(!view || view.style.display === 'none') return;
+  var active = document.activeElement;
+  if(!active || !view.contains(active)) return;
+  if(active.tagName === 'BUTTON' || active.tagName === 'TEXTAREA') return;
   e.preventDefault();
-  var focusable=Array.from(view.querySelectorAll('input:not([type=hidden]),select,textarea,button:not([tabindex="-1"])')).filter(function(el){return!el.disabled&&el.offsetParent!==null;});
-  var idx=focusable.indexOf(active); if(idx!==-1&&idx<focusable.length-1)focusable[idx+1].focus();
+  var focusable = Array.from(view.querySelectorAll('input:not([type=hidden]), select, textarea, button:not([tabindex="-1"])')).filter(function(el){ return !el.disabled && el.offsetParent !== null; });
+  var idx = focusable.indexOf(active);
+  if(idx !== -1 && idx < focusable.length - 1) focusable[idx + 1].focus();
 });
 
 // ── Draft ─────────────────────────────────────────
-function bsDraftKey(){return'ctech_bs_draft';}
+function bsDraftKey(){ return 'ctech_bs_draft'; }
 function saveBsDraft(){
-  if(bsEditMode)return;
+  if(bsEditMode) return;
   try{
-    var draft={
-      date:(document.getElementById('bs_date')||{}).value||'',
-      time:(document.getElementById('bs_time_lbl')||{}).value||'',
-      requester:(document.getElementById('bs_requester')||{}).value||'',
-      phone:(document.getElementById('bs_phone')||{}).value||'',
-      route:(document.getElementById('bs_route')||{}).value||'',
-      busid:(document.getElementById('bs_busid')||{}).value||'',
-      plate:(document.getElementById('bs_plate')||{}).value||'',
-      oldsn:(document.getElementById('bs_old_sn')||{}).value||'',
-      newsn:(document.getElementById('bs_new_sn')||{}).value||'',
-      start:(document.getElementById('bs_start_lbl')||{}).value||'',
-      end:(document.getElementById('bs_end_lbl')||{}).value||'',
-      note:(document.getElementById('bs_note')||{}).value||'',
-      locationNote:(document.getElementById('bs_location_note')||{}).value||'',
-      selected:bsSelected, savedAt:Date.now()
+    var draft = {
+      date: (document.getElementById('bs_date') || {}).value || '',
+      time: (document.getElementById('bs_time_lbl') || {}).value || '',
+      requester: (document.getElementById('bs_requester') || {}).value || '',
+      phone: (document.getElementById('bs_phone') || {}).value || '',
+      route: (document.getElementById('bs_route') || {}).value || '',
+      busid: (document.getElementById('bs_busid') || {}).value || '',
+      plate: (document.getElementById('bs_plate') || {}).value || '',
+      oldsn: (document.getElementById('bs_old_sn') || {}).value || '',
+      newsn: (document.getElementById('bs_new_sn') || {}).value || '',
+      start: (document.getElementById('bs_start_lbl') || {}).value || '',
+      end: (document.getElementById('bs_end_lbl') || {}).value || '',
+      note: (document.getElementById('bs_note') || {}).value || '',
+      locationNote: (document.getElementById('bs_location_note') || {}).value || '',
+      selected: bsSelected,
+      savedAt: Date.now()
     };
-    localStorage.setItem(bsDraftKey(),JSON.stringify(draft));
-  }catch(e){}
+    localStorage.setItem(bsDraftKey(), JSON.stringify(draft));
+  } catch(e){}
 }
-var bsDraftSaveTimer=null;
-function scheduleBsDraftSave(){ if(bsDraftSaveTimer)clearTimeout(bsDraftSaveTimer); bsDraftSaveTimer=setTimeout(saveBsDraft,500); }
-function clearBsDraft(){ try{localStorage.removeItem(bsDraftKey());}catch(e){} }
+var bsDraftSaveTimer = null;
+function scheduleBsDraftSave(){ if(bsDraftSaveTimer) clearTimeout(bsDraftSaveTimer); bsDraftSaveTimer = setTimeout(saveBsDraft, 500); }
+function clearBsDraft(){ try{ localStorage.removeItem(bsDraftKey()); } catch(e){} }
 function loadBsDraft(){
   try{
-    var raw=localStorage.getItem(bsDraftKey()); if(!raw)return null;
-    var d=JSON.parse(raw);
-    var hasContent=d.requester||d.phone||d.route||d.busid||d.plate||d.note||(d.selected&&(d.selected.carrier||d.selected.brand||d.selected.problem||(d.selected.solution&&d.selected.solution.length)));
-    return hasContent?d:null;
-  }catch(e){return null;}
+    var raw = localStorage.getItem(bsDraftKey());
+    if(!raw) return null;
+    var d = JSON.parse(raw);
+    var hasContent = d.requester || d.phone || d.route || d.busid || d.plate || d.note || (d.selected && (d.selected.carrier || d.selected.brand || d.selected.problem || (d.selected.solution && d.selected.solution.length)));
+    return hasContent ? d : null;
+  } catch(e){ return null; }
 }
 function restoreBsDraft(draft){
-  if(draft.date)document.getElementById('bs_date').value=draft.date;
-  setTimeInputValue('bs_time_lbl',draft.time);
-  document.getElementById('bs_requester').value=draft.requester||'';
-  document.getElementById('bs_phone').value=draft.phone||'';
-  document.getElementById('bs_route').value=draft.route||'';
-  document.getElementById('bs_busid').value=draft.busid||'';
-  document.getElementById('bs_plate').value=draft.plate||'';
-  document.getElementById('bs_old_sn').value=draft.oldsn||'';
-  document.getElementById('bs_new_sn').value=draft.newsn||'';
-  setTimeInputValue('bs_start_lbl',draft.start); setTimeInputValue('bs_end_lbl',draft.end);
-  document.getElementById('bs_note').value=draft.note||'';
-  document.getElementById('bs_location_note').value=draft.locationNote||'';
-  bsSelected=draft.selected||bsSelected;
-  Object.keys(ddMeta).forEach(function(k){ if(k==='solution'){updateMultiLabel('solution');updateSolutionChips();}else if(bsSelected[k]){setDDValue(k,bsSelected[k]);} });
-  document.getElementById('bs_location_note_wrap').style.display=(bsSelected.location||'').toLowerCase().indexOf('digər')!==-1?'block':'none';
-  bsFormDirty=true;
+  if(draft.date) document.getElementById('bs_date').value = draft.date;
+  setTimeInputValue('bs_time_lbl', draft.time);
+  document.getElementById('bs_requester').value = draft.requester || '';
+  document.getElementById('bs_phone').value = draft.phone || '';
+  document.getElementById('bs_route').value = draft.route || '';
+  document.getElementById('bs_busid').value = draft.busid || '';
+  document.getElementById('bs_plate').value = draft.plate || '';
+  document.getElementById('bs_old_sn').value = draft.oldsn || '';
+  document.getElementById('bs_new_sn').value = draft.newsn || '';
+  setTimeInputValue('bs_start_lbl', draft.start);
+  setTimeInputValue('bs_end_lbl', draft.end);
+  document.getElementById('bs_note').value = draft.note || '';
+  document.getElementById('bs_location_note').value = draft.locationNote || '';
+  bsSelected = draft.selected || bsSelected;
+  Object.keys(ddMeta).forEach(function(k){
+    if(k === 'solution'){
+      updateMultiLabel('solution');
+      updateSolutionChips();
+    } else if(bsSelected[k]){
+      setDDValue(k, bsSelected[k]);
+    }
+  });
+  document.getElementById('bs_location_note_wrap').style.display = (bsSelected.location || '').toLowerCase().indexOf('digər') !== -1 ? 'block' : 'none';
+  bsFormDirty = true;
 }
-document.addEventListener('DOMContentLoaded',function(){
-  var inputs=document.querySelectorAll('#busServiceView input,#busServiceView select,#busServiceView textarea');
-  inputs.forEach(function(el){ el.addEventListener('input',function(){bsFormDirty=true;scheduleBsDraftSave();}); el.addEventListener('change',function(){bsFormDirty=true;scheduleBsDraftSave();}); });
+document.addEventListener('DOMContentLoaded', function(){
+  var inputs = document.querySelectorAll('#busServiceView input, #busServiceView select, #busServiceView textarea');
+  inputs.forEach(function(el){
+    el.addEventListener('input', function(){ bsFormDirty = true; scheduleBsDraftSave(); });
+    el.addEventListener('change', function(){ bsFormDirty = true; scheduleBsDraftSave(); });
+  });
 });
 
 // ═══════════════════════════════════════════════════
 // BUS REAL-TIME REPORT
 // ═══════════════════════════════════════════════════
-var rptAllRows=[],rptColumns=[],rptFiltered=[],rptShownCount=20,rptPageSize=20,rptAutoRefresh=null;
+var rptAllRows=[], rptColumns=[], rptFiltered=[], rptShownCount=20, rptPageSize=20, rptAutoRefresh=null;
 var RPT_SEARCH_FIELDS=['Ticket ID','Tarix','D.Q.N.','BUS ID','Daşıyıcı'];
 
 function updateRptDate(){
-  var dEl=document.getElementById('rptDateBox'); var tEl=document.getElementById('rptClockBox');
-  if(!dEl||!tEl)return;
+  var dEl=document.getElementById('rptDateBox');
+  var tEl=document.getElementById('rptClockBox');
+  if(!dEl||!tEl) return;
   var now=new Date();
   var parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baku',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(now);
-  var map={}; parts.forEach(function(p){map[p.type]=p.value;});
+  var map={}; parts.forEach(function(p){ map[p.type]=p.value; });
   dEl.textContent=map.day+'.'+map.month+'.'+map.year;
   tEl.textContent=map.hour+':'+map.minute+':'+map.second;
 }
@@ -614,52 +772,82 @@ var rptDateInterval=null;
 
 function openBusReport(){
   document.getElementById('dashboardView').style.display='none';
-  var view=document.getElementById('busReportView'); view.style.display='flex';
+  var view=document.getElementById('busReportView');
+  view.style.display='flex';
   document.getElementById('rptGlobalSearch').value='';
   document.getElementById('rptExcelBtn').style.display=(getAccessLevel(currentUser.role)==='technician')?'none':'flex';
-  rptShownCount=rptPageSize; updateRptDate();
-  if(rptDateInterval)clearInterval(rptDateInterval);
+  rptShownCount=rptPageSize;
+  updateRptDate();
+  if(rptDateInterval) clearInterval(rptDateInterval);
   rptDateInterval=setInterval(updateRptDate,1000);
   loadReportData();
-  if(rptAutoRefresh)clearInterval(rptAutoRefresh);
+  if(rptAutoRefresh) clearInterval(rptAutoRefresh);
   rptAutoRefresh=setInterval(loadReportData,120000);
 }
 function closeBusReport(){
-  if(rptAutoRefresh){clearInterval(rptAutoRefresh);rptAutoRefresh=null;}
-  if(rptDateInterval){clearInterval(rptDateInterval);rptDateInterval=null;}
+  if(rptAutoRefresh){ clearInterval(rptAutoRefresh); rptAutoRefresh=null; }
+  if(rptDateInterval){ clearInterval(rptDateInterval); rptDateInterval=null; }
   document.getElementById('busReportView').style.display='none';
   document.getElementById('dashboardView').style.display='block';
 }
 function rptSortKey(row){
-  var d=row['Tarix']||''; var t=row['Saat']||'0000';
-  var dp=d.split('.'); if(dp.length!==3)return 0;
-  var iso=dp[2]+'-'+dp[1]+'-'+dp[0]+'T'+(t||'0000')+'00';
-  var ts=new Date(iso).getTime(); return isNaN(ts)?0:ts;
+  var d=row['Tarix']||'';
+  var t=row['Saat']||'00:00';
+  var dp=d.split('.');
+  if(dp.length!==3) return 0;
+  var iso=dp[2]+'-'+dp[1]+'-'+dp[0]+'T'+(t||'00:00')+':00';
+  var ts=new Date(iso).getTime();
+  return isNaN(ts)?0:ts;
 }
 function loadReportData(){
   document.getElementById('rptTableBody').innerHTML='<tr><td colspan="6"><div class="rpt-loading"><div class="spinner" style="width:36px;height:36px;border-width:4px;"></div><span>Yüklənir...</span></div></td></tr>';
   fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getReportData'})})
-  .then(function(r){return r.json();})
+  .then(function(r){ return r.json(); })
   .then(function(d){
-    if(d.status!=='OK'){ document.getElementById('rptTableBody').innerHTML='<tr><td colspan="6"><div class="rpt-empty">Xəta: '+(d.message||'məlumat gəlmədi')+'</div></td></tr>'; return; }
-    rptAllRows=(d.rows||[]).slice().sort(function(a,b){return rptSortKey(b)-rptSortKey(a);});
-    rptColumns=d.columns||[]; applyFilters();
-  }).catch(function(e){ document.getElementById('rptTableBody').innerHTML='<tr><td colspan="6"><div class="rpt-empty">Şəbəkə xətası: '+e.message+'</div></td></tr>'; });
+    if(d.status!=='OK'){
+      document.getElementById('rptTableBody').innerHTML='<tr><td colspan="6"><div class="rpt-empty">Xəta: '+(d.message||'məlumat gəlmədi')+'</div></td></tr>';
+      return;
+    }
+    rptAllRows=(d.rows||[]).slice().sort(function(a,b){ return rptSortKey(b)-rptSortKey(a); });
+    rptColumns=d.columns||[];
+    applyFilters();
+  }).catch(function(e){
+    document.getElementById('rptTableBody').innerHTML='<tr><td colspan="6"><div class="rpt-empty">Şəbəkə xətası: '+e.message+'</div></td></tr>';
+  });
 }
 function applyFilters(){
   var q=(document.getElementById('rptGlobalSearch').value||'').toLowerCase().trim();
   rptShownCount=rptPageSize;
-  rptFiltered=q?rptAllRows.filter(function(row){ for(var i=0;i<RPT_SEARCH_FIELDS.length;i++){var f=RPT_SEARCH_FIELDS[i];if((row[f]||'').toLowerCase().indexOf(q)!==-1)return true;} return false; }):rptAllRows;
+  rptFiltered=q?rptAllRows.filter(function(row){
+    for(var i=0;i<RPT_SEARCH_FIELDS.length;i++){
+      var f=RPT_SEARCH_FIELDS[i];
+      if((row[f]||'').toLowerCase().indexOf(q)!==-1) return true;
+    }
+    return false;
+  }):rptAllRows;
   renderTable();
 }
-function canEditTicket(row){ var level=getAccessLevel(currentUser.role); if(level==='leader'||level==='admin')return true; var createdBy=(row['_created_by']||'').toLowerCase().trim(); var me=(currentUser.email||'').toLowerCase().trim(); return createdBy&&me&&createdBy===me; }
+function canEditTicket(row){
+  var level=getAccessLevel(currentUser.role);
+  if(level==='leader'||level==='admin') return true;
+  var createdBy=(row['_created_by']||'').toLowerCase().trim();
+  var me=(currentUser.email||'').toLowerCase().trim();
+  return createdBy&&me&&createdBy===me;
+}
 function renderTable(){
   var body=document.getElementById('rptTableBody');
   document.getElementById('rptCount').textContent=rptFiltered.length+' nəticə';
-  if(rptFiltered.length===0){ body.innerHTML='<tr><td colspan="6"><div class="rpt-empty">Məlumat tapılmadı</div></td></tr>'; document.getElementById('rptLoadMoreWrap').style.display='none'; return; }
-  var visible=rptFiltered.slice(0,rptShownCount); var html='';
+  if(rptFiltered.length===0){
+    body.innerHTML='<tr><td colspan="6"><div class="rpt-empty">Məlumat tapılmadı</div></td></tr>';
+    document.getElementById('rptLoadMoreWrap').style.display='none';
+    return;
+  }
+  var visible=rptFiltered.slice(0,rptShownCount);
+  var html='';
   visible.forEach(function(row){
-    var ticketId=row['Ticket ID']||''; var safeId=ticketId.replace(/'/g,''); var editable=canEditTicket(row);
+    var ticketId=row['Ticket ID']||'';
+    var safeId=ticketId.replace(/'/g,'');
+    var editable=canEditTicket(row);
     html+='<tr>'
       +'<td class="rpt-td-id">'+ticketId+'</td>'
       +'<td>'+(row['Tarix']||'')+'</td>'
@@ -673,8 +861,12 @@ function renderTable(){
   });
   body.innerHTML=html;
   var loadMoreWrap=document.getElementById('rptLoadMoreWrap');
-  if(rptFiltered.length>rptShownCount){ document.getElementById('rptLoadMoreBtn').textContent='Daha çox göstər ('+(rptFiltered.length-rptShownCount)+')'; loadMoreWrap.style.display='flex'; }
-  else{ loadMoreWrap.style.display='none'; }
+  if(rptFiltered.length>rptShownCount){
+    document.getElementById('rptLoadMoreBtn').textContent='Daha çox göstər ('+(rptFiltered.length-rptShownCount)+')';
+    loadMoreWrap.style.display='flex';
+  } else {
+    loadMoreWrap.style.display='none';
+  }
 }
 function rptShowMore(){ rptShownCount+=rptPageSize; renderTable(); }
 
@@ -687,15 +879,28 @@ var DV_FIELD_MAP=[
   {section:'Texnik heyət',rows:[['1. Texnik','1. Texnik'],['2. Texnik','2. Texnik'],['Qrup rəhbəri','Qrup rəhbəri']]}
 ];
 function openBusDetail(ticketId){
-  var row=rptAllRows.find(function(r){return r['Ticket ID']===ticketId;}); if(!row){alert('Ticket tapılmadı');return;}
+  var row=rptAllRows.find(function(r){ return r['Ticket ID']===ticketId; });
+  if(!row){ alert('Ticket tapılmadı'); return; }
   document.getElementById('dvTicketTitle').textContent=ticketId;
-  var html=''; DV_FIELD_MAP.forEach(function(sec){ var rowsHtml=''; sec.rows.forEach(function(pair){ var val=row[pair[1]]; if(!val)return; rowsHtml+='<div class="dv-row"><span class="dv-label">'+pair[0]+'</span><span class="dv-value">'+val+'</span></div>'; }); if(rowsHtml)html+='<div class="dv-section"><div class="dv-section-title">'+sec.section+'</div>'+rowsHtml+'</div>'; });
+  var html='';
+  DV_FIELD_MAP.forEach(function(sec){
+    var rowsHtml='';
+    sec.rows.forEach(function(pair){
+      var val=row[pair[1]];
+      if(!val) return;
+      rowsHtml+='<div class="dv-row"><span class="dv-label">'+pair[0]+'</span><span class="dv-value">'+val+'</span></div>';
+    });
+    if(rowsHtml) html+='<div class="dv-section"><div class="dv-section-title">'+sec.section+'</div>'+rowsHtml+'</div>';
+  });
   html+='<div class="dv-section"><div class="dv-section-title">Status</div><div class="dv-row"><span class="dv-label">Vəziyyət</span><span class="dv-value"><span class="dv-status-chip">'+(row['Status']||'')+'</span></span></div></div>';
   document.getElementById('dvBody').innerHTML=html;
   document.getElementById('busReportView').style.display='none';
   document.getElementById('busDetailView').style.display='flex';
 }
-function closeBusDetail(){ document.getElementById('busDetailView').style.display='none'; document.getElementById('busReportView').style.display='flex'; }
+function closeBusDetail(){
+  document.getElementById('busDetailView').style.display='none';
+  document.getElementById('busReportView').style.display='flex';
+}
 
 // ═══════════════════════════════════════════════════
 // BUS DASHBOARD
@@ -704,101 +909,192 @@ function escapeHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replac
 function getBakuNowParts(){
   var now=new Date();
   var parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baku',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(now);
-  var map={}; parts.forEach(function(p){map[p.type]=p.value;});
-  return{y:+map.year,mo:+map.month,d:+map.day,h:+map.hour,mi:+map.minute,s:+map.second};
+  var map={}; parts.forEach(function(p){ map[p.type]=p.value; });
+  return {y:+map.year, mo:+map.month, d:+map.day, h:+map.hour, mi:+map.minute, s:+map.second};
 }
-function bakuNowDate(){ var p=getBakuNowParts(); return new Date(p.y,p.mo-1,p.d,p.h,p.mi,p.s); }
-function daysInCurrentMonth(){ var p=getBakuNowParts(); return new Date(p.y,p.mo,0).getDate(); }
+function bakuNowDate(){ var p=getBakuNowParts(); return new Date(p.y, p.mo-1, p.d, p.h, p.mi, p.s); }
+function daysInCurrentMonth(){ var p=getBakuNowParts(); return new Date(p.y, p.mo, 0).getDate(); }
 function dashComputeRange(period){
-  if(period==='all')return{start:null,end:null};
-  var end=bakuNowDate(); var start=new Date(end);
-  if(period==='24h')start.setDate(start.getDate()-1);
-  else if(period==='week')start.setDate(start.getDate()-7);
-  else if(period==='month')start.setDate(start.getDate()-daysInCurrentMonth());
-  return{start:start,end:end};
+  if(period==='all') return {start:null, end:null};
+  var end=bakuNowDate();
+  var start=new Date(end);
+  if(period==='24h') start.setDate(start.getDate()-1);
+  else if(period==='week') start.setDate(start.getDate()-7);
+  else if(period==='month') start.setDate(start.getDate()-daysInCurrentMonth());
+  return {start:start, end:end};
 }
 function rowDate(row){
-  var d=row['Tarix']; var t=row['Saat']||'0000';
-  var dp=d.split('.'); if(dp.length!==3)return null;
+  var d=row['Tarix']||'';
+  var t=row['Saat']||'00:00';
+  var dp=d.split('.');
+  if(dp.length!==3) return null;
   var tp=t.split(':');
-  return new Date(+dp[2],+dp[1]-1,+dp[0],+(tp[0]||0),+(tp[1]||0));
+  return new Date(+dp[2], +dp[1]-1, +dp[0], +(tp[0]||0), +(tp[1]||0));
 }
 var DASH_CATS=[
-  {key:'Problem',type:'multi',getOptions:function(){return bsFormData.busProblems||[];}},
-  {key:'Həll',type:'multi',getOptions:function(){return bsFormData.solutions||[];}},
-  {key:'Daşıyıcı',type:'multi',getOptions:function(){return bsFormData.carriers||[];}},
-  {key:'D.Q.N.',type:'text'},
-  {key:'BUS ID',type:'numeric',maxlen:5},
-  {key:'Qrup Rəhbəri',type:'multi',getOptions:function(){return bsFormData.leaders||[];}},
-  {key:'Texnik',type:'multi',getOptions:function(){return bsFormData.technicians||[];}},
-  {key:'Servis verilən Ünvan',type:'multi',getOptions:function(){return bsFormData.locations||[];}},
-  {key:'Servis Kateqoriyaları',type:'multi',getOptions:function(){return bsFormData.busEquipment||[];}}
+  {key:'Problem', type:'multi', getOptions:function(){ return bsFormData.busProblems||[]; }},
+  {key:'Həll', type:'multi', getOptions:function(){ return bsFormData.solutions||[]; }},
+  {key:'Daşıyıcı', type:'multi', getOptions:function(){ return bsFormData.carriers||[]; }},
+  {key:'D.Q.N.', type:'text'},
+  {key:'BUS ID', type:'numeric', maxlen:5},
+  {key:'Qrup Rəhbəri', type:'multi', getOptions:function(){ return bsFormData.leaders||[]; }},
+  {key:'Texnik', type:'multi', getOptions:function(){ return bsFormData.technicians||[]; }},
+  {key:'Servis verilən Ünvan', type:'multi', getOptions:function(){ return bsFormData.locations||[]; }},
+  {key:'Servis Kateqoriyaları', type:'multi', getOptions:function(){ return bsFormData.busEquipment||[]; }}
 ];
-var dashActiveChips={},dashSubfilterState={},dashTextFilters={},dashCustomRange=null,dashPeriod='24h',dashAllRows=[];
-function dashSelectedOptions(key){ return Object.keys(dashSubfilterState).filter(function(k){return k.indexOf(key+'|')===0&&dashSubfilterState[k];}).map(function(k){return k.slice(key.length+1);}); }
-function dashHasActiveOptions(key){return dashSelectedOptions(key).length>0;}
-function dashMatchMulti(val,key){if(!val)return false;return dashSelectedOptions(key).indexOf(val)!==-1;}
-function dashMatchSolution(val,key){if(!val)return false;var sel=dashSelectedOptions(key);return val.split('|').some(function(p){return sel.indexOf(p.trim())!==-1;});}
-function dashMatchLocation(val,key){if(!val)return false;var base=val.replace(/\s*\(.*\)$|\.$/,'').trim();return dashSelectedOptions(key).indexOf(base)!==-1;}
+var dashActiveChips={}, dashSubfilterState={}, dashTextFilters={}, dashCustomRange=null, dashPeriod='24h', dashAllRows=[];
+function dashSelectedOptions(key){
+  return Object.keys(dashSubfilterState).filter(function(k){ return k.indexOf(key+'|')===0 && dashSubfilterState[k]; }).map(function(k){ return k.slice(key.length+1); });
+}
+function dashHasActiveOptions(key){ return dashSelectedOptions(key).length>0; }
+function dashMatchMulti(val,key){ if(!val) return false; return dashSelectedOptions(key).indexOf(val)!==-1; }
+function dashMatchSolution(val,key){ if(!val) return false; var sel=dashSelectedOptions(key); return val.split('|').some(function(p){ return sel.indexOf(p.trim())!==-1; }); }
+function dashMatchLocation(val,key){ if(!val) return false; var base=val.replace(/\s*\(.*\)$|\.$/,'').trim(); return dashSelectedOptions(key).indexOf(base)!==-1; }
 function dashGetFilteredRows(){
   var range=dashCustomRange||dashComputeRange(dashPeriod);
   return dashAllRows.filter(function(row){
-    if(range.start&&range.end){var rd=rowDate(row);if(!rd||rd<range.start||rd>range.end)return false;}
-    if(dashHasActiveOptions('Problem')&&!dashMatchMulti(row['Problem'],'Problem'))return false;
-    if(dashHasActiveOptions('Həll')&&!dashMatchSolution(row['Həll'],'Həll'))return false;
-    if(dashHasActiveOptions('Daşıyıcı')&&!dashMatchMulti(row['Daşıyıcı'],'Daşıyıcı'))return false;
-    if(dashTextFilters['D.Q.N.']&&(row['D.Q.N.']||'').toLowerCase().indexOf(dashTextFilters['D.Q.N.'].toLowerCase())===-1)return false;
-    if(dashTextFilters['BUS ID']&&(row['BUS ID']||'').indexOf(dashTextFilters['BUS ID'])===-1)return false;
-    if(dashHasActiveOptions('Qrup Rəhbəri')&&!dashMatchMulti(row['Qrup rəhbəri'],'Qrup Rəhbəri'))return false;
-    if(dashHasActiveOptions('Texnik')&&!(dashMatchMulti(row['1. Texnik'],'Texnik')||dashMatchMulti(row['2. Texnik'],'Texnik')))return false;
-    if(dashHasActiveOptions('Servis verilən Ünvan')&&!dashMatchLocation(row['Servis yeri'],'Servis verilən Ünvan'))return false;
-    if(dashHasActiveOptions('Servis Kateqoriyaları')&&!dashMatchMulti(row['Servis Kat.'],'Servis Kateqoriyaları'))return false;
+    if(range.start&&range.end){ var rd=rowDate(row); if(!rd||rd<range.start||rd>range.end) return false; }
+    if(dashHasActiveOptions('Problem')&&!dashMatchMulti(row['Problem'],'Problem')) return false;
+    if(dashHasActiveOptions('Həll')&&!dashMatchSolution(row['Həll'],'Həll')) return false;
+    if(dashHasActiveOptions('Daşıyıcı')&&!dashMatchMulti(row['Daşıyıcı'],'Daşıyıcı')) return false;
+    if(dashTextFilters['D.Q.N.']&&(row['D.Q.N.']||'').toLowerCase().indexOf(dashTextFilters['D.Q.N.'].toLowerCase())===-1) return false;
+    if(dashTextFilters['BUS ID']&&(row['BUS ID']||'').indexOf(dashTextFilters['BUS ID'])===-1) return false;
+    if(dashHasActiveOptions('Qrup Rəhbəri')&&!dashMatchMulti(row['Qrup rəhbəri'],'Qrup Rəhbəri')) return false;
+    if(dashHasActiveOptions('Texnik')&&!(dashMatchMulti(row['1. Texnik'],'Texnik')||dashMatchMulti(row['2. Texnik'],'Texnik'))) return false;
+    if(dashHasActiveOptions('Servis verilən Ünvan')&&!dashMatchLocation(row['Servis yeri'],'Servis verilən Ünvan')) return false;
+    if(dashHasActiveOptions('Servis Kateqoriyaları')&&!dashMatchMulti(row['Servis Kat.'],'Servis Kateqoriyaları')) return false;
     return true;
   });
 }
 function dashCount(rows,field,splitMulti){
   var map={};
-  rows.forEach(function(r){var v=r[field];if(!v)return;var vals=splitMulti?v.split('|'):[v];vals.forEach(function(vv){vv=(vv||'').trim();if(!vv)return;map[vv]=(map[vv]||0)+1;});});
-  return Object.keys(map).map(function(k){return{name:k,count:map[k]};}).sort(function(a,b){return b.count-a.count;});
+  rows.forEach(function(r){
+    var v=r[field];
+    if(!v) return;
+    var vals=splitMulti?v.split('|'):[v];
+    vals.forEach(function(vv){ vv=(vv||'').trim(); if(!vv) return; map[vv]=(map[vv]||0)+1; });
+  });
+  return Object.keys(map).map(function(k){ return {name:k, count:map[k]}; }).sort(function(a,b){ return b.count-a.count; });
 }
-function dashCountLocation(rows){var map={};rows.forEach(function(r){var v=r['Servis yeri'];if(!v)return;var base=v.replace(/\s*\(.*\)$|\.$/,'').trim();if(!base)return;map[base]=(map[base]||0)+1;});return Object.keys(map).map(function(k){return{name:k,count:map[k]};}).sort(function(a,b){return b.count-a.count;});}
-function dashCountTech(rows){var map={};rows.forEach(function(r){[r['1. Texnik'],r['2. Texnik']].forEach(function(v){if(!v)return;map[v]=(map[v]||0)+1;});});return Object.keys(map).map(function(k){return{name:k,count:map[k]};}).sort(function(a,b){return b.count-a.count;});}
-function dashCountRecurringBuses(rows){var map={};rows.forEach(function(r){var id=r['BUS ID'];if(!id)return;if(!map[id])map[id]={plate:r['D.Q.N.'],count:0};map[id].count++;});return Object.keys(map).map(function(id){return{busId:id,plate:map[id].plate,count:map[id].count};}).filter(function(x){return x.count>=3;}).sort(function(a,b){return b.count-a.count;});}
+function dashCountLocation(rows){
+  var map={};
+  rows.forEach(function(r){
+    var v=r['Servis yeri'];
+    if(!v) return;
+    var base=v.replace(/\s*\(.*\)$|\.$/,'').trim();
+    if(!base) return;
+    map[base]=(map[base]||0)+1;
+  });
+  return Object.keys(map).map(function(k){ return {name:k, count:map[k]}; }).sort(function(a,b){ return b.count-a.count; });
+}
+function dashCountTech(rows){
+  var map={};
+  rows.forEach(function(r){
+    [r['1. Texnik'], r['2. Texnik']].forEach(function(v){
+      if(!v) return;
+      map[v]=(map[v]||0)+1;
+    });
+  });
+  return Object.keys(map).map(function(k){ return {name:k, count:map[k]}; }).sort(function(a,b){ return b.count-a.count; });
+}
+function dashCountRecurringBuses(rows){
+  var map={};
+  rows.forEach(function(r){
+    var id=r['BUS ID'];
+    if(!id) return;
+    if(!map[id]) map[id]={plate:r['D.Q.N.'], count:0};
+    map[id].count++;
+  });
+  return Object.keys(map).map(function(id){ return {busId:id, plate:map[id].plate, count:map[id].count}; }).filter(function(x){ return x.count>=3; }).sort(function(a,b){ return b.count-a.count; });
+}
 function dashFixedMetrics(){
   var now=bakuNowDate();
-  var todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0);
-  var weekStart=new Date(now);weekStart.setDate(weekStart.getDate()-7);
-  var totalToday=0,totalWeek=0;
-  dashAllRows.forEach(function(r){var rd=rowDate(r);if(!rd)return;if(rd>=todayStart)totalToday++;if(rd>=weekStart)totalWeek++;});
-  return{totalAll:dashAllRows.length,totalToday:totalToday,totalWeek:totalWeek};
+  var todayStart=new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  var weekStart=new Date(now);
+  weekStart.setDate(weekStart.getDate()-7);
+  var totalToday=0, totalWeek=0;
+  dashAllRows.forEach(function(r){
+    var rd=rowDate(r);
+    if(!rd) return;
+    if(rd>=todayStart) totalToday++;
+    if(rd>=weekStart) totalWeek++;
+  });
+  return {totalAll:dashAllRows.length, totalToday:totalToday, totalWeek:totalWeek};
 }
-function dashRenderRadial(containerId,items,total){
-  var el=document.getElementById(containerId); var top=items.slice(0,4);
-  if(top.length===0){el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>';return;}
-  var R=30,C=2*Math.PI*R,html='';
-  top.forEach(function(it){var pct=total>0?Math.round(it.count/total*100):0;var offset=C-(C*pct/100);html+='<div class="dash-radial-card"><svg width="68" height="68" viewBox="0 0 72 72"><circle cx="36" cy="36" r="'+R+'" fill="none" stroke="#E6F1FB" stroke-width="8"/><circle cx="36" cy="36" r="'+R+'" fill="none" stroke="#2F6FED" stroke-width="8" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" stroke-linecap="round" transform="rotate(-90 36 36)"/><text x="36" y="41" text-anchor="middle" font-family="Rajdhani" font-weight="700" font-size="17" fill="#12233B">'+pct+'%</text></svg><div class="dash-radial-textbox">'+escapeHtml(it.name)+'</div><div class="dash-radial-count">'+it.count+' servis</div></div>';});
+function dashRenderRadial(containerId, items, total){
+  var el=document.getElementById(containerId);
+  var top=items.slice(0,4);
+  if(top.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>'; return; }
+  var R=30, C=2*Math.PI*R, html='';
+  top.forEach(function(it){
+    var pct=total>0?Math.round(it.count/total*100):0;
+    var offset=C-(C*pct/100);
+    html+='<div class="dash-radial-card"><svg width="68" height="68" viewBox="0 0 72 72"><circle cx="36" cy="36" r="'+R+'" fill="none" stroke="#E6F1FB" stroke-width="8"/><circle cx="36" cy="36" r="'+R+'" fill="none" stroke="#2F6FED" stroke-width="8" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" stroke-linecap="round" transform="rotate(-90 36 36)"/><text x="36" y="41" text-anchor="middle" font-family="Rajdhani" font-weight="700" font-size="17" fill="#12233B">'+pct+'%</text></svg><div class="dash-radial-textbox">'+escapeHtml(it.name)+'</div><div class="dash-radial-count">'+it.count+' servis</div></div>';
+  });
   el.innerHTML=html;
 }
-function buildRankTableRows(items,numStyle,countStyle){var html='';items.forEach(function(it,i){html+='<tr><td><span'+(numStyle?' style="'+numStyle+'"':'')+'>'+(i+1)+'</span></td><td>'+escapeHtml(it.name)+'</td><td><span class="dash-rank-count-val"'+(countStyle?' style="'+countStyle+'"':'')+'>'+it.count+'</span></td></tr>';});return html;}
-function dashRenderRankList(containerId,items,max,headerLabel,nameHeader){var el=document.getElementById(containerId);var top=items.slice(0,max||6);if(top.length===0){el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>';return;}el.innerHTML='<div class="dash-ranklist-wrap"><table class="dash-ranklist"><thead><tr><th class="dr-num-col"></th><th>'+(nameHeader||'Ad')+'</th><th class="dr-count-col">'+(headerLabel||'Servis sayı')+'</th></tr></thead><tbody>'+buildRankTableRows(top)+'</tbody></table></div>';}
-function dashRenderTiles(containerId,items,max){var el=document.getElementById(containerId);var top=items.slice(0,max||8);if(top.length===0){el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>';return;}var icon='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6"/></svg>';var html='';top.forEach(function(it){html+='<div class="dash-tile"><div class="dash-tile-icon">'+icon+'</div><div class="dash-tile-name">'+escapeHtml(it.name)+'</div><div class="dash-tile-count">'+it.count+'</div></div>';});el.innerHTML=html;}
-function dashRenderLeaders(containerId,items,max){var el=document.getElementById(containerId);var top=items.slice(0,max||6);if(top.length===0){el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>';return;}var maxCount=top[0].count||1,html='';top.forEach(function(it){var initials=it.name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();var pct=Math.round(it.count/maxCount*100);html+='<div class="dash-lead-row"><div class="dash-avatar">'+escapeHtml(initials)+'</div><div class="dash-lead-name">'+escapeHtml(it.name)+'</div><div class="dash-lead-bar-wrap"><div class="dash-lead-bar" style="width:'+pct+'%;"></div></div><div class="dash-lead-count">'+it.count+'</div></div>';});el.innerHTML=html;}
-function dashRenderRecurring(containerId,items){var el=document.getElementById(containerId);if(items.length===0){el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün heç bir avtobus 3 və ya daha çox servis almayıb.</div>';return;}var mapped=items.slice(0,15).map(function(it){return{name:(it.plate||'—')+' · BUS '+it.busId,count:it.count};});el.innerHTML='<div class="dash-ranklist-wrap"><table class="dash-ranklist"><thead><tr><th class="dr-num-col"></th><th>Avtobus (D.Q.N. · BUS ID)</th><th class="dr-count-col">Servis sayı</th></tr></thead><tbody>'+buildRankTableRows(mapped,'background:#FEECEC;color:#A32D2D;','color:#A32D2D;')+'</tbody></table></div>';}
-function dashMobileSection(title,items,max,headerLabel){var top=items.slice(0,max||6);var html='<div class="dash-m-section"><div class="dash-m-title">'+title+'</div>';if(top.length===0){html+='<div class="dash-m-card-empty">Bu dövr üçün qeydə alınmayıb.</div>';}else{html+='<div class="dash-ranklist-wrap"><table class="dash-ranklist"><thead><tr><th class="dr-num-col"></th><th>Ad</th><th class="dr-count-col">'+(headerLabel||'Say')+'</th></tr></thead><tbody>'+buildRankTableRows(top)+'</tbody></table></div>';}html+='</div>';return html;}
+function buildRankTableRows(items, numStyle, countStyle){
+  var html='';
+  items.forEach(function(it, i){
+    html+='<tr><td><span'+(numStyle?' style="'+numStyle+'"':'')+'>'+(i+1)+'</span></td><td>'+escapeHtml(it.name)+'</td><td><span class="dash-rank-count-val"'+(countStyle?' style="'+countStyle+'"':'')+'>'+it.count+'</span></td></tr>';
+  });
+  return html;
+}
+function dashRenderRankList(containerId, items, max, headerLabel, nameHeader){
+  var el=document.getElementById(containerId);
+  var top=items.slice(0, max||6);
+  if(top.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>'; return; }
+  el.innerHTML='<div class="dash-ranklist-wrap"><table class="dash-ranklist"><thead><tr><th class="dr-num-col"></th><th>'+(nameHeader||'Ad')+'</th><th class="dr-count-col">'+(headerLabel||'Servis sayı')+'</th></tr></thead><tbody>'+buildRankTableRows(top)+'</tbody></table></div>';
+}
+function dashRenderTiles(containerId, items, max){
+  var el=document.getElementById(containerId);
+  var top=items.slice(0, max||8);
+  if(top.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>'; return; }
+  var icon='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6"/></svg>';
+  var html='';
+  top.forEach(function(it){ html+='<div class="dash-tile"><div class="dash-tile-icon">'+icon+'</div><div class="dash-tile-name">'+escapeHtml(it.name)+'</div><div class="dash-tile-count">'+it.count+'</div></div>'; });
+  el.innerHTML=html;
+}
+function dashRenderLeaders(containerId, items, max){
+  var el=document.getElementById(containerId);
+  var top=items.slice(0, max||6);
+  if(top.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün qeydə alınmayıb.</div>'; return; }
+  var maxCount=top[0].count||1, html='';
+  top.forEach(function(it){
+    var initials=it.name.split(' ').map(function(w){ return w[0]||''; }).join('').slice(0,2).toUpperCase();
+    var pct=Math.round(it.count/maxCount*100);
+    html+='<div class="dash-lead-row"><div class="dash-avatar">'+escapeHtml(initials)+'</div><div class="dash-lead-name">'+escapeHtml(it.name)+'</div><div class="dash-lead-bar-wrap"><div class="dash-lead-bar" style="width:'+pct+'%;"></div></div><div class="dash-lead-count">'+it.count+'</div></div>';
+  });
+  el.innerHTML=html;
+}
+function dashRenderRecurring(containerId, items){
+  var el=document.getElementById(containerId);
+  if(items.length===0){ el.innerHTML='<div class="dash-empty-txt">Bu dövr üçün heç bir avtobus 3 və ya daha çox servis almayıb.</div>'; return; }
+  var mapped=items.slice(0,15).map(function(it){ return {name:(it.plate||'—')+' · BUS '+it.busId, count:it.count}; });
+  el.innerHTML='<div class="dash-ranklist-wrap"><table class="dash-ranklist"><thead><tr><th class="dr-num-col"></th><th>Avtobus (D.Q.N. · BUS ID)</th><th class="dr-count-col">Servis sayı</th></tr></thead><tbody>'+buildRankTableRows(mapped, 'background:#FEECEC;color:#A32D2D;', 'color:#A32D2D;')+'</tbody></table></div>';
+}
+function dashMobileSection(title, items, max, headerLabel){
+  var top=items.slice(0, max||6);
+  var html='<div class="dash-m-section"><div class="dash-m-title">'+title+'</div>';
+  if(top.length===0){ html+='<div class="dash-m-card-empty">Bu dövr üçün qeydə alınmayıb.</div>'; }
+  else { html+='<div class="dash-ranklist-wrap"><table class="dash-ranklist"><thead><tr><th class="dr-num-col"></th><th>Ad</th><th class="dr-count-col">'+(headerLabel||'Say')+'</th></tr></thead><tbody>'+buildRankTableRows(top)+'</tbody></table></div>'; }
+  html+='</div>';
+  return html;
+}
 function dashRenderMobile(agg){
   document.getElementById('dashMTotalAll').textContent=agg.totalAll;
   document.getElementById('dashMTotalToday').textContent=agg.totalToday;
   document.getElementById('dashMTotalWeek').textContent=agg.totalWeek;
   var html='';
-  html+=dashMobileSection('Ən çox rast gəlinən problem',agg.problems,4);
-  html+=dashMobileSection('Ən çox rast gəlinən həll',agg.solutions,4);
-  html+=dashMobileSection('Servis kateqoriyaları',agg.categories,8);
-  html+=dashMobileSection('Texnik fəaliyyəti',agg.tech,8);
-  html+=dashMobileSection('Qrup rəhbəri fəaliyyəti',agg.leaders,8);
-  html+=dashMobileSection('Daşıyıcı firma üzrə statistika',agg.carriers,8);
-  html+=dashMobileSection('Servis verilən ünvan',agg.locations,8);
-  var recItems=agg.recurring.map(function(it){return{name:(it.plate||'—')+' · BUS '+it.busId,count:it.count};});
-  html+=dashMobileSection('Təkrarlanan problemli avtobuslar',recItems,15,'Servis sayı');
+  html+=dashMobileSection('Ən çox rast gəlinən problem', agg.problems, 4);
+  html+=dashMobileSection('Ən çox rast gəlinən həll', agg.solutions, 4);
+  html+=dashMobileSection('Servis kateqoriyaları', agg.categories, 8);
+  html+=dashMobileSection('Texnik fəaliyyəti', agg.tech, 8);
+  html+=dashMobileSection('Qrup rəhbəri fəaliyyəti', agg.leaders, 8);
+  html+=dashMobileSection('Daşıyıcı firma üzrə statistika', agg.carriers, 8);
+  html+=dashMobileSection('Servis verilən ünvan', agg.locations, 8);
+  var recItems=agg.recurring.map(function(it){ return {name:(it.plate||'—')+' · BUS '+it.busId, count:it.count}; });
+  html+=dashMobileSection('Təkrarlanan problemli avtobuslar', recItems, 15, 'Servis sayı');
   document.getElementById('dashMobileSections').innerHTML=html;
 }
 function dashComputeAndRender(){
@@ -807,157 +1103,285 @@ function dashComputeAndRender(){
   document.getElementById('dashTotalToday').textContent=fixed.totalToday;
   document.getElementById('dashTotalWeek').textContent=fixed.totalWeek;
   var filtered=dashGetFilteredRows();
-  var problems=dashCount(filtered,'Problem',false);
-  var solutions=dashCount(filtered,'Həll',true);
-  var categories=dashCount(filtered,'Servis Kat.',false);
+  var problems=dashCount(filtered, 'Problem', false);
+  var solutions=dashCount(filtered, 'Həll', true);
+  var categories=dashCount(filtered, 'Servis Kat.', false);
   var tech=dashCountTech(filtered);
-  var leaders=dashCount(filtered,'Qrup rəhbəri',false);
-  var carriers=dashCount(filtered,'Daşıyıcı',false);
+  var leaders=dashCount(filtered, 'Qrup rəhbəri', false);
+  var carriers=dashCount(filtered, 'Daşıyıcı', false);
   var locations=dashCountLocation(filtered);
   var recurring=dashCountRecurringBuses(filtered);
-  dashRenderRadial('dashProblemGrid',problems,filtered.length);
-  dashRenderRankList('dashSolutionList',solutions,4);
-  dashRenderTiles('dashCategoryGrid',categories,8);
-  dashRenderLeaders('dashTechList',tech,8);
-  dashRenderLeaders('dashLeaderList',leaders,8);
-  dashRenderRankList('dashCarrierList',carriers,8);
-  dashRenderRankList('dashLocationList',locations,8);
-  dashRenderRecurring('dashRecurringPanel',recurring);
-  dashRenderMobile({totalAll:fixed.totalAll,totalToday:fixed.totalToday,totalWeek:fixed.totalWeek,problems:problems,solutions:solutions,categories:categories,tech:tech,leaders:leaders,carriers:carriers,locations:locations,recurring:recurring});
+  dashRenderRadial('dashProblemGrid', problems, filtered.length);
+  dashRenderRankList('dashSolutionList', solutions, 4);
+  dashRenderTiles('dashCategoryGrid', categories, 8);
+  dashRenderLeaders('dashTechList', tech, 8);
+  dashRenderLeaders('dashLeaderList', leaders, 8);
+  dashRenderRankList('dashCarrierList', carriers, 8);
+  dashRenderRankList('dashLocationList', locations, 8);
+  dashRenderRecurring('dashRecurringPanel', recurring);
+  dashRenderMobile({
+    totalAll:fixed.totalAll,
+    totalToday:fixed.totalToday,
+    totalWeek:fixed.totalWeek,
+    problems:problems,
+    solutions:solutions,
+    categories:categories,
+    tech:tech,
+    leaders:leaders,
+    carriers:carriers,
+    locations:locations,
+    recurring:recurring
+  });
 }
 function loadDashData(){
-  var ov=document.getElementById('dashLoading'); ov.classList.add('open');
-  var reportPromise=fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getReportData'})}).then(function(r){return r.json();});
-  var formPromise=(bsFormData&&bsFormData.carriers)?Promise.resolve(bsFormData):fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getFormData'})}).then(function(r){return r.json();}).then(function(d){if(d.status==='OK')bsFormData=d;return bsFormData;});
-  Promise.all([reportPromise,formPromise]).then(function(results){var d=results[0];if(d.status==='OK'){dashAllRows=d.rows||[];}ov.classList.remove('open');dashComputeAndRender();}).catch(function(){ov.classList.remove('open');});
+  var ov=document.getElementById('dashLoading');
+  ov.classList.add('open');
+  var reportPromise=fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getReportData'})}).then(function(r){ return r.json(); });
+  var formPromise=(bsFormData&&bsFormData.carriers)?Promise.resolve(bsFormData):fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getFormData'})}).then(function(r){ return r.json(); }).then(function(d){ if(d.status==='OK') bsFormData=d; return bsFormData; });
+  Promise.all([reportPromise, formPromise]).then(function(results){
+    var d=results[0];
+    if(d.status==='OK'){ dashAllRows=d.rows||[]; }
+    ov.classList.remove('open');
+    dashComputeAndRender();
+  }).catch(function(){ ov.classList.remove('open'); });
 }
-function updateDashTabsUI(){ document.querySelectorAll('#dashTabs .dash-tab').forEach(function(t){t.classList.toggle('active',t.getAttribute('data-period')===dashPeriod);}); }
-function openBusDashboard(){ document.getElementById('dashboardView').style.display='none'; document.getElementById('busDashboardView').style.display='flex'; dashCustomRange=null; dashPeriod='24h'; updateDashTabsUI(); loadDashData(); }
-function closeBusDashboard(){ document.getElementById('busDashboardView').style.display='none'; document.getElementById('dashboardView').style.display='block'; }
-document.addEventListener('DOMContentLoaded',function(){
+function updateDashTabsUI(){ document.querySelectorAll('#dashTabs .dash-tab').forEach(function(t){ t.classList.toggle('active', t.getAttribute('data-period')===dashPeriod); }); }
+function openBusDashboard(){
+  document.getElementById('dashboardView').style.display='none';
+  document.getElementById('busDashboardView').style.display='flex';
+  dashCustomRange=null;
+  dashPeriod='24h';
+  updateDashTabsUI();
+  loadDashData();
+}
+function closeBusDashboard(){
+  document.getElementById('busDashboardView').style.display='none';
+  document.getElementById('dashboardView').style.display='block';
+}
+document.addEventListener('DOMContentLoaded', function(){
   var tabs=document.querySelectorAll('#dashTabs .dash-tab');
-  tabs.forEach(function(t){ t.addEventListener('click',function(){ tabs.forEach(function(x){x.classList.remove('active');}); t.classList.add('active'); dashPeriod=t.getAttribute('data-period'); dashCustomRange=null; dashComputeAndRender(); }); });
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      dashPeriod=t.getAttribute('data-period');
+      dashCustomRange=null;
+      dashComputeAndRender();
+    });
+  });
 });
 
 // ── Modal kalendar ──────────────────────────────
 function openDashModal(){ ensureDashFormDataThenBuildChips(); document.getElementById('dashModal').classList.add('open'); }
-function closeDashModal(){ document.getElementById('dashModal').classList.remove('open'); document.getElementById('dashModalFilterBody').style.display='flex'; document.getElementById('dashModalResults').classList.remove('open'); document.getElementById('dashResetBtnEl').style.display=''; document.getElementById('dashModalTitle').textContent='Tarix aralığı və filtrlər'; document.getElementById('dashSearchWarn').style.display='none'; }
-function ensureDashFormDataThenBuildChips(){ if(bsFormData&&bsFormData.carriers){buildDashChips();}else{fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getFormData'})}).then(function(r){return r.json();}).then(function(d){if(d.status==='OK')bsFormData=d;buildDashChips();});} }
+function closeDashModal(){
+  document.getElementById('dashModal').classList.remove('open');
+  document.getElementById('dashModalFilterBody').style.display='flex';
+  document.getElementById('dashModalResults').classList.remove('open');
+  document.getElementById('dashResetBtnEl').style.display='';
+  document.getElementById('dashModalTitle').textContent='Tarix aralığı və filtrlər';
+  document.getElementById('dashSearchWarn').style.display='none';
+}
+function ensureDashFormDataThenBuildChips(){
+  if(bsFormData&&bsFormData.carriers){ buildDashChips(); }
+  else {
+    fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getFormData'})}).then(function(r){ return r.json(); }).then(function(d){ if(d.status==='OK') bsFormData=d; buildDashChips(); });
+  }
+}
 function buildDashChips(){
-  var row=document.getElementById('dashChipRow'); row.innerHTML='';
-  DASH_CATS.forEach(function(cat){ var c=document.createElement('div'); c.className='dash-chip'+(dashActiveChips[cat.key]?' active':''); c.textContent=cat.key; c.onclick=function(){dashActiveChips[cat.key]=!dashActiveChips[cat.key];var warnEl=document.getElementById('dashSearchWarn');if(warnEl)warnEl.style.display='none';c.classList.toggle('active');renderDashSubfilters();};row.appendChild(c); });
+  var row=document.getElementById('dashChipRow');
+  row.innerHTML='';
+  DASH_CATS.forEach(function(cat){
+    var c=document.createElement('div');
+    c.className='dash-chip'+(dashActiveChips[cat.key]?' active':'');
+    c.textContent=cat.key;
+    c.onclick=function(){
+      dashActiveChips[cat.key]=!dashActiveChips[cat.key];
+      var warnEl=document.getElementById('dashSearchWarn');
+      if(warnEl) warnEl.style.display='none';
+      c.classList.toggle('active');
+      renderDashSubfilters();
+    };
+    row.appendChild(c);
+  });
   renderDashSubfilters();
 }
 function renderDashSubfilters(){
-  var wrap=document.getElementById('dashSubfilters'); wrap.innerHTML='';
+  var wrap=document.getElementById('dashSubfilters');
+  wrap.innerHTML='';
   DASH_CATS.forEach(function(cat){
-    if(!dashActiveChips[cat.key])return;
-    var box=document.createElement('div'); box.className='dash-subfilter';
-    var title=document.createElement('div'); title.className='dash-subfilter-title'; title.textContent=cat.key; box.appendChild(title);
+    if(!dashActiveChips[cat.key]) return;
+    var box=document.createElement('div');
+    box.className='dash-subfilter';
+    var title=document.createElement('div');
+    title.className='dash-subfilter-title';
+    title.textContent=cat.key;
+    box.appendChild(title);
     if(cat.type==='multi'){
-      var opts=document.createElement('div'); opts.className='dash-subfilter-opts';
-      (cat.getOptions()||[]).forEach(function(opt){ var o=document.createElement('div'); var key=cat.key+'|'+opt; o.className='dash-opt-chip'+(dashSubfilterState[key]?' sel':''); o.textContent=opt.length>28?opt.slice(0,28)+'…':opt; o.title=opt; o.onclick=function(){dashSubfilterState[key]=!dashSubfilterState[key];o.classList.toggle('sel');}; opts.appendChild(o); }); box.appendChild(opts);
+      var opts=document.createElement('div');
+      opts.className='dash-subfilter-opts';
+      (cat.getOptions()||[]).forEach(function(opt){
+        var o=document.createElement('div');
+        var key=cat.key+'|'+opt;
+        o.className='dash-opt-chip'+(dashSubfilterState[key]?' sel':'');
+        o.textContent=opt.length>28?opt.slice(0,28)+'…':opt;
+        o.title=opt;
+        o.onclick=function(){ dashSubfilterState[key]=!dashSubfilterState[key]; o.classList.toggle('sel'); };
+        opts.appendChild(o);
+      });
+      box.appendChild(opts);
     } else if(cat.type==='text'){
-      var inp=document.createElement('input'); inp.type='text'; inp.placeholder='Axtar...'; inp.value=dashTextFilters[cat.key]||''; inp.oninput=function(){dashTextFilters[cat.key]=this.value;}; box.appendChild(inp);
+      var inp=document.createElement('input');
+      inp.type='text';
+      inp.placeholder='Axtar...';
+      inp.value=dashTextFilters[cat.key]||'';
+      inp.oninput=function(){ dashTextFilters[cat.key]=this.value; };
+      box.appendChild(inp);
     } else if(cat.type==='numeric'){
-      var inp2=document.createElement('input'); inp2.type='text'; inp2.inputMode='numeric'; inp2.placeholder='ID'; inp2.maxLength=cat.maxlen||5; inp2.value=dashTextFilters[cat.key]||''; inp2.oninput=function(){this.value=this.value.replace(/[^0-9]/g,'').slice(0,cat.maxlen||5);dashTextFilters[cat.key]=this.value;}; box.appendChild(inp2);
+      var inp2=document.createElement('input');
+      inp2.type='text';
+      inp2.inputMode='numeric';
+      inp2.placeholder='ID';
+      inp2.maxLength=cat.maxlen||5;
+      inp2.value=dashTextFilters[cat.key]||'';
+      inp2.oninput=function(){ this.value=this.value.replace(/[^0-9]/g,'').slice(0, cat.maxlen||5); dashTextFilters[cat.key]=this.value; };
+      box.appendChild(inp2);
     }
     wrap.appendChild(box);
   });
 }
-function resetDashFilters(){ dashActiveChips={}; dashSubfilterState={}; dashTextFilters={}; dcalRangeStart=null; dcalRangeEnd=null; buildDashChips(); renderDcal(); document.getElementById('dashModalFilterBody').style.display='flex'; document.getElementById('dashModalResults').classList.remove('open'); document.getElementById('dashModalTitle').textContent='Tarix aralığı və filtrlər'; document.getElementById('dashSearchWarn').style.display='none'; }
-var dcalYear,dcalMonth,dcalRangeStart=null,dcalRangeEnd=null;
+function resetDashFilters(){
+  dashActiveChips={};
+  dashSubfilterState={};
+  dashTextFilters={};
+  dcalRangeStart=null;
+  dcalRangeEnd=null;
+  buildDashChips();
+  renderDcal();
+  document.getElementById('dashModalFilterBody').style.display='flex';
+  document.getElementById('dashModalResults').classList.remove('open');
+  document.getElementById('dashModalTitle').textContent='Tarix aralığı və filtrlər';
+  document.getElementById('dashSearchWarn').style.display='none';
+}
+var dcalYear, dcalMonth, dcalRangeStart=null, dcalRangeEnd=null;
 var DCAL_DOWS=['B.e','Ç.a','Ç','C.a','C','Ş','B'];
 var DCAL_MONTHS=['Yanvar','Fevral','Mart','Aprel','May','İyun','İyul','Avqust','Sentyabr','Oktyabr','Noyabr','Dekabr'];
-function initDcal(){var now=bakuNowDate();dcalYear=now.getFullYear();dcalMonth=now.getMonth();renderDcal();}
-function dcalNav(dir){dcalMonth+=dir;if(dcalMonth<0){dcalMonth=11;dcalYear--;}if(dcalMonth>11){dcalMonth=0;dcalYear++;}renderDcal();}
+function initDcal(){ var now=bakuNowDate(); dcalYear=now.getFullYear(); dcalMonth=now.getMonth(); renderDcal(); }
+function dcalNav(dir){ dcalMonth+=dir; if(dcalMonth<0){ dcalMonth=11; dcalYear--; } if(dcalMonth>11){ dcalMonth=0; dcalYear++; } renderDcal(); }
 function renderDcal(){
-  document.getElementById('dcalLabel').textContent=DCAL_MONTHS[dcalMonth]+' '+dcalYear;
-  var grid=document.getElementById('dcalGrid'); grid.innerHTML='';
-  DCAL_DOWS.forEach(function(d){var el=document.createElement('div');el.className='dcal-dow';el.textContent=d;grid.appendChild(el);});
-  var firstDay=new Date(dcalYear,dcalMonth,1);
+  var labelEl=document.getElementById('dcalLabel');
+  var grid=document.getElementById('dcalGrid');
+  if(!labelEl || !grid) return;
+  labelEl.textContent=DCAL_MONTHS[dcalMonth]+' '+dcalYear;
+  grid.innerHTML='';
+  DCAL_DOWS.forEach(function(d){ var el=document.createElement('div'); el.className='dcal-dow'; el.textContent=d; grid.appendChild(el); });
+  var firstDay=new Date(dcalYear, dcalMonth, 1);
   var startOffset=(firstDay.getDay()+6)%7;
-  var daysInMonth=new Date(dcalYear,dcalMonth+1,0).getDate();
-  var daysInPrev=new Date(dcalYear,dcalMonth,0).getDate();
-  for(var i=0;i<startOffset;i++){var el=document.createElement('div');el.className='dcal-day muted';el.textContent=daysInPrev-startOffset+i+1;grid.appendChild(el);}
-  for(var d=1;d<=daysInMonth;d++){
+  var daysInMonth=new Date(dcalYear, dcalMonth+1, 0).getDate();
+  var daysInPrev=new Date(dcalYear, dcalMonth, 0).getDate();
+  for(var i=0; i<startOffset; i++){ var el=document.createElement('div'); el.className='dcal-day muted'; el.textContent=daysInPrev-startOffset+i+1; grid.appendChild(el); }
+  for(var d=1; d<=daysInMonth; d++){
     (function(day){
-      var el=document.createElement('div');el.className='dcal-day';el.textContent=day;
-      var thisDate=new Date(dcalYear,dcalMonth,day);
-      if(dcalRangeStart&&sameDayDc(thisDate,dcalRangeStart))el.classList.add('range-start');
-      if(dcalRangeEnd&&sameDayDc(thisDate,dcalRangeEnd))el.classList.add('range-end');
-      if(dcalRangeStart&&dcalRangeEnd&&thisDate>dcalRangeStart&&thisDate<dcalRangeEnd)el.classList.add('in-range');
-      el.onclick=function(){pickDcalDate(thisDate);};
+      var el=document.createElement('div');
+      el.className='dcal-day';
+      el.textContent=day;
+      var thisDate=new Date(dcalYear, dcalMonth, day);
+      if(dcalRangeStart&&sameDayDc(thisDate, dcalRangeStart)) el.classList.add('range-start');
+      if(dcalRangeEnd&&sameDayDc(thisDate, dcalRangeEnd)) el.classList.add('range-end');
+      if(dcalRangeStart&&dcalRangeEnd&&thisDate>dcalRangeStart&&thisDate<dcalRangeEnd) el.classList.add('in-range');
+      el.onclick=function(){ pickDcalDate(thisDate); };
       grid.appendChild(el);
     })(d);
   }
   updateDcalTxt();
 }
-function sameDayDc(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
-function pickDcalDate(d){if(!dcalRangeStart||(dcalRangeStart&&dcalRangeEnd)){dcalRangeStart=d;dcalRangeEnd=null;}else{if(d<dcalRangeStart){dcalRangeEnd=dcalRangeStart;dcalRangeStart=d;}else{dcalRangeEnd=d;}}renderDcal();var warnEl=document.getElementById('dashSearchWarn');if(warnEl)warnEl.style.display='none';}
-function fmtDc(d){return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();}
-function updateDcalTxt(){var t=document.getElementById('dcalSelectedTxt');if(dcalRangeStart&&dcalRangeEnd)t.textContent=fmtDc(dcalRangeStart)+' → '+fmtDc(dcalRangeEnd);else if(dcalRangeStart)t.textContent=fmtDc(dcalRangeStart)+' seçildi — bitiş tarixini seçin';else t.textContent='Başlanğıc tarixi seçin';}
+function sameDayDc(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function pickDcalDate(d){
+  if(!dcalRangeStart||(dcalRangeStart&&dcalRangeEnd)){ dcalRangeStart=d; dcalRangeEnd=null; }
+  else { if(d<dcalRangeStart){ dcalRangeEnd=dcalRangeStart; dcalRangeStart=d; } else { dcalRangeEnd=d; } }
+  renderDcal();
+  var warnEl=document.getElementById('dashSearchWarn');
+  if(warnEl) warnEl.style.display='none';
+}
+function fmtDc(d){ return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear(); }
+function updateDcalTxt(){
+  var t=document.getElementById('dcalSelectedTxt');
+  if(!t) return;
+  if(dcalRangeStart&&dcalRangeEnd) t.textContent=fmtDc(dcalRangeStart)+' → '+fmtDc(dcalRangeEnd);
+  else if(dcalRangeStart) t.textContent=fmtDc(dcalRangeStart)+' seçildi — bitiş tarixini seçin';
+  else t.textContent='Başlanğıc tarixi seçin';
+}
 initDcal();
 
 function runDashSearch(){
   var hasRange=dcalRangeStart&&dcalRangeEnd;
-  var hasActiveCat=Object.keys(dashActiveChips).some(function(k){return dashActiveChips[k];});
-  if(!hasRange&&!hasActiveCat){document.getElementById('dashSearchWarn').style.display='flex';return;}
+  var hasActiveCat=Object.keys(dashActiveChips).some(function(k){ return dashActiveChips[k]; });
+  if(!hasRange&&!hasActiveCat){ document.getElementById('dashSearchWarn').style.display='flex'; return; }
   document.getElementById('dashSearchWarn').style.display='none';
-  if(hasRange){dashCustomRange={start:new Date(dcalRangeStart.getFullYear(),dcalRangeStart.getMonth(),dcalRangeStart.getDate(),0,0,0),end:new Date(dcalRangeEnd.getFullYear(),dcalRangeEnd.getMonth(),dcalRangeEnd.getDate(),23,59,59)};document.querySelectorAll('#dashTabs .dash-tab').forEach(function(t){t.classList.remove('active');});}
+  if(hasRange){
+    dashCustomRange={
+      start:new Date(dcalRangeStart.getFullYear(), dcalRangeStart.getMonth(), dcalRangeStart.getDate(), 0, 0, 0),
+      end:new Date(dcalRangeEnd.getFullYear(), dcalRangeEnd.getMonth(), dcalRangeEnd.getDate(), 23, 59, 59)
+    };
+    document.querySelectorAll('#dashTabs .dash-tab').forEach(function(t){ t.classList.remove('active'); });
+  }
   document.getElementById('dashModalFilterBody').style.display='none';
   document.getElementById('dashModalTitle').textContent='Nəticələr';
-  var resultsPanel=document.getElementById('dashModalResults'); resultsPanel.classList.add('open');
+  var resultsPanel=document.getElementById('dashModalResults');
+  resultsPanel.classList.add('open');
   document.getElementById('dashModalResultsBody').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:50px 0;"><div class="spinner" style="width:38px;height:38px;border-width:4px;"></div><div style="font-size:13.5px;color:#5C7089;font-weight:600;">Hazırlanır...</div></div>';
-  setTimeout(function(){dashComputeAndRender();renderDashModalResults();},1400);
+  setTimeout(function(){ dashComputeAndRender(); renderDashModalResults(); }, 1400);
 }
-function dashPivotBlock(title,items,countLabel,nameHeader){
-  if(!items||items.length===0)return'';
+function dashPivotBlock(title, items, countLabel, nameHeader){
+  if(!items||items.length===0) return '';
   var b='<div style="font-size:12px;font-weight:700;color:#8CA0BC;margin-bottom:8px;">'+title+'</div>';
   b+='<div class="dash-ranklist-wrap" style="margin-bottom:20px;"><table class="dash-ranklist"><thead><tr><th class="dr-num-col"></th><th>'+(nameHeader||'Ad')+'</th><th class="dr-count-col">'+(countLabel||'Servis sayı')+'</th></tr></thead><tbody>'+buildRankTableRows(items.slice(0,10))+'</tbody></table></div>';
   return b;
 }
 function renderDashModalResults(){
   var filtered=dashGetFilteredRows();
-  var activeAny=Object.keys(dashActiveChips).some(function(k){return dashActiveChips[k];});
+  var activeAny=Object.keys(dashActiveChips).some(function(k){ return dashActiveChips[k]; });
   var html='<div style="font-size:13px;font-weight:700;color:#12233B;margin-bottom:16px;">Tapılan servis sayı: <span style="color:#2F6FED;">'+filtered.length+'</span></div>';
-  if(dashActiveChips['Problem'])html+=dashPivotBlock('Problem üzrə bölgü',dashCount(filtered,'Problem',false),'Servis sayı','Problem');
-  if(dashActiveChips['Həll'])html+=dashPivotBlock('Həll üzrə bölgü',dashCount(filtered,'Həll',true),'Servis sayı','Həll');
-  if(dashActiveChips['Daşıyıcı'])html+=dashPivotBlock('Daşıyıcı üzrə bölgü',dashCount(filtered,'Daşıyıcı',false),'Servis sayı','Daşıyıcı');
-  if(dashActiveChips['Qrup Rəhbəri'])html+=dashPivotBlock('Qrup Rəhbəri üzrə bölgü',dashCount(filtered,'Qrup rəhbəri',false),'Servis sayı','Qrup Rəhbəri');
-  if(dashActiveChips['Texnik'])html+=dashPivotBlock('Texnik üzrə bölgü',dashCountTech(filtered),'Servis sayı','Texnik');
-  if(dashActiveChips['Servis verilən Ünvan'])html+=dashPivotBlock('Servis verilən ünvan üzrə bölgü',dashCountLocation(filtered),'Servis sayı','Ünvan');
-  if(dashActiveChips['Servis Kateqoriyaları'])html+=dashPivotBlock('Servis kateqoriyası üzrə bölgü',dashCount(filtered,'Servis Kat.',false),'Servis sayı','Kateqoriya');
-  if(!activeAny)html+=dashPivotBlock('Ən çox rast gəlinən problem (ümumi baxış)',dashCount(filtered,'Problem',false).slice(0,4),'Servis sayı','Problem');
+  if(dashActiveChips['Problem']) html+=dashPivotBlock('Problem üzrə bölgü', dashCount(filtered, 'Problem', false), 'Servis sayı', 'Problem');
+  if(dashActiveChips['Həll']) html+=dashPivotBlock('Həll üzrə bölgü', dashCount(filtered, 'Həll', true), 'Servis sayı', 'Həll');
+  if(dashActiveChips['Daşıyıcı']) html+=dashPivotBlock('Daşıyıcı üzrə bölgü', dashCount(filtered, 'Daşıyıcı', false), 'Servis sayı', 'Daşıyıcı');
+  if(dashActiveChips['Qrup Rəhbəri']) html+=dashPivotBlock('Qrup Rəhbəri üzrə bölgü', dashCount(filtered, 'Qrup rəhbəri', false), 'Servis sayı', 'Qrup Rəhbəri');
+  if(dashActiveChips['Texnik']) html+=dashPivotBlock('Texnik üzrə bölgü', dashCountTech(filtered), 'Servis sayı', 'Texnik');
+  if(dashActiveChips['Servis verilən Ünvan']) html+=dashPivotBlock('Servis verilən ünvan üzrə bölgü', dashCountLocation(filtered), 'Servis sayı', 'Ünvan');
+  if(dashActiveChips['Servis Kateqoriyaları']) html+=dashPivotBlock('Servis kateqoriyası üzrə bölgü', dashCount(filtered, 'Servis Kat.', false), 'Servis sayı', 'Kateqoriya');
+  if(!activeAny) html+=dashPivotBlock('Ən çox rast gəlinən problem (ümumi baxış)', dashCount(filtered, 'Problem', false).slice(0,4), 'Servis sayı', 'Problem');
   html+='<div style="font-size:12px;color:#8CA0BC;line-height:1.5;">Tam hesabat əsas Dashboard səhifəsində də yeniləndi.</div>';
   document.getElementById('dashModalResultsBody').innerHTML=html;
 }
 function exportDashboardExcel(){
-  if(typeof XLSX==='undefined'){alert('Excel kitabxanası yüklənməyib');return;}
+  if(typeof XLSX==='undefined'){ alert('Excel kitabxanası yüklənməyib'); return; }
   var filtered=dashGetFilteredRows();
   var wb=XLSX.utils.book_new();
-  function addSheet(name,items,headers){var aoa=[headers];items.forEach(function(it){aoa.push([it.name,it.count]);});XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),name);}
-  addSheet('Problem',dashCount(filtered,'Problem',false),['Problem','Say']);
-  addSheet('Hell',dashCount(filtered,'Həll',true),['Hell','Say']);
-  addSheet('Kateqoriya',dashCount(filtered,'Servis Kat.',false),['Kateqoriya','Say']);
-  addSheet('Texnik',dashCountTech(filtered),['Texnik','Say']);
-  addSheet('Rehber',dashCount(filtered,'Qrup rəhbəri',false),['Qrup Rehberi','Say']);
-  addSheet('Dasiyici',dashCount(filtered,'Daşıyıcı',false),['Dasiyici','Say']);
-  addSheet('Unvan',dashCountLocation(filtered),['Unvan','Say']);
-  var recur=dashCountRecurringBuses(filtered);var recurAoa=[['D.Q.N.','BUS ID','Say']];recur.forEach(function(it){recurAoa.push([it.plate,it.busId,it.count]);});
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(recurAoa),'Tekrarlanan');
+  function addSheet(name, items, headers){ var aoa=[headers]; items.forEach(function(it){ aoa.push([it.name, it.count]); }); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), name); }
+  addSheet('Problem', dashCount(filtered, 'Problem', false), ['Problem','Say']);
+  addSheet('Hell', dashCount(filtered, 'Həll', true), ['Hell','Say']);
+  addSheet('Kateqoriya', dashCount(filtered, 'Servis Kat.', false), ['Kateqoriya','Say']);
+  addSheet('Texnik', dashCountTech(filtered), ['Texnik','Say']);
+  addSheet('Rehber', dashCount(filtered, 'Qrup rəhbəri', false), ['Qrup Rehberi','Say']);
+  addSheet('Dasiyici', dashCount(filtered, 'Daşıyıcı', false), ['Dasiyici','Say']);
+  addSheet('Unvan', dashCountLocation(filtered), ['Unvan','Say']);
+  var recur=dashCountRecurringBuses(filtered);
+  var recurAoa=[['D.Q.N.','BUS ID','Say']];
+  recur.forEach(function(it){ recurAoa.push([it.plate||'', it.busId, it.count]); });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(recurAoa), 'Tekrarlanan');
   var today=new Date();
-  XLSX.writeFile(wb,'BUS_Dashboard_'+String(today.getDate()).padStart(2,'0')+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+today.getFullYear()+'.xlsx');
+  XLSX.writeFile(wb, 'BUS_Dashboard_'+String(today.getDate()).padStart(2,'0')+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+today.getFullYear()+'.xlsx');
 }
 function exportToExcel(){
-  if(rptFiltered.length===0){alert('Export üçün məlumat yoxdur');return;}
-  if(typeof XLSX==='undefined'){alert('Excel kitabxanası yüklənməyib');return;}
-  var cols=rptColumns; var wsData=[cols];
-  rptFiltered.forEach(function(row){wsData.push(cols.map(function(c){return row[c]||'';}));});
+  if(rptFiltered.length===0){ alert('Export üçün məlumat yoxdur'); return; }
+  if(typeof XLSX==='undefined'){ alert('Excel kitabxanası yüklənməyib'); return; }
+  var cols=rptColumns;
+  var wsData=[cols];
+  rptFiltered.forEach(function(row){ wsData.push(cols.map(function(c){ return row[c]||''; })); });
   var ws=XLSX.utils.aoa_to_sheet(wsData);
-  var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'BUS Report');
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'BUS Report');
   var today=new Date();
-  XLSX.writeFile(wb,'BUS_Report_'+String(today.getDate()).padStart(2,'0')+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+today.getFullYear()+'.xlsx');
+  XLSX.writeFile(wb, 'BUS_Report_'+String(today.getDate()).padStart(2,'0')+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+today.getFullYear()+'.xlsx');
 }
 
 // ═══════════════════════════════════════════════════
@@ -966,34 +1390,34 @@ function exportToExcel(){
 var pendingBsDraft=null;
 function offerBsDraftRestore(draft){
   pendingBsDraft=draft;
-  var minsAgo=Math.max(1,Math.round((Date.now()-(draft.savedAt||0))/60000));
+  var minsAgo=Math.max(1, Math.round((Date.now()-(draft.savedAt||0))/60000));
   var timeText=minsAgo<60?(minsAgo+' dəqiqə əvvəl'):(Math.round(minsAgo/60)+' saat əvvəl');
   document.getElementById('bsDraftConfirmText').textContent='Bu formada '+timeText+' saxlanılmış yarımçıq məlumat var. Davam etmək istəyirsiniz?';
   document.getElementById('bsDraftConfirmOverlay').style.display='flex';
 }
-function acceptBsDraft(){ document.getElementById('bsDraftConfirmOverlay').style.display='none'; if(pendingBsDraft)restoreBsDraft(pendingBsDraft); pendingBsDraft=null; }
+function acceptBsDraft(){ document.getElementById('bsDraftConfirmOverlay').style.display='none'; if(pendingBsDraft) restoreBsDraft(pendingBsDraft); pendingBsDraft=null; }
 function declineBsDraft(){ document.getElementById('bsDraftConfirmOverlay').style.display='none'; clearBsDraft(); pendingBsDraft=null; }
 
 // ═══════════════════════════════════════════════════
 // PULL-TO-REFRESH
 // ═══════════════════════════════════════════════════
-var ptrStartY=0,ptrTracking=false,PTR_THRESHOLD=80;
-function isUnsavedWorkPresent(){var bsView=document.getElementById('busServiceView');return bsFormDirty&&bsView&&bsView.style.display!=='none';}
-document.addEventListener('touchstart',function(e){ptrTracking=(window.scrollY===0&&document.documentElement.scrollTop===0);ptrStartY=e.touches[0].clientY;},{passive:true});
-document.addEventListener('touchmove',function(e){if(!ptrTracking)return;if(e.touches[0].clientY-ptrStartY>PTR_THRESHOLD){ptrTracking=false;triggerPullRefresh();}},{passive:true});
-document.addEventListener('touchend',function(){ptrTracking=false;});
-function triggerPullRefresh(){if(isUnsavedWorkPresent()){document.getElementById('bsRefreshConfirmOverlay').style.display='flex';}else{location.reload();}}
-function cancelPullRefresh(){document.getElementById('bsRefreshConfirmOverlay').style.display='none';}
-function confirmPullRefresh(){document.getElementById('bsRefreshConfirmOverlay').style.display='none';clearBsDraft();location.reload();}
-window.addEventListener('beforeunload',function(e){if(isUnsavedWorkPresent()){e.preventDefault();e.returnValue='';}});
+var ptrStartY=0, ptrTracking=false, PTR_THRESHOLD=80;
+function isUnsavedWorkPresent(){ var bsView=document.getElementById('busServiceView'); return bsFormDirty&&bsView&&bsView.style.display!=='none'; }
+document.addEventListener('touchstart', function(e){ ptrTracking=(window.scrollY===0&&document.documentElement.scrollTop===0); ptrStartY=e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchmove', function(e){ if(!ptrTracking) return; if(e.touches[0].clientY-ptrStartY>PTR_THRESHOLD){ ptrTracking=false; triggerPullRefresh(); } }, {passive:true});
+document.addEventListener('touchend', function(){ ptrTracking=false; });
+function triggerPullRefresh(){ if(isUnsavedWorkPresent()){ document.getElementById('bsRefreshConfirmOverlay').style.display='flex'; } else { location.reload(); } }
+function cancelPullRefresh(){ document.getElementById('bsRefreshConfirmOverlay').style.display='none'; }
+function confirmPullRefresh(){ document.getElementById('bsRefreshConfirmOverlay').style.display='none'; clearBsDraft(); location.reload(); }
+window.addEventListener('beforeunload', function(e){ if(isUnsavedWorkPresent()){ e.preventDefault(); e.returnValue=''; } });
 
 // ═══════════════════════════════════════════════════
 // BUS BULK SERVICE
 // ═══════════════════════════════════════════════════
-var bkCalYear,bkCalMonth,bkSelectedDate=null;
+var bkCalYear, bkCalMonth, bkSelectedDate=null;
 var BK_DOWS=['B','E','Ç','A','C','Ş','B'];
 var BK_MONTHS=['Yanvar','Fevral','Mart','Aprel','May','İyun','İyul','Avqust','Sentyabr','Oktyabr','Noyabr','Dekabr'];
-var bkPreviewData=null,bkFormDataLoaded=false;
+var bkPreviewData=null, bkFormDataLoaded=false;
 
 function openBusBulk(){
   // Yalnız Admin və Team Leader üçün
@@ -1018,103 +1442,164 @@ function openBusBulk(){
   bkUpdateImportCount();
 }
 
-function closeBusBulk(){document.getElementById('busBulkView').style.display='none';document.getElementById('busServiceView').style.display='block';}
+function closeBusBulk(){
+  document.getElementById('busBulkView').style.display = 'none';
+  document.getElementById('busServiceView').style.display = 'block';
+}
 
 function ensureBulkFormData(){
-  if(bsFormData&&bsFormData.carriers){bkFillSelects();bkFormDataLoaded=true;return;}
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getFormData'})})
-    .then(function(r){return r.json();})
-    .then(function(d){if(d.status==='OK'){bsFormData=d;}bkFillSelects();bkFormDataLoaded=true;});
+  if(bsFormData && bsFormData.carriers){ bkFillSelects(); bkFormDataLoaded=true; return; }
+  fetch(API_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'getFormData'})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status === 'OK'){
+      bsFormData = d;
+    }
+    bkFillSelects();
+    bkFormDataLoaded = true;
+  });
 }
 
 function bkFillSelects(){
-  var d=bsFormData||{};
-  bkFillSel('bk_carrier',d.carriers,'Seçin');
-  bkFillSel('bk_category',d.busEquipment,'Seçin');
-  bkFillSel('bk_location',d.locations,'Seçin (könüllü)');
-  bkFillSel('bk_tech1',d.technicians,'Seçin');
-  bkFillSel('bk_tech2',d.technicians,'Seçin');
-  bkFillSel('bk_leader',d.leaders,'Seçin');
-  var locEl=document.getElementById('bk_location');
-  if(locEl)locEl.onchange=function(){var isDigar=(this.value).toLowerCase().indexOf('digər')!==-1;document.getElementById('bk_location_note_wrap').style.display=isDigar?'block':'none';};
+  var d = bsFormData || {};
+  bkFillSel('bk_carrier', d.carriers, 'Seçin');
+  bkFillSel('bk_category', d.busEquipment, 'Seçin');
+  bkFillSel('bk_location', d.locations, 'Seçin (könüllü)');
+  bkFillSel('bk_tech1', d.technicians, 'Seçin');
+  bkFillSel('bk_tech2', d.technicians, 'Seçin');
+  bkFillSel('bk_leader', d.leaders, 'Seçin');
+  
+  var locEl = document.getElementById('bk_location');
+  if(locEl){
+    locEl.onchange = function(){
+      var isDigar = (this.value || '').toLowerCase().indexOf('digər') !== -1;
+      document.getElementById('bk_location_note_wrap').style.display = isDigar ? 'block' : 'none';
+    };
+  }
 }
 
-function bkFillSel(id,arr,placeholder){
-  var el=document.getElementById(id);if(!el)return;
-  el.innerHTML='<option value="">'+placeholder+'</option>'+(arr||[]).map(function(x){return'<option value="'+escapeHtml(x)+'">'+escapeHtml(x)+'</option>';}).join('');
+function bkFillSel(id, arr, placeholder){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = '<option value="">' + placeholder + '</option>' + (arr || []).map(function(x){ return '<option value="' + escapeHtml(x) + '">' + escapeHtml(x) + '</option>'; }).join('');
 }
 
 function renderBkCal(){
-  var labelEl=document.getElementById('bkCalLabel');
-  var daysEl=document.getElementById('bkCalDays');
-  if(!labelEl||!daysEl)return;
-  labelEl.textContent=BK_MONTHS[bkCalMonth]+' '+bkCalYear;
-  daysEl.innerHTML='';
-  daysEl.style.display='contents';
-  var firstDay=new Date(bkCalYear,bkCalMonth,1);
-  var startOffset=(firstDay.getDay()+6)%7;
-  var daysInMonth=new Date(bkCalYear,bkCalMonth+1,0).getDate();
-  var daysInPrev=new Date(bkCalYear,bkCalMonth,0).getDate();
-  var today=bakuNowDate();
-  for(var i=0;i<startOffset;i++){var el=document.createElement('div');el.className='bk-cal-day muted';el.textContent=daysInPrev-startOffset+i+1;daysEl.appendChild(el);}
-  for(var d=1;d<=daysInMonth;d++){
+  var labelEl = document.getElementById('bkCalLabel');
+  var daysEl = document.getElementById('bkCalDays');
+  if(!labelEl || !daysEl) return;
+  
+  labelEl.textContent = BK_MONTHS[bkCalMonth] + ' ' + bkCalYear;
+  daysEl.innerHTML = '';
+  
+  var firstDay = new Date(bkCalYear, bkCalMonth, 1);
+  var startOffset = (firstDay.getDay() + 6) % 7;
+  var daysInMonth = new Date(bkCalYear, bkCalMonth + 1, 0).getDate();
+  var daysInPrev = new Date(bkCalYear, bkCalMonth, 0).getDate();
+  var today = bakuNowDate();
+  
+  // Öncəki ayın günləri (boş xanalar)
+  for(var i = 0; i < startOffset; i++){
+    var el = document.createElement('div');
+    el.className = 'bk-cal-day muted';
+    el.textContent = daysInPrev - startOffset + i + 1;
+    daysEl.appendChild(el);
+  }
+  
+  // Cari ayın günləri
+  for(var d = 1; d <= daysInMonth; d++){
     (function(day){
-      var el=document.createElement('div');el.className='bk-cal-day';el.textContent=day;
-      var thisDate=new Date(bkCalYear,bkCalMonth,day);
-      if(bkSameDay(thisDate,today))el.classList.add('today');
-      if(bkSelectedDate&&bkSameDay(thisDate,bkSelectedDate))el.classList.add('selected');
-      el.onclick=function(){bkSelectedDate=thisDate;renderBkCal();bkUpdateImportCount();};
+      var el = document.createElement('div');
+      el.className = 'bk-cal-day';
+      el.textContent = day;
+      var thisDate = new Date(bkCalYear, bkCalMonth, day);
+      if(bkSameDay(thisDate, today)) el.classList.add('today');
+      if(bkSelectedDate && bkSameDay(thisDate, bkSelectedDate)) el.classList.add('selected');
+      el.onclick = function(){
+        bkSelectedDate = thisDate;
+        renderBkCal();
+        bkUpdateImportCount();
+      };
       daysEl.appendChild(el);
     })(d);
   }
 }
 
-function bkSameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function bkSameDay(a, b){
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
 
-function bkCalNav(dir){bkCalMonth+=dir;if(bkCalMonth<0){bkCalMonth=11;bkCalYear--;}if(bkCalMonth>11){bkCalMonth=0;bkCalYear++;}renderBkCal();}
+function bkCalNav(dir){
+  bkCalMonth += dir;
+  if(bkCalMonth < 0){ bkCalMonth = 11; bkCalYear--; }
+  if(bkCalMonth > 11){ bkCalMonth = 0; bkCalYear++; }
+  renderBkCal();
+}
 
-function bkFormatTime(el){var digits=el.value.replace(/[^0-9]/g,'').slice(0,4);el.value=digits.length>2?digits.slice(0,2)+':'+digits.slice(2):digits;}
+function bkFormatTime(el){
+  var digits = el.value.replace(/[^0-9]/g, '').slice(0, 4);
+  el.value = digits.length > 2 ? digits.slice(0, 2) + ':' + digits.slice(2) : digits;
+}
 
-function bkGetTime(id){var v=(document.getElementById(id)||{}).value||'';v=v.trim();return/^([01]\d|2[0-3])[0-5]\d$/.test(v)?v:'';}
+function bkGetTime(id){
+  var v = (document.getElementById(id) || {}).value || '';
+  v = v.trim();
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : '';
+}
 
 function bkOnCarrierChange(){
-  var carrier=document.getElementById('bk_carrier').value;
-  var wrap=document.getElementById('bkCarrierCountWrap');
-  bkPreviewData=null;bkClosePreview();bkUpdateImportCount();
-  if(!carrier){wrap.innerHTML='';return;}
-  var matches=(bsFormData&&bsFormData.busRegistry?bsFormData.busRegistry:[]).filter(function(r){return String(r.carrier).trim().toLowerCase()===carrier.trim().toLowerCase();});
-  if(matches.length===0){wrap.innerHTML='<div class="bk-count-badge empty"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="bk-count-num">0</div><div class="bk-count-txt">Bu daşıyıcıya aid avtobus tapılmadı</div></div></div>';}
-  else{wrap.innerHTML='<div class="bk-count-badge"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div><div><div class="bk-count-num">'+matches.length+'</div><div class="bk-count-txt">avtobus tapıldı</div></div></div>';}
+  var carrier = document.getElementById('bk_carrier').value;
+  var wrap = document.getElementById('bkCarrierCountWrap');
+  bkUpdateImportCount();
+  
+  if(!carrier){
+    wrap.innerHTML = '';
+    return;
+  }
+  
+  var matches = (bsFormData && bsFormData.busRegistry ? bsFormData.busRegistry : []).filter(function(r){
+    return String(r.carrier || '').trim().toLowerCase() === carrier.trim().toLowerCase();
+  });
+  
+  if(matches.length === 0){
+    wrap.innerHTML = '<div class="bk-count-badge empty"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="bk-count-num">0</div><div class="bk-count-txt">Bu daşıyıcıya aid avtobus tapılmadı</div></div></div>';
+  } else {
+    wrap.innerHTML = '<div class="bk-count-badge"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div><div><div class="bk-count-num">' + matches.length + '</div><div class="bk-count-txt">avtobus tapıldı</div></div></div>';
+  }
 }
 
 function bkCollectData(){
-  return{
-    carrier:document.getElementById('bk_carrier').value,
-    report_date:bkSelectedDate?bkDateIso(bkSelectedDate):'',
-    service_start_time:bkGetTime('bk_start_time'),
-    service_end_time:bkGetTime('bk_end_time'),
-    changed_device_type:document.getElementById('bk_category').value,
-    service_location:document.getElementById('bk_location').value,
-    service_location_note:document.getElementById('bk_location_note')?document.getElementById('bk_location_note').value:'',
-    request_template:document.getElementById('bk_request_tmpl').value.trim(),
-    note:document.getElementById('bk_note').value.trim(),
-    solution_template:document.getElementById('bk_solution_tmpl').value.trim(),
-    technician_1:document.getElementById('bk_tech1').value,
-    technician_2:document.getElementById('bk_tech2').value,
-    team_leader:document.getElementById('bk_leader').value
+  return {
+    carrier: document.getElementById('bk_carrier').value,
+    report_date: bkSelectedDate ? bkDateIso(bkSelectedDate) : '',
+    service_start_time: bkGetTime('bk_start_time'),
+    service_end_time: bkGetTime('bk_end_time'),
+    changed_device_type: document.getElementById('bk_category').value,
+    service_location: document.getElementById('bk_location').value,
+    service_location_note: document.getElementById('bk_location_note') ? document.getElementById('bk_location_note').value : '',
+    request_template: document.getElementById('bk_request_tmpl').value.trim(),
+    note: document.getElementById('bk_note').value.trim(),
+    solution_template: document.getElementById('bk_solution_tmpl').value.trim(),
+    technician_1: document.getElementById('bk_tech1').value,
+    technician_2: document.getElementById('bk_tech2').value,
+    team_leader: document.getElementById('bk_leader').value
   };
 }
 
 function bkValidate(data){
-  if(!data.carrier)return'Daşıyıcı firma seçilməyib';
-  if(!data.report_date)return'Servis tarixi seçilməyib';
-  if(!data.service_start_time)return'Servis başlanğıc saatı düzgün deyil';
-  if(!data.service_end_time)return'Servis bitiş saatı düzgün deyil';
-  if(!data.changed_device_type)return'Servis kateqoriyası seçilməyib';
-  if(!data.request_template)return'Tələb (şablon) mətni boşdur';
-  if(!data.solution_template)return'Həll (şablon) mətni boşdur';
-  if(!data.team_leader)return'Qrup rəhbəri seçilməyib';
-  if(data.service_location&&data.service_location.toLowerCase().indexOf('digər')!==-1&&!data.service_location_note)return'Ünvan qeydi yazın';
+  if(!data.carrier) return 'Daşıyıcı firma seçilməyib';
+  if(!data.report_date) return 'Servis tarixi seçilməyib';
+  if(!data.service_start_time) return 'Servis başlanğıc saatı düzgün deyil';
+  if(!data.service_end_time) return 'Servis bitiş saatı düzgün deyil';
+  if(!data.changed_device_type) return 'Servis kateqoriyası seçilməyib';
+  if(!data.request_template) return 'Tələb (şablon) mətni boşdur';
+  if(!data.solution_template) return 'Həll (şablon) mətni boşdur';
+  if(!data.team_leader) return 'Qrup rəhbəri seçilməyib';
+  if(data.service_location && data.service_location.toLowerCase().indexOf('digər') !== -1 && !data.service_location_note) return 'Ünvan qeydi yazın';
   return null;
 }
 
@@ -1123,7 +1608,7 @@ function bkUpdateImportCount(){
   var count = 0;
   if(carrier && bsFormData && bsFormData.busRegistry){
     count = (bsFormData.busRegistry || []).filter(function(r){
-      return String(r.carrier).trim().toLowerCase() === carrier.trim().toLowerCase();
+      return String(r.carrier || '').trim().toLowerCase() === carrier.trim().toLowerCase();
     }).length;
   }
   var el = document.getElementById('bkImportCount');
@@ -1152,7 +1637,7 @@ function bkSubmitDirect(){
   fetch(API_URL,{
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify({action:'previewBulkImport',data:data})
+    body:JSON.stringify({action:'previewBulkImport', data: data})
   })
   .then(function(r){ return r.json(); })
   .then(function(d){
@@ -1203,9 +1688,9 @@ function bkRunImport(data, count){
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify({
-      action:'submitBulkImport',
-      data:data,
-      userEmail:currentUser ? currentUser.email : ''
+      action: 'submitBulkImport',
+      data: data,
+      userEmail: currentUser ? currentUser.email : ''
     })
   })
   .then(function(r){ return r.json(); })
@@ -1239,17 +1724,36 @@ function bkRunImport(data, count){
 }
 
 function resetBulkForm(){
-  bkClosePreview();bkPreviewData=null;
-  ['bk_carrier','bk_category','bk_location','bk_tech1','bk_tech2','bk_leader'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-  ['bk_location_note','bk_request_tmpl','bk_note','bk_solution_tmpl','bk_start_time','bk_end_time'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('bk_location_note_wrap').style.display='none';
-  document.getElementById('bkCarrierCountWrap').innerHTML='';
-  var now=bakuNowDate();
-  bkCalYear=now.getFullYear();bkCalMonth=now.getMonth();
-  bkSelectedDate=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  renderBkCal();bkUpdateImportCount();
+  bkClosePreview();
+  bkPreviewData = null;
+  ['bk_carrier','bk_category','bk_location','bk_tech1','bk_tech2','bk_leader'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  ['bk_location_note','bk_request_tmpl','bk_note','bk_solution_tmpl','bk_start_time','bk_end_time'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  document.getElementById('bk_location_note_wrap').style.display = 'none';
+  document.getElementById('bkCarrierCountWrap').innerHTML = '';
+  var now = bakuNowDate();
+  bkCalYear = now.getFullYear();
+  bkCalMonth = now.getMonth();
+  bkSelectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  renderBkCal();
+  bkUpdateImportCount();
 }
 
 // Köhnə funksiyalar (uyğunluq üçün saxlanılır)
 function bkOpenPreview(){ /* Ön baxış funksiyası artıq istifadə olunmur */ }
 function bkClosePreview(){ /* Ön baxış funksiyası artıq istifadə olunmur */ }
+function bkDateChanged(val){
+  if(!val) return;
+  var parts = val.split('-');
+  var d = new Date(+parts[0], +parts[1]-1, +parts[2]);
+  bkSelectedDate = d;
+  renderBkCal();
+  bkUpdateImportCount();
+}
+function bkDateIso(d){ return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function bkDateAz(d){ return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + d.getFullYear(); }
