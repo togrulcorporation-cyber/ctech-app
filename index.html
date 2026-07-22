@@ -1227,7 +1227,7 @@ body.dark-mode .bk-btn-ghost { background:#1C2A3D; color:#8FB4EA; }
   max-width:1500px;
   margin:0 auto;
   align-items:start;
-  transition:grid-template-columns .35s cubic-bezier(.4,0,.2,1);
+  transition:none;
 }
 .bk-grid.preview-open { grid-template-columns:1fr 1fr 1.3fr; }
 
@@ -1381,9 +1381,7 @@ body.dark-mode .bk-btn-outline { background:#1C2A3D; border-color:#4A6182; color
   box-shadow:0 20px 45px rgba(30,68,130,.10);
   display:flex; flex-direction:column;
   max-height:calc(100vh - 160px);
-  animation:bkSlideIn .35s cubic-bezier(.4,0,.2,1);
 }
-@keyframes bkSlideIn { from{opacity:0;transform:translateX(24px);} to{opacity:1;transform:translateX(0);} }
 body.dark-mode .bk-preview-panel { background:#16212E; border-color:#4A6182; }
 .bk-preview-head {
   display:flex; align-items:center; justify-content:space-between;
@@ -1896,16 +1894,16 @@ body.dark-mode #bkLoadingOverlay { background:rgba(15,24,38,.94); }
 
   <div class="bs-body">
 
-  <!-- Bulk Service Banner (yalnız leader/admin, yalnız masaüstü) -->
-    <div id="bsBulkBannerWrap" style="display:none;max-width:520px;margin:0 auto;padding:14px 16px 0;">
-      <button class="bs-bulk-banner-btn" onclick="openBusBulk()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span>Toplu Servis İdxalı (Bulk Service)</span>
-      </button>
-    </div>
-
     <!-- Ticket ID -->
-    <div id="bsTicketRow" style="padding:0 0 8px;"></div>
+    <div id="bsTicketRow" style="padding:0 0 8px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <div id="bsTicketBadge"></div>
+      <div id="bsBulkBannerWrap" style="display:none;">
+        <button onclick="openBusBulk()" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#4E93FA,#2F6FED);color:#fff;border:none;padding:6px 16px;border-radius:10px;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 6px 16px rgba(47,111,237,.28);letter-spacing:.2px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Toplu İdxal
+        </button>
+      </div>
+    </div>
 
     <!-- Tarix / Saat -->
     <div class="bs-section">
@@ -2539,9 +2537,9 @@ function preloadBusData(callback){
       var tid = d.nextTicketId || "BUS-00001";
       bsNextTicketId = tid;
       // Ticket ID-ni forma açıqsa yenilə (yalnız yeni-yaratma rejimində)
-      var row = document.getElementById("bsTicketRow");
-      if(row && !bsEditMode && document.getElementById("busServiceView").style.display !== "none"){
-        row.innerHTML = '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + tid + '</span>';
+      var badge = document.getElementById("bsTicketBadge");
+      if(badge && !bsEditMode && document.getElementById("busServiceView").style.display !== "none"){
+        badge.innerHTML = '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + tid + '</span>';
       }
     }
   })
@@ -2609,9 +2607,6 @@ function openBusService(){
 
   // Yarımçıq qalmış qaralama varsa bərpa təklif et (widget ilə)
   var draft = loadBsDraft();
-
-  // Yarımçıq qalmış qaralama varsa bərpa təklif et (widget ilə)
-  var draft = loadBsDraft();
   if(draft){ offerBsDraftRestore(draft); }
 
   var btn = document.getElementById("bsSubmitBtn");
@@ -2619,10 +2614,11 @@ function openBusService(){
 
   // Ticket ID göstər
   if(bsNextTicketId){
-    document.getElementById("bsTicketRow").innerHTML =
+    document.getElementById("bsTicketBadge").innerHTML =
       '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + bsNextTicketId + '</span>';
   } else {
-    document.getElementById("bsTicketRow").innerHTML = '<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
+    document.getElementById("bsTicketBadge").innerHTML =
+      '<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
     loadBusFormData();
   }
 }
@@ -2641,7 +2637,7 @@ function loadBusFormData(){
     var tid = d.nextTicketId || "BUS-00001";
     bsNextTicketId = tid;
     if(!bsEditMode){
-      document.getElementById("bsTicketRow").innerHTML =
+      document.getElementById("bsTicketBadge").innerHTML =
         '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + tid + '</span>';
     }
   })
@@ -2658,7 +2654,7 @@ function loadBusFormData(){
       leaders:["Mustafa Salmanov","Ramil İbrahimov","Elvin Şamilov","Vüsal Məmmədov","Toğrul Əliyev","Nazim Dinavasov"]
     };
     if(!bsEditMode){
-      document.getElementById("bsTicketRow").innerHTML =
+      document.getElementById("bsTicketBadge").innerHTML =
         '<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>';
     }
   });
@@ -2725,7 +2721,7 @@ function openBusServiceForEdit(ticketId){
     document.getElementById("busServiceView").scrollTop = 0;
 
     // Ticket badge - redaktə rejimi (narıncı)
-    document.getElementById("bsTicketRow").innerHTML =
+    document.getElementById("bsTicketBadge").innerHTML =
       '<span style="display:inline-flex;align-items:center;background:#D97706;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">REDAKTƏ: ' + d.ticketId + '</span>';
 
     var btn = document.getElementById("bsSubmitBtn");
