@@ -1917,7 +1917,9 @@ function tvmLoadFormData(){
     if(!bsFormData.technicians) bsFormData.technicians = d.technicians || [];
   })
   .catch(function(){
-    document.getElementById('tvmTicketBadge').innerHTML =
+    // GS henüz deploy edilməyibsə TVM-????? göstər, overlay açma
+    var badge = document.getElementById('tvmTicketBadge');
+    if(badge) badge.innerHTML =
       '<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:5px 14px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:13px;color:#fff;letter-spacing:1px;">TVM-?????</span>';
   });
 }
@@ -2057,7 +2059,7 @@ function submitTvmService(){
   var sp = document.getElementById('tvmSpinner');
   var ic = document.getElementById('tvmSuccessIcon');
   var tx = document.getElementById('tvmLoadingText');
-  ov.style.display='flex'; sp.style.display='block'; ic.style.display='none';
+  ov.style.display='flex'; ov.style.flexDirection='column'; ov.style.alignItems='center'; ov.style.justifyContent='center'; sp.style.display='block'; ic.style.display='none';
   tx.textContent = 'Göndərilir...';
 
   fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitTvmService',data:data,userEmail:currentUser?currentUser.email:''})})
