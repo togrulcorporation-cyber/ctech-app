@@ -514,11 +514,15 @@ function selectBusRegistryMatch(match){
   if(plateEl && match.dqn) plateEl.value = match.dqn;
   if(busidEl && match.id) busidEl.value = match.id;
   
+  // ✅ Əvvəlcə kilidi aç (dropdown-ları aktiv et)
+  unlockRegistryFields();
+  
+  // ✅ Sonra dəyərləri təyin et
   if(match.carrier) setDDValue('carrier', match.carrier);
   if(match.model) setDDValue('brand', match.model);
   
   closeBusRegistryDD();
-  lockRegistryFields();
+  lockRegistryFields(); // Yenidən kilidlə
   bsFormDirty = true;
   scheduleBsDraftSave();
 }
@@ -1445,6 +1449,8 @@ function openBusBulk(){
 function closeBusBulk(){
   document.getElementById('busBulkView').style.display = 'none';
   document.getElementById('busServiceView').style.display = 'block';
+  // Bulk view-i tam təmizlə
+  resetBulkForm();
 }
 
 function ensureBulkFormData(){
@@ -1464,6 +1470,8 @@ function ensureBulkFormData(){
   });
 }
 
+// bkFillSelects() funksiyasını TAPIN və bu şəkildə DƏYİŞDİRİN:
+
 function bkFillSelects(){
   var d = bsFormData || {};
   bkFillSel('bk_carrier', d.carriers, 'Seçin');
@@ -1472,6 +1480,12 @@ function bkFillSelects(){
   bkFillSel('bk_tech1', d.technicians, 'Seçin');
   bkFillSel('bk_tech2', d.technicians, 'Seçin');
   bkFillSel('bk_leader', d.leaders, 'Seçin');
+  
+  // ✅ YENİ: Tələb şablonu üçün dropdown - BUS_PROBLEMS
+  bkFillSel('bk_request_tmpl', d.busProblems, 'Seçin');
+  
+  // ✅ YENİ: Həll şablonu üçün dropdown - SOLUTIONS
+  bkFillSel('bk_solution_tmpl', d.solutions, 'Seçin');
   
   var locEl = document.getElementById('bk_location');
   if(locEl){
@@ -1672,11 +1686,7 @@ function bkSubmitDirect(){
       setTimeout(function(){ ov.classList.remove('open'); }, 2000);
       return;
     }
-    if(!confirm(d.count + ' avtobus üçün ticket yaradılacaq. Davam edilsin?')){
-      ov.classList.remove('open');
-      btn.disabled = false;
-      return;
-    }
+    // ✅ CONFIRM SİLİNDİ - BİRBAŞA İDXAL
     bkRunImport(data, d.count);
   })
   .catch(function(e){
@@ -1727,17 +1737,23 @@ function bkRunImport(data, count){
       ov.classList.remove('open');
       ic.classList.remove('show');
       ic.style.display = 'none';
-      if(result.status === 'OK'){
-        resetBulkForm();
-        closeBusBulk();
-        if(typeof loadReportData === 'function') loadReportData();
-      }
-    }, 2500);
+      
+      // ✅ Hər halda BUS Service-ə qayıt
+      resetBulkForm();
+      closeBusBulk(); // Bu funksiya busServiceView-i göstərir
+      if(typeof loadReportData === 'function') loadReportData();
+      
+    }, 2000); // 2 saniyə gözlə və qayıt
   })
   .catch(function(e){
     sp.style.display = 'none';
     tx.textContent = '❌ Şəbəkə xətası: ' + e.message;
-    setTimeout(function(){ ov.classList.remove('open'); }, 2000);
+    setTimeout(function(){ 
+      ov.classList.remove('open');
+      // Xəta olsa da BUS Service-ə qayıt
+      resetBulkForm();
+      closeBusBulk();
+    }, 2000);
   });
 }
 

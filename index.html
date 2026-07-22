@@ -846,25 +846,33 @@
 
       <!-- === SECTION 3: Şablon Mətnlər === -->
       <div class="bk-panel">
-        <div class="bk-panel-title">
-          <span class="bk-num">3</span> 📄 Şablon Mətnlər
-        </div>
-        
-        <div class="bk-tmpl-grid">
-          <div class="bk-field">
-            <label class="bk-label">Tələb (şablon) *</label>
-            <textarea class="bk-textarea bk-tmpl-ta" id="bk_request_tmpl" placeholder="Məs. AYNA tərəfindən göndərilən marşrut yenilənməsi tələbinə uyğun olaraq..."></textarea>
-          </div>
-          <div class="bk-field">
-            <label class="bk-label">Qeyd / Note</label>
-            <textarea class="bk-textarea bk-tmpl-ta" id="bk_note" placeholder="Qeyd daxil edin (istəyə bağlı)"></textarea>
-          </div>
-          <div class="bk-field">
-            <label class="bk-label">Həll (şablon) *</label>
-            <textarea class="bk-textarea bk-tmpl-ta" id="bk_solution_tmpl" placeholder="Məs. Sistem vasitəsilə route yenilənməsi uğurla tamamlandı."></textarea>
-          </div>
-        </div>
-      </div>
+  <div class="bk-panel-title">
+    <span class="bk-num">3</span> 📄 Şablon Mətnlər
+  </div>
+  
+  <div class="bk-tmpl-grid">
+    <div class="bk-field">
+      <label class="bk-label">Tələb (şablon) *</label>
+      <!-- ✅ TEXTAREA -> SELECT olaraq dəyişdirildi -->
+      <select class="bk-select" id="bk_request_tmpl">
+        <option value="">Seçin</option>
+        <!-- JS tərəfindən doldurulur -->
+      </select>
+    </div>
+    <div class="bk-field">
+      <label class="bk-label">Qeyd / Note</label>
+      <textarea class="bk-textarea bk-tmpl-ta" id="bk_note" placeholder="Qeyd daxil edin (istəyə bağlı)"></textarea>
+    </div>
+    <div class="bk-field">
+      <label class="bk-label">Həll (şablon) *</label>
+      <!-- ✅ TEXTAREA -> SELECT olaraq dəyişdirildi -->
+      <select class="bk-select" id="bk_solution_tmpl">
+        <option value="">Seçin</option>
+        <!-- JS tərəfindən doldurulur -->
+      </select>
+    </div>
+  </div>
+</div>
 
       <!-- === SECTION 4: Personal === -->
       <div class="bk-panel">
