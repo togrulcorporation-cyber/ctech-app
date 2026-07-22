@@ -1157,8 +1157,6 @@ body.dark-mode .dv-section-title { color:#5C7089; }
 body.dark-mode .dv-row { border-bottom-color:#1C2A3D; }
 body.dark-mode .dv-label { color:#5C7089; }
 body.dark-mode .dv-value { color:#E8EEF5; }
-<!-- ═══════════ 1) STYLE BLOKU ═══════════ -->
-<style>
 
 /* Bulk Service banner düyməsi (BUS Service içində) */
 .bs-bulk-banner-btn {
@@ -1182,7 +1180,7 @@ body.dark-mode .dv-value { color:#E8EEF5; }
 .bs-bulk-banner-btn:hover { box-shadow:0 12px 28px rgba(47,111,237,.38); }
 .bs-bulk-banner-btn:active { transform:scale(.98); }
 
-/* ===== BUS BULK SERVICE VIEW (yalnız masaüstü) ===== */
+/* ===== BUS BULK SERVICE VIEW ===== */
 #busBulkView {
   display:none;
   position:fixed;
@@ -2189,6 +2187,156 @@ body.dark-mode #bkLoadingOverlay { background:rgba(15,24,38,.94); }
   </div>
 </div>
 
+<!-- ===== BUS BULK SERVICE VIEW ===== -->
+<div id="busBulkView">
+  <div class="bk-header">
+    <div class="bk-header-left">
+      <button onclick="closeBusBulk()" style="background:none;border:none;cursor:pointer;color:#12233B;padding:4px;display:flex;align-items:center;justify-content:center;" aria-label="Geri">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      </button>
+      <div class="bk-title">Toplu <span>İdxal</span></div>
+    </div>
+    <div class="bk-header-right">
+      <button class="bk-btn bk-btn-ghost" onclick="resetBulkForm()">Sıfırla</button>
+      <button class="icon-btn" onclick="toggleTheme()" aria-label="Tema">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="bkThemeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="bk-body">
+    <div class="bk-grid" id="bkGrid">
+      <!-- Sol panel: Tarix, Saat, Kateqoriya, Ünvan -->
+      <div class="bk-col-left">
+        <div class="bk-panel">
+          <div class="bk-panel-title">
+            <span class="bk-num">1</span> Servis parametrləri
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Servis tarixi *</label>
+            <div style="background:#F8FAFD;border:1.5px solid #DCE6F5;border-radius:10px;padding:11px 14px;font-size:14px;color:#12233B;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;" onclick="document.getElementById('bk_date_picker').showPicker ? document.getElementById('bk_date_picker').showPicker() : null;">
+              <span id="bkDateDisplay"></span>
+              <input type="date" id="bk_date_picker" style="display:none;" onchange="bkDateChanged(this.value)">
+            </div>
+          </div>
+          <div class="bk-row2">
+            <div class="bk-field">
+              <label class="bk-label">Başlanğıc *</label>
+              <div class="bk-time-input">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+                <input type="text" inputmode="numeric" maxlength="5" id="bk_start_time" placeholder="--:--" oninput="bkFormatTime(this)">
+              </div>
+            </div>
+            <div class="bk-field">
+              <label class="bk-label">Bitiş *</label>
+              <div class="bk-time-input">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+                <input type="text" inputmode="numeric" maxlength="5" id="bk_end_time" placeholder="--:--" oninput="bkFormatTime(this)">
+              </div>
+            </div>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Servis kateqoriyası *</label>
+            <select class="bk-select" id="bk_category"><option value="">Seçin</option></select>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Servis verilən ünvan</label>
+            <select class="bk-select" id="bk_location"><option value="">Seçin (könüllü)</option></select>
+          </div>
+          <div class="bk-field" id="bk_location_note_wrap" style="display:none;">
+            <label class="bk-label">Ünvan qeydi *</label>
+            <textarea class="bk-textarea" id="bk_location_note" placeholder="Ünvanı ətraflı yazın..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orta panel: Daşıyıcı, Şablonlar -->
+      <div class="bk-col-mid">
+        <div class="bk-panel">
+          <div class="bk-panel-title">
+            <span class="bk-num">2</span> Daşıyıcı &amp; şablonlar
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Daşıyıcı firma *</label>
+            <select class="bk-select" id="bk_carrier" onchange="bkOnCarrierChange()"><option value="">Seçin</option></select>
+            <div id="bkCarrierCountWrap" style="margin-top:12px;"></div>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Tələb / Problem şablonu *</label>
+            <textarea class="bk-textarea" id="bk_request_tmpl" placeholder="Məs. Validator ödəniş kartını qəbul etmir" style="min-height:60px;"></textarea>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Həll / Açıqlama şablonu *</label>
+            <textarea class="bk-textarea" id="bk_solution_tmpl" placeholder="Məs. Validator dəyişdirildi" style="min-height:60px;"></textarea>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Qeyd (könüllü)</label>
+            <textarea class="bk-textarea" id="bk_note" placeholder="Əlavə qeyd..." style="min-height:50px;"></textarea>
+          </div>
+        </div>
+
+        <div class="bk-panel" style="border-color:#E1EAF6;border-width:1px;">
+          <div class="bk-panel-title">
+            <span class="bk-num">3</span> Texnik heyət
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">1. Texnik *</label>
+            <select class="bk-select" id="bk_tech1"><option value="">Seçin</option></select>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">2. Texnik (könüllü)</label>
+            <select class="bk-select" id="bk_tech2"><option value="">Seçin</option></select>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Qrup rəhbəri *</label>
+            <select class="bk-select" id="bk_leader"><option value="">Seçin</option></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sağ panel: Ön baxış -->
+      <div class="bk-col-right">
+        <div id="bkPreviewPanel" class="bk-preview-panel">
+          <div class="bk-preview-head">
+            <div class="bk-preview-title">Ön baxış</div>
+            <button class="bk-preview-close" onclick="bkClosePreview()" aria-label="Bağla">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+          </div>
+          <div class="bk-empty-state">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+            <div>Parametrləri doldurub "Ön baxış"a basın</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bk-footer">
+    <div class="bk-footer-hint">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      Daşıyıcı seçilərkən reyestrdən avtobuslar avtomatik tapılır
+    </div>
+    <button class="bk-btn-outline" onclick="bkOpenPreview()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      Ön baxış
+    </button>
+    <button class="bk-btn-primary" id="bkDirectSubmitBtn" onclick="bkSubmitDirect()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Birbaşa idxal
+    </button>
+  </div>
+</div>
+
+<!-- Bulk Submit Loading -->
+<div id="bkLoadingOverlay">
+  <div class="spinner" id="bkSpinner" style="width:48px;height:48px;border-width:5px;"></div>
+  <div id="bkSuccessIcon" style="display:none;width:64px;height:64px;border-radius:50%;background:#3FCB78;align-items:center;justify-content:center;animation:popIn .35s ease;">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>
+  </div>
+  <div class="loading-text" id="bkLoadingText">Hazırlanır...</div>
+</div>
+
 <script>
 
 var API_URL = "https://script.google.com/macros/s/AKfycbytFqFdrsHqKrD2YnurKsXATyjAMLbFAtV3gEcLxmPF_DjfGk2A9yyBrhs7XgoM-uYcbw/exec";
@@ -2296,7 +2444,7 @@ var bsRegistryLocked = false;
 var bsSelected = {
   carrier:"", brand:"", problem:"", solution:[], equipment:"", location:"", tech1:"", tech2:"", leader:""
 };
-var activeDDKey = null; // hal-hazırda açıq olan dropdown
+var activeDDKey = null;
 
 // ── Dropdown meta ────────────────────────────────────
 var ddMeta = {
@@ -2416,7 +2564,7 @@ function selectDDItem(key, item){
     var arr = bsSelected[key];
     var idx = arr.indexOf(item);
     if(idx !== -1) arr.splice(idx, 1); else arr.push(item);
-    renderDD(key); // checkboxları yenilə
+    renderDD(key);
     updateMultiLabel(key);
     if(meta.onSelect) meta.onSelect(item);
   } else {
@@ -2476,7 +2624,6 @@ function updateSolutionChips(){
 }
 
 // ── Saat sahələri (əl ilə yazma, avtomatik format) ───
-// İstifadəçi rəqəm yazdıqca "HH:MM" formatına avtomatik çevrilir.
 function formatTimeInput(el){
   var digits = el.value.replace(/[^0-9]/g,"").slice(0,4);
   var formatted = digits.length > 2 ? digits.slice(0,2)+":"+digits.slice(2) : digits;
@@ -2485,7 +2632,6 @@ function formatTimeInput(el){
   bsFormDirty = true;
 }
 
-// Yalnız düzgün "HH:MM" (00-23 : 00-59) formatındadırsa dəyəri qaytarır, əks halda ""
 function getTimeInputValue(id){
   var el = document.getElementById(id);
   if(!el) return "";
@@ -2503,20 +2649,16 @@ function getTimeValue(){ return getTimeInputValue("bs_time_lbl"); }
 // ── fillDD: API datası gəldikdə siyahıları hazırla ──
 function fillAllDDs(data){
   bsFormData = data;
-  // Sistemlər burdaca dolsun ki cavabsız qalmasın
 }
 
 // ── Form açılışı ─────────────────────────────────────
-// ── Redaktə (edit) rejimi dəyişənləri ────────────────
 var bsEditMode = false;
 var bsEditTicketId = null;
-var bsReturnTarget = "dashboard"; // "dashboard" | "report"
+var bsReturnTarget = "dashboard";
 
 function startBusService(){
-  // Overlay göstər
   var ov = document.getElementById("busOpenOverlay");
   ov.style.display = "flex";
-  // Arxa planda data yüklə, sonra formu aç
   preloadBusData(function(){
     ov.style.display = "none";
     openBusService();
@@ -2524,9 +2666,7 @@ function startBusService(){
 }
 
 function preloadBusData(callback){
-  // Overlay maksimum 1 saniyə görünür, data arxa planda yüklənir
   setTimeout(callback, 900);
-  // API sorğusu ayrıca, overlay-dən asılı deyil
   fetch(API_URL, {
     method:"POST",
     headers:{"Content-Type":"text/plain;charset=utf-8"},
@@ -2538,7 +2678,6 @@ function preloadBusData(callback){
       bsFormData = d;
       var tid = d.nextTicketId || "BUS-00001";
       bsNextTicketId = tid;
-      // Ticket ID-ni forma açıqsa yenilə (yalnız yeni-yaratma rejimində)
       var badge = document.getElementById("bsTicketBadge");
       if(badge && !bsEditMode && document.getElementById("busServiceView").style.display !== "none"){
         badge.innerHTML = '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + tid + '</span>';
@@ -2549,7 +2688,6 @@ function preloadBusData(callback){
 }
 
 function resetBusFormFields(){
-  // Saat sahələrini təmizlə
   ["bs_time_lbl","bs_start_lbl","bs_end_lbl"].forEach(function(id){
     var el = document.getElementById(id);
     if(el){ el.value = ""; }
@@ -2602,19 +2740,16 @@ function openBusService(){
   document.getElementById("busServiceView").style.display = "block";
   document.getElementById("busServiceView").scrollTop = 0;
 
-  // Bulk banner görünürlüyü (yalnız leader/admin, yalnız masaüstü)
   var _bkLvl = getAccessLevel(currentUser ? currentUser.role : "");
   var _bkWrap = document.getElementById("bsBulkBannerWrap");
   if(_bkWrap) _bkWrap.style.display = (_bkLvl === "leader" || _bkLvl === "admin") ? "block" : "none";
 
-  // Yarımçıq qalmış qaralama varsa bərpa təklif et (widget ilə)
   var draft = loadBsDraft();
   if(draft){ offerBsDraftRestore(draft); }
 
   var btn = document.getElementById("bsSubmitBtn");
   if(btn) btn.textContent = "Göndər";
 
-  // Ticket ID göstər
   if(bsNextTicketId){
     document.getElementById("bsTicketBadge").innerHTML =
       '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">' + bsNextTicketId + '</span>';
@@ -2722,14 +2857,12 @@ function openBusServiceForEdit(ticketId){
     document.getElementById("busServiceView").style.display = "block";
     document.getElementById("busServiceView").scrollTop = 0;
 
-    // Ticket badge - redaktə rejimi (narıncı)
     document.getElementById("bsTicketBadge").innerHTML =
       '<span style="display:inline-flex;align-items:center;background:#D97706;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">REDAKTƏ: ' + d.ticketId + '</span>';
 
     var btn = document.getElementById("bsSubmitBtn");
     if(btn) btn.textContent = "Yadda saxla";
 
-    // Sadə xanalar
     document.getElementById("bs_date").value = d.report_date_raw || "";
     document.getElementById("bs_requester").value = d.requester_name || "";
     document.getElementById("bs_phone").value = d.requester_phone || "";
@@ -2741,12 +2874,10 @@ function openBusServiceForEdit(ticketId){
     document.getElementById("bs_note").value = d.note || "";
     document.getElementById("bs_location_note").value = d.service_location_note || "";
 
-    // Saatlar
     setTimeLabel("main", d.report_time);
     setTimeLabel("start", d.service_start_time);
     setTimeLabel("end", d.service_end_time);
 
-    // Dropdown-lar
     setDDValue("carrier", d.carrier);
     setDDValue("brand", d.brand_model);
     setDDValue("equipment", d.changed_device_type);
@@ -2756,7 +2887,6 @@ function openBusServiceForEdit(ticketId){
     if(d.technician_2){ setDDValue("tech2", d.technician_2); }
     setDDValue("leader", d.team_leader);
 
-    // Çoxlu seçim: Həll/Açıqlama
     bsSelected.solution = Array.isArray(d.solution) ? d.solution.slice() : [];
     updateMultiLabel("solution");
     updateSolutionChips();
@@ -2792,7 +2922,6 @@ function submitBusService(){
   if(bsSelected.location.toLowerCase().indexOf("digər")!==-1 && !document.getElementById("bs_location_note").value.trim()){ alert("Ünvan qeydi yazın"); return; }
   if(!bsSelected.leader){ alert("Qrup rəhbərini seçin"); return; }
 
-  // Həll/Açıqlama "Digər" seçimidir
   var hasDigarSol = bsSelected.solution.some(function(s){ return s.toLowerCase().indexOf("digər")!==-1; });
   if(hasDigarSol && !document.getElementById("bs_note").value.trim()){ alert("Həll üçün qeyd yazın"); return; }
 
@@ -2898,17 +3027,12 @@ function bsGoBack(){
 
 
 // ═══════════════════════════════════════════════════
-// DQN REYESTR AXTARIŞI (Bənd 1.1)
-// Texnik D.Q.N. xanasına yazır → reyestrdən uyğunu tapılır →
-// BUS ID, Daşıyıcı, Model avtomatik dolur və kilidlənir.
-// Reyestr form açılışında BİR DƏFƏ yüklənir (bsFormData.busRegistry),
-// axtarış tamamilə lokal — sıfır şəbəkə gecikməsi.
+// DQN REYESTR AXTARIŞI
 // ═══════════════════════════════════════════════════
 
 var bsRegistryLocked = false;
 
 function normalizeDqn(s){
-  // "99JV697" → "99-JV-697", artıq formatlanmışsa saxla
   return String(s||"").toUpperCase().replace(/[^0-9A-Z]/g,"")
     .replace(/^(\d{2})([A-Z]{2})(\d{3})$/, "$1-$2-$3")
     || String(s||"").toUpperCase();
@@ -2954,15 +3078,12 @@ function closeBusRegistryDD(){
 }
 
 function selectBusRegistryMatch(match){
-  // DQN xanasına seçilən dəyəri yaz
   var plateEl = document.getElementById("bs_plate");
   plateEl.value = match.dqn || "";
 
-  // BUS ID avtomatik doldur
   var busidEl = document.getElementById("bs_busid");
   busidEl.value = match.id || "";
 
-  // Daşıyıcı və Model dropdown-larını doldur
   if(match.carrier) setDDValue("carrier", match.carrier);
   if(match.model)   setDDValue("brand",   match.model);
 
@@ -2974,14 +3095,11 @@ function selectBusRegistryMatch(match){
 
 function lockRegistryFields(){
   bsRegistryLocked = true;
-  // BUS ID kilidlə (DQN-dən avtomatik gəlib)
   var busidEl = document.getElementById("bs_busid");
   busidEl.classList.add("bs-locked");
   busidEl.setAttribute("readonly","readonly");
-  // Daşıyıcı və Model kilidlə
   document.getElementById("bs_carrier_btn").classList.add("bs-locked");
   document.getElementById("bs_brand_btn").classList.add("bs-locked");
-  // Reset linki göstər
   document.getElementById("bs_registry_reset").classList.add("show");
 }
 
@@ -3010,7 +3128,6 @@ function resetRegistrySelection(){
   scheduleBsDraftSave();
 }
 
-// Kənarə klikləndikdə dropdown bağlansın
 document.addEventListener("click", function(e){
   if(!e.target.closest(".bs-busid-wrap")){
     closeBusRegistryDD();
@@ -3025,7 +3142,6 @@ document.addEventListener("DOMContentLoaded", function(){
   plateEl.addEventListener("input", function(e){
     if(bsRegistryLocked){ unlockRegistryFields(); }
 
-    // Avtomatik XX-XX-XXX formatı
     var raw = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g,"");
     if(raw.length > 8) raw = raw.slice(0,8);
     var res = "";
@@ -3037,7 +3153,6 @@ document.addEventListener("DOMContentLoaded", function(){
     bsFormDirty = true;
     scheduleBsDraftSave();
 
-    // Reyestr axtarışı — ən azı 2 simvol yazılanda başlasın
     if(res.replace(/[^0-9A-Z]/g,"").length >= 2){
       renderBusRegistryDropdown(filterBusRegistry(res));
     } else {
@@ -3087,7 +3202,6 @@ document.addEventListener("keydown", function(e){
   if(e.key !== "Enter") return;
   var view = document.getElementById("busServiceView");
   if(!view || view.style.display === "none") return;
-  // Yalnız busServiceView daxilindəki elementlərdə işləsin
   var active = document.activeElement;
   if(!active || !view.contains(active)) return;
   if(active.tagName === "BUTTON" || active.tagName === "TEXTAREA") return;
@@ -3098,12 +3212,10 @@ document.addEventListener("keydown", function(e){
 });
 
 // ── Qaralama (draft) avtomatik saxlama ───────────────
-// Səhifə təsadüfən yenidən yüklənərsə (pull-to-refresh, yaddaş təzyiqi və s.)
-// yarımçıq qalmış BUS Service məlumatı itməsin deyə.
 function bsDraftKey(){ return "ctech_bs_draft"; }
 
 function saveBsDraft(){
-  if(bsEditMode) return; // redaktə zamanı draft saxlanmır (təhlükəsizlik üçün)
+  if(bsEditMode) return;
   try{
     var draft = {
       date: (document.getElementById("bs_date")||{}).value || "",
@@ -3123,7 +3235,7 @@ function saveBsDraft(){
       savedAt: Date.now()
     };
     localStorage.setItem(bsDraftKey(), JSON.stringify(draft));
-  }catch(e){ /* localStorage yoxdursa səssizcə keç */ }
+  }catch(e){}
 }
 
 var bsDraftSaveTimer = null;
@@ -3141,7 +3253,6 @@ function loadBsDraft(){
     var raw = localStorage.getItem(bsDraftKey());
     if(!raw) return null;
     var d = JSON.parse(raw);
-    // Boş draft-ı (heç nə yazılmayıb) təklif etmə
     var hasContent = d.requester || d.phone || d.route || d.busid || d.plate || d.note ||
       (d.selected && (d.selected.carrier || d.selected.brand || d.selected.problem || (d.selected.solution&&d.selected.solution.length)));
     return hasContent ? d : null;
@@ -3172,8 +3283,6 @@ function restoreBsDraft(draft){
       setDDValue(k, bsSelected[k]);
     }
   });
-  var probDigar = (bsSelected.problem||"").toLowerCase().indexOf("digər")!==-1;
-  var solDigar = (bsSelected.solution||[]).some(function(s){ return s.toLowerCase().indexOf("digər")!==-1; });
   document.getElementById("bs_location_note_wrap").style.display = (bsSelected.location||"").toLowerCase().indexOf("digər")!==-1 ? "block" : "none";
 
   bsFormDirty = true;
@@ -3193,10 +3302,10 @@ document.addEventListener("DOMContentLoaded", function(){
 // BUS REAL-TIME REPORT
 // ═══════════════════════════════════════════════════
 
-var rptAllRows = [];      // bütün data (sıralanmış)
-var rptColumns = [];      // sütun adları (Excel export üçün)
-var rptFiltered = [];     // axtarışdan keçmiş data (tam siyahı)
-var rptShownCount = 20;   // hazırda göstərilən say
+var rptAllRows = [];
+var rptColumns = [];
+var rptFiltered = [];
+var rptShownCount = 20;
 var rptPageSize = 20;
 var rptAutoRefresh = null;
 
@@ -3226,7 +3335,6 @@ function openBusReport(){
   if(rptDateInterval) clearInterval(rptDateInterval);
   rptDateInterval = setInterval(updateRptDate, 1000);
   loadReportData();
-  // Hər 2 dəqiqədə avtomatik yenilə
   if(rptAutoRefresh) clearInterval(rptAutoRefresh);
   rptAutoRefresh = setInterval(loadReportData, 120000);
 }
@@ -3238,7 +3346,6 @@ function closeBusReport(){
   document.getElementById("dashboardView").style.display = "block";
 }
 
-// Azərbaycan tarix (dd.MM.yyyy) + saat (HH:MM) -> sıralana bilən ədəd
 function rptSortKey(row){
   var d = row["Tarix"] || "";
   var t = row["Saat"] || "";
@@ -3579,7 +3686,7 @@ function buildRankTableRows(items, numStyle, countStyle){
   var html = "";
   items.forEach(function(it,i){
     html += '<tr>'
-      + '<td class="dr-num-col"><span'+(numStyle?' style="'+numStyle+'"':'')+'>'+(i+1)+'</span></td>'
+      + '<td class="dr-num-col"><span'+(numStyle?' style="'+numStyle+'"':'')+'">'+(i+1)+'</span></td>'
       + '<td>'+escapeHtml(it.name)+'</td>'
       + '<td class="dr-count-col"><span class="dash-rank-count-val"'+(countStyle?' style="'+countStyle+'"':'')+'>'+it.count+'</span></td>'
       + '</tr>';
@@ -3747,7 +3854,6 @@ function openDashModal(){
 }
 function closeDashModal(){
   document.getElementById("dashModal").classList.remove("open");
-  // Növbəti açılış üçün filtr görünüşünə qaytar
   document.getElementById("dashModalFilterBody").style.display = "flex";
   document.getElementById("dashModalResults").classList.remove("open");
   document.getElementById("dashResetBtnEl").style.display = "";
@@ -3824,7 +3930,6 @@ function resetDashFilters(){
   dcalRangeStart = null; dcalRangeEnd = null;
   buildDashChips();
   renderDcal();
-  // Nəticə rejimindəyiksə filtr görünüşünə qayıt
   document.getElementById("dashModalFilterBody").style.display = "flex";
   document.getElementById("dashModalResults").classList.remove("open");
   document.getElementById("dashModalTitle").textContent = "Tarix aralığı və filtrlər";
@@ -3894,7 +3999,6 @@ function runDashSearch(){
     document.querySelectorAll("#dashTabs .dash-tab").forEach(function(t){ t.classList.remove("active"); });
   }
 
-  // Filtr görünüşünü gizlət, nəticə panelini göstər (pəncərə açıq qalır, Sıfırla/X aktiv qalır)
   document.getElementById("dashModalFilterBody").style.display = "none";
   document.getElementById("dashModalTitle").textContent = "Nəticələr";
   var resultsPanel = document.getElementById("dashModalResults");
@@ -3941,7 +4045,6 @@ function renderDashModalResults(){
   }
 
   if(!activeAny){
-    // Heç bir kateqoriya seçilməyib — yalnız tarix aralığı üzrə ümumi baxış göstər
     html += dashPivotBlock("Ən çox rast gəlinən problem (ümumi baxış)", dashCount(filtered,"Problem",false).slice(0,4), "Servis sayı", "Problem");
   }
 
@@ -3980,23 +4083,14 @@ function exportToExcel(){
   if(typeof XLSX === "undefined"){ alert("Excel kitabxanası yüklənməyib, bir az gözləyin"); return; }
 
   var cols = rptColumns;
-
-  // Məlumatları array of arrays formatına çevir
   var wsData = [];
-
-  // Başlıq sətri
   wsData.push(cols);
-
-  // Data sətirləri
   rptFiltered.forEach(function(row){
     var r = cols.map(function(c){ return row[c] || ""; });
     wsData.push(r);
   });
 
-  // Worksheet yarat
   var ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // Sütun enləri
   var colWidths = cols.map(function(c){
     var max = c.length;
     rptFiltered.forEach(function(row){
@@ -4007,7 +4101,6 @@ function exportToExcel(){
   });
   ws["!cols"] = colWidths;
 
-  // Başlıq sətri stili (qalın)
   var range = XLSX.utils.decode_range(ws["!ref"]);
   for(var C = range.s.c; C <= range.e.c; C++){
     var cell = ws[XLSX.utils.encode_cell({r:0, c:C})];
@@ -4022,11 +4115,9 @@ function exportToExcel(){
     };
   }
 
-  // Workbook yarat
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "BUS Report");
 
-  // Fayl adı
   var today = new Date();
   var dd = String(today.getDate()).padStart(2,"0");
   var mm = String(today.getMonth()+1).padStart(2,"0");
@@ -4037,7 +4128,7 @@ function exportToExcel(){
 }
 
 // ═══════════════════════════════════════════════════
-// DRAFT BƏRPA WİDGET (6.2)
+// DRAFT BƏRPA WİDGET
 // ═══════════════════════════════════════════════════
 var pendingBsDraft = null;
 
@@ -4064,7 +4155,7 @@ function declineBsDraft(){
 }
 
 // ═══════════════════════════════════════════════════
-// PULL-TO-REFRESH (6.1) — öz widget-imizlə
+// PULL-TO-REFRESH
 // ═══════════════════════════════════════════════════
 var ptrStartY = 0;
 var ptrTracking = false;
@@ -4118,12 +4209,26 @@ var BK_MONTHS = ["Yanvar","Fevral","Mart","Aprel","May","İyun","İyul","Avqust"
 var bkPreviewData = null;
 var bkFormDataLoaded = false;
 
+function bkDateChanged(val){
+  if(!val) return;
+  var parts = val.split("-");
+  var d = new Date(+parts[0], +parts[1]-1, +parts[2]);
+  bkSelectedDate = d;
+  document.getElementById("bkDateDisplay").textContent = 
+    String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0")+"."+d.getFullYear();
+  renderBkCal();
+}
+
 function openBusBulk(){
+  var now = bakuNowDate();
+  document.getElementById("bkDateDisplay").textContent = 
+    String(now.getDate()).padStart(2,"0")+"."+String(now.getMonth()+1).padStart(2,"0")+"."+now.getFullYear();
+  document.getElementById("bk_date_picker").value = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+
   document.getElementById("busServiceView").style.display = "none";
   document.getElementById("busBulkView").style.display = "flex";
   ensureBulkFormData();
   if(!bkSelectedDate){
-    var now = bakuNowDate();
     bkCalYear = now.getFullYear(); bkCalMonth = now.getMonth();
     bkSelectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     renderBkCal();
