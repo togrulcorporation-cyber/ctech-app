@@ -1661,7 +1661,11 @@ function bkCollectData(){
     solution_template: document.getElementById('bk_solution_tmpl').value.trim(),
     technician_1: document.getElementById('bk_tech1').value,
     technician_2: document.getElementById('bk_tech2').value,
-    team_leader: document.getElementById('bk_leader').value
+    team_leader: document.getElementById('bk_leader').value,
+    // Spesifik DQN seçilibsə göndər, bkAllMode=true olarsa boş array
+    selectedDqns: (!bkAllMode && bkSelectedDqns.length > 0)
+      ? bkSelectedDqns.map(function(x){ return x.dqn; })
+      : []
   };
 }
 
@@ -1893,7 +1897,7 @@ function bkRenderCountBadge(count){
   }
   // Toggle badge-in solunda - static layout, heç nə üst-üstə düşmür
   wrap.innerHTML = '<div style="display:flex;align-items:center;gap:20px;margin-top:14px;">'
-    + '<button class="bk-count-toggle" id="bkAllToggle" onclick="bkToggleAllMode()" title="Hamısını seç / DQN ilə seç"></button>'
+    + '<button class="bk-count-toggle" id="bkAllToggle" onclick="bkToggleAllMode()" title="Hamısını seç / DQN ilə seç"><svg class="bk-toggle-tick" width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#3FCB78" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
     + '<div class="bk-count-badge" id="bkCountBadge">'
     + '<div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div>'
     + '<div><div class="bk-count-num">'+count+'</div><div class="bk-count-txt">avtobus tapıldı</div></div>'
