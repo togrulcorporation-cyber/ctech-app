@@ -512,34 +512,40 @@ function closeBusRegistryDD(){
 }
 
 function selectBusRegistryMatch(match){
-  console.log('🔍 selectBusRegistryMatch çağırıldı:', match);
-  
+  // 1. DQN və BUS ID doldur
   var plateEl = document.getElementById('bs_plate');
   var busidEl = document.getElementById('bs_busid');
+  if(plateEl) plateEl.value = match.dqn || '';
+  if(busidEl) busidEl.value = match.id || '';
   
-  if(plateEl && match.dqn) {
-    plateEl.value = match.dqn;
-    console.log('✅ DQN təyin edildi:', match.dqn);
-  }
-  if(busidEl && match.id) {
-    busidEl.value = match.id;
-    console.log('✅ BUS ID təyin edildi:', match.id);
-  }
-  
-  // ✅ 1. ƏVVƏLCƏ KİLİDİ AÇ
-  unlockRegistryFields();
-  
-  // ✅ 2. SONRA DƏYƏRLƏRİ TƏYİN ET
-  if(match.carrier) {
-    console.log('✅ Daşıyıcı təyin edilir:', match.carrier);
-    bsSelected.carrier = match.carrier;
+  // 2. Daşıyıcı - BİRBAŞA YAZ
+  if(match.carrier){
     var cLbl = document.getElementById('bs_carrier_lbl');
     if(cLbl){
       cLbl.textContent = match.carrier;
       cLbl.style.color = '#12233B';
       cLbl.classList.add('filled');
     }
+    bsSelected.carrier = match.carrier;
   }
+  
+  // 3. Model - BİRBAŞA YAZ
+  if(match.model){
+    var bLbl = document.getElementById('bs_brand_lbl');
+    if(bLbl){
+      bLbl.textContent = match.model;
+      bLbl.style.color = '#12233B';
+      bLbl.classList.add('filled');
+    }
+    bsSelected.brand = match.model;
+  }
+  
+  // 4. Kilidlə
+  closeBusRegistryDD();
+  lockRegistryFields();
+  bsFormDirty = true;
+  scheduleBsDraftSave();
+}
   
   if(match.model) {
     console.log('✅ Model təyin edilir:', match.model);
