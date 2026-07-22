@@ -1227,7 +1227,7 @@ body.dark-mode .bk-btn-ghost { background:#1C2A3D; color:#8FB4EA; }
   max-width:1500px;
   margin:0 auto;
   align-items:start;
-  transition:none;
+  transition:grid-template-columns .35s cubic-bezier(.4,0,.2,1);
 }
 .bk-grid.preview-open { grid-template-columns:1fr 1fr 1.3fr; }
 
@@ -1381,7 +1381,9 @@ body.dark-mode .bk-btn-outline { background:#1C2A3D; border-color:#4A6182; color
   box-shadow:0 20px 45px rgba(30,68,130,.10);
   display:flex; flex-direction:column;
   max-height:calc(100vh - 160px);
+  animation:bkSlideIn .35s cubic-bezier(.4,0,.2,1);
 }
+@keyframes bkSlideIn { from{opacity:0;transform:translateX(24px);} to{opacity:1;transform:translateX(0);} }
 body.dark-mode .bk-preview-panel { background:#16212E; border-color:#4A6182; }
 .bk-preview-head {
   display:flex; align-items:center; justify-content:space-between;
