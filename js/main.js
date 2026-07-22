@@ -512,39 +512,74 @@ function closeBusRegistryDD(){
 }
 
 function selectBusRegistryMatch(match){
+  console.log('🔍 selectBusRegistryMatch çağırıldı:', match);
+  
   // 1. DQN və BUS ID doldur
   var plateEl = document.getElementById('bs_plate');
   var busidEl = document.getElementById('bs_busid');
   if(plateEl) plateEl.value = match.dqn || '';
   if(busidEl) busidEl.value = match.id || '';
   
-  // 2. Daşıyıcı - BİRBAŞA YAZ
+  // 2. KİLİDİ AÇ (dropdown-ları aktiv et)
+  unlockRegistryFields();
+  
+  // 3. DAŞIYICI - BİRBAŞA YAZ
   if(match.carrier){
+    console.log('✅ Daşıyıcı təyin edilir:', match.carrier);
+    bsSelected.carrier = match.carrier;
+    
+    // Birbaşa label-a yaz
     var cLbl = document.getElementById('bs_carrier_lbl');
     if(cLbl){
       cLbl.textContent = match.carrier;
       cLbl.style.color = '#12233B';
       cLbl.classList.add('filled');
     }
-    bsSelected.carrier = match.carrier;
+    
+    // Dropdown button-a da yaz (əminlik üçün)
+    var cBtn = document.getElementById('bs_carrier_btn');
+    if(cBtn){
+      var span = cBtn.querySelector('span');
+      if(span){
+        span.textContent = match.carrier;
+        span.style.color = '#12233B';
+        span.classList.add('filled');
+      }
+      cBtn.classList.add('filled');
+    }
   }
   
-  // 3. Model - BİRBAŞA YAZ
+  // 4. MODEL - BİRBAŞA YAZ
   if(match.model){
+    console.log('✅ Model təyin edilir:', match.model);
+    bsSelected.brand = match.model;
+    
     var bLbl = document.getElementById('bs_brand_lbl');
     if(bLbl){
       bLbl.textContent = match.model;
       bLbl.style.color = '#12233B';
       bLbl.classList.add('filled');
     }
-    bsSelected.brand = match.model;
+    
+    var bBtn = document.getElementById('bs_brand_btn');
+    if(bBtn){
+      var span = bBtn.querySelector('span');
+      if(span){
+        span.textContent = match.model;
+        span.style.color = '#12233B';
+        span.classList.add('filled');
+      }
+      bBtn.classList.add('filled');
+    }
   }
   
-  // 4. Kilidlə
+  // 5. KİLİDLƏ
   closeBusRegistryDD();
   lockRegistryFields();
   bsFormDirty = true;
   scheduleBsDraftSave();
+  
+  console.log('✅ Tamamlandı - bsSelected:', bsSelected);
 }
   
 function lockRegistryFields(){
