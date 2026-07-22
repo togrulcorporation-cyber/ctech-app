@@ -484,26 +484,28 @@ function renderBusRegistryDropdown(matches){
   if(!matches || matches.length === 0){
     dd.innerHTML = '<div class="bs-registry-empty">Uyğun D.Q.N. tapılmadı — məlumatları əl ilə daxil edin</div>';
   } else {
-    var visibleMatches = matches.slice(0, 8);
-    var fragment = document.createDocumentFragment();
-    visibleMatches.forEach(function(m){
-      var div = document.createElement('div');
-      div.className = 'bs-registry-item';
-      div.innerHTML =
+    dd.innerHTML = matches.slice(0, 8).map(function(m){
+      // ✅ carrier-ı düzgün ötür (dırnaqları təmizləmədən, olduğu kimi)
+      var carrierAttr = m.carrier || '';
+      return '<div class="bs-registry-item" data-dqn="' + (m.dqn || '') + '" data-id="' + (m.id || '') + '" data-carrier="' + carrierAttr + '" data-model="' + (m.model || '') + '">' +
         '<span class="reg-id">' + (m.dqn || '—') + '</span>' +
-        '<span class="reg-meta">BUS ID: ' + (m.id || '—') + ' · ' + (m.carrier || '—') + ' · ' + (m.model || '—') + '</span>';
-      // closure - m obyekti birbaşa JS-də saxlanılır, HTML attribute-a yazılmır
-      (function(match){
-        div.addEventListener('click', function(e){
-          e.stopPropagation();
-          console.log('🔍 Seçilən match:', match);
-          if(match.dqn) selectBusRegistryMatch(match);
-        });
-      })(m);
-      fragment.appendChild(div);
+        '<span class="reg-meta">BUS ID: ' + (m.id || '—') + ' · ' + (m.carrier || '—') + ' · ' + (m.model || '—') + '</span>' +
+        '</div>';
+    }).join('');
+    
+    Array.from(dd.querySelectorAll('.bs-registry-item')).forEach(function(el){
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
+        var match = {
+          dqn: el.getAttribute('data-dqn'),
+          id: el.getAttribute('data-id'),
+          carrier: el.getAttribute('data-carrier'),  // ✅ Burada carrier gəlir
+          model: el.getAttribute('data-model')
+        };
+        console.log('🔍 Seçilən match:', match); // Debug üçün
+        if(match.dqn) selectBusRegistryMatch(match);
+      });
     });
-    dd.innerHTML = '';
-    dd.appendChild(fragment);
   }
   dd.classList.add('open');
 }
@@ -525,16 +527,30 @@ function selectBusRegistryMatch(match){
   // 2. KİLİDİ AÇ (dropdown-ları aktiv et)
   unlockRegistryFields();
   
-  // 3. DAŞIYICI - olduğu kimi saxla
+  // 3. DAŞIYICI - Dırnaqları təmizlə
   if(match.carrier){
-    bsSelected.carrier = match.carrier;
-    console.log('✅ Daşıyıcı:', match.carrier);
+    var cleanCarrier = match.carrier.replace(/^"|"$/g, '').trim();
+    console.log('✅ Təmizlənmiş daşıyıcı:', cleanCarrier);
+    
+    bsSelected.carrier = cleanCarrier;
+    
+    // Label-a yaz
     var cLbl = document.getElementById('bs_carrier_lbl');
-    if(cLbl){ cLbl.textContent = match.carrier; cLbl.style.color='#12233B'; cLbl.classList.add('filled'); }
+    if(cLbl){
+      cLbl.textContent = cleanCarrier;
+      cLbl.style.color = '#12233B';
+      cLbl.classList.add('filled');
+    }
+    
+    // Button-a yaz
     var cBtn = document.getElementById('bs_carrier_btn');
     if(cBtn){
       var span = cBtn.querySelector('span');
-      if(span){ span.textContent = match.carrier; span.style.color='#12233B'; span.classList.add('filled'); }
+      if(span){
+        span.textContent = cleanCarrier;
+        span.style.color = '#12233B';
+        span.classList.add('filled');
+      }
       cBtn.classList.add('filled');
     }
   }
@@ -1632,23 +1648,32 @@ function bkGetTime(id){
 function bkOnCarrierChange(){
   var carrier = document.getElementById('bk_carrier').value;
   var wrap = document.getElementById('bkCarrierCountWrap');
-  bkUpdateImportCount();
-  
+  bkPreviewData = null;
+  bkClosePreview();
+  bkSelectedDqns = [];
+  bkRenderDqnChips();
+
   if(!carrier){
     wrap.innerHTML = '';
+    bkHideDqnFilter();
+    bkUpdateImportCount();
     return;
   }
-  
+
   var matches = (bsFormData && bsFormData.busRegistry ? bsFormData.busRegistry : []).filter(function(r){
-    return String(r.carrier || '').trim().toLowerCase() === carrier.trim().toLowerCase();
+    return String(r.carrier||'').trim().toLowerCase() === carrier.trim().toLowerCase();
   });
-  
+
   if(matches.length === 0){
     wrap.innerHTML = '<div class="bk-count-badge empty"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="bk-count-num">0</div><div class="bk-count-txt">Bu daşıyıcıya aid avtobus tapılmadı</div></div></div>';
+    bkHideDqnFilter();
   } else {
-    wrap.innerHTML = '<div class="bk-count-badge"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div><div><div class="bk-count-num">' + matches.length + '</div><div class="bk-count-txt">avtobus tapıldı</div></div></div>';
+    wrap.innerHTML = '<div class="bk-count-badge"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div><div><div class="bk-count-num">'+matches.length+'</div><div class="bk-count-txt">avtobus tapıldı</div></div></div>';
+    bkShowDqnFilter();
   }
+  bkUpdateImportCount();
 }
+
 
 function bkCollectData(){
   return {
@@ -1837,3 +1862,106 @@ function bkDateChanged(val){
 }
 function bkDateIso(d){ return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function bkDateAz(d){ return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + d.getFullYear(); }
+
+// ── BK DQN Filter ──────────────────────────────
+var bkSelectedDqns = [];
+
+function bkShowDqnFilter(){
+  var wrap = document.getElementById('bkDqnFilterWrap');
+  if(wrap){ wrap.style.display = 'block'; }
+  var input = document.getElementById('bkDqnInput');
+  if(input) input.value = '';
+  var sugg = document.getElementById('bkDqnSuggestions');
+  if(sugg){ sugg.classList.remove('open'); sugg.innerHTML = ''; }
+}
+
+function bkHideDqnFilter(){
+  var wrap = document.getElementById('bkDqnFilterWrap');
+  if(wrap) wrap.style.display = 'none';
+}
+
+function bkDqnInputHandler(el){
+  var q = el.value.toUpperCase().replace(/[^0-9A-Z]/g,'');
+  el.value = q;
+  var carrier = document.getElementById('bk_carrier').value;
+  var sugg = document.getElementById('bkDqnSuggestions');
+  if(!sugg) return;
+  if(q.length < 2){ sugg.classList.remove('open'); return; }
+
+  var already = bkSelectedDqns.map(function(x){ return x.dqn; });
+  var reg = (bsFormData && bsFormData.busRegistry || []).filter(function(r){
+    if(String(r.carrier||'').trim().toLowerCase() !== carrier.trim().toLowerCase()) return false;
+    if(already.indexOf(r.dqn) !== -1) return false;
+    var dqn = String(r.dqn||'').toUpperCase().replace(/\s/g,'');
+    return dqn.indexOf(q) !== -1;
+  });
+
+  sugg.innerHTML = '';
+  if(reg.length === 0){
+    sugg.innerHTML = '<div class="bk-dqn-suggest-item" style="color:#9AACC4;cursor:default;">Uyğun nəticə tapılmadı</div>';
+  } else {
+    reg.slice(0,8).forEach(function(r){
+      var div = document.createElement('div');
+      div.className = 'bk-dqn-suggest-item';
+      div.innerHTML = '<span>'+escapeHtml(r.dqn)+'</span><span class="bk-dqn-suggest-meta">ID: '+escapeHtml(r.id)+' · '+escapeHtml(r.model)+'</span>';
+      (function(match){
+        div.addEventListener('click', function(){
+          bkSelectDqn(match);
+          el.value = '';
+          sugg.classList.remove('open');
+        });
+      })(r);
+      sugg.appendChild(div);
+    });
+  }
+  sugg.classList.add('open');
+}
+
+function bkSelectDqn(match){
+  if(bkSelectedDqns.find(function(x){ return x.dqn === match.dqn; })) return;
+  bkSelectedDqns.push({dqn: match.dqn, id: match.id, model: match.model});
+  bkRenderDqnChips();
+  bkUpdateImportCount();
+}
+
+function bkRemoveDqn(dqn){
+  bkSelectedDqns = bkSelectedDqns.filter(function(x){ return x.dqn !== dqn; });
+  bkRenderDqnChips();
+  bkUpdateImportCount();
+}
+
+function bkRenderDqnChips(){
+  var container = document.getElementById('bkDqnChips');
+  if(!container) return;
+  if(bkSelectedDqns.length === 0){
+    container.innerHTML = '<span class="bk-dqn-empty">Hələ seçilməyib — bütün avtobuslar idxal olunacaq</span>';
+    return;
+  }
+  container.innerHTML = '';
+  bkSelectedDqns.forEach(function(x){
+    var chip = document.createElement('div');
+    chip.className = 'bk-dqn-chip';
+    var dqnSafe = x.dqn.replace(/'/g,"\\'");
+    chip.innerHTML = escapeHtml(x.dqn) +
+      '<button class="bk-dqn-chip-x" onclick="bkRemoveDqn(\''+dqnSafe+'\')">&#x2715;</button>';
+    container.appendChild(chip);
+  });
+}
+
+function bkUpdateImportCount(){
+  var carrier = document.getElementById('bk_carrier') ? document.getElementById('bk_carrier').value : '';
+  var btn = document.getElementById('bkDirectSubmitBtn');
+  if(!btn) return;
+  var allMatches = (bsFormData && bsFormData.busRegistry || []).filter(function(r){
+    return String(r.carrier||'').trim().toLowerCase() === carrier.trim().toLowerCase();
+  });
+  var count = bkSelectedDqns.length > 0 ? bkSelectedDqns.length : allMatches.length;
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> İdxal et (' + count + ' ticket)';
+}
+
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#bkDqnFilterWrap')){
+    var sugg = document.getElementById('bkDqnSuggestions');
+    if(sugg) sugg.classList.remove('open');
+  }
+});
