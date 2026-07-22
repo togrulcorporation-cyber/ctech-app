@@ -1891,13 +1891,13 @@ function bkRenderCountBadge(count){
       + '</div>';
     return;
   }
-  // padding-top: toggle üçün yer açır (toggle absolute, yuxarı çıxır)
-  wrap.innerHTML = '<div class="bk-count-badge" id="bkCountBadge" style="padding-top:18px;">'
-    + '<button class="bk-count-toggle" id="bkAllToggle" onclick="bkToggleAllMode()" title="Hamısını seç / DQN ilə seç">'
-    + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>'
-    + '</button>'
+  // Toggle badge-in solunda - static layout, heç nə üst-üstə düşmür
+  wrap.innerHTML = '<div style="display:flex;align-items:center;gap:20px;margin-top:14px;">'
+    + '<button class="bk-count-toggle" id="bkAllToggle" onclick="bkToggleAllMode()" title="Hamısını seç / DQN ilə seç"></button>'
+    + '<div class="bk-count-badge" id="bkCountBadge">'
     + '<div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div>'
     + '<div><div class="bk-count-num">'+count+'</div><div class="bk-count-txt">avtobus tapıldı</div></div>'
+    + '</div>'
     + '</div>';
 }
 
