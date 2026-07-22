@@ -533,7 +533,7 @@ function selectBusRegistryMatch(match){
   // 3. DAŞIYICI
   if(match.carrier){
     // &quot; encode-unu decode et, sonra baş/son dırnaqları sil
-    var cleanCarrier = match.carrier.replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/^"|"$/g,'').trim();
+    var cleanCarrier = match.carrier.replace(/&quot;/g,'"').replace(/&amp;/g,'&').trim();
     console.log('✅ Daşıyıcı:', cleanCarrier);
     setDDValue('carrier', cleanCarrier);
   }
