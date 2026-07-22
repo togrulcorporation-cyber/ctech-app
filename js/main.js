@@ -547,26 +547,6 @@ function selectBusRegistryMatch(match){
   scheduleBsDraftSave();
 }
   
-  if(match.model) {
-    console.log('✅ Model təyin edilir:', match.model);
-    bsSelected.brand = match.model;
-    var bLbl = document.getElementById('bs_brand_lbl');
-    if(bLbl){
-      bLbl.textContent = match.model;
-      bLbl.style.color = '#12233B';
-      bLbl.classList.add('filled');
-    }
-  }
-  
-  closeBusRegistryDD();
-  
-  // ✅ 3. YENİDƏN KİLİDLƏ
-  lockRegistryFields();
-  
-  bsFormDirty = true;
-  scheduleBsDraftSave();
-}
-
 function lockRegistryFields(){
   bsRegistryLocked = true;
   var busidEl = document.getElementById('bs_busid');
