@@ -282,6 +282,10 @@ function openBusService(){
   var now=new Date();
   var bParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Baku',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
   resetBusFormFields();
+  
+  // ✅ BURAYA ƏLAVƏ EDİN - Form açılanda dropdown-lar aktiv olsun
+  unlockRegistryFields();
+  
   document.getElementById('bs_date').value=bParts;
   document.getElementById('dashboardView').style.display='none';
   document.getElementById('busReportView').style.display='none';
@@ -508,21 +512,51 @@ function closeBusRegistryDD(){
 }
 
 function selectBusRegistryMatch(match){
+  console.log('🔍 selectBusRegistryMatch çağırıldı:', match);
+  
   var plateEl = document.getElementById('bs_plate');
   var busidEl = document.getElementById('bs_busid');
   
-  if(plateEl && match.dqn) plateEl.value = match.dqn;
-  if(busidEl && match.id) busidEl.value = match.id;
+  if(plateEl && match.dqn) {
+    plateEl.value = match.dqn;
+    console.log('✅ DQN təyin edildi:', match.dqn);
+  }
+  if(busidEl && match.id) {
+    busidEl.value = match.id;
+    console.log('✅ BUS ID təyin edildi:', match.id);
+  }
   
-  // ✅ Əvvəlcə kilidi aç (dropdown-ları aktiv et)
+  // ✅ 1. ƏVVƏLCƏ KİLİDİ AÇ
   unlockRegistryFields();
   
-  // ✅ Sonra dəyərləri təyin et
-  if(match.carrier) setDDValue('carrier', match.carrier);
-  if(match.model) setDDValue('brand', match.model);
+  // ✅ 2. SONRA DƏYƏRLƏRİ TƏYİN ET
+  if(match.carrier) {
+    console.log('✅ Daşıyıcı təyin edilir:', match.carrier);
+    bsSelected.carrier = match.carrier;
+    var cLbl = document.getElementById('bs_carrier_lbl');
+    if(cLbl){
+      cLbl.textContent = match.carrier;
+      cLbl.style.color = '#12233B';
+      cLbl.classList.add('filled');
+    }
+  }
+  
+  if(match.model) {
+    console.log('✅ Model təyin edilir:', match.model);
+    bsSelected.brand = match.model;
+    var bLbl = document.getElementById('bs_brand_lbl');
+    if(bLbl){
+      bLbl.textContent = match.model;
+      bLbl.style.color = '#12233B';
+      bLbl.classList.add('filled');
+    }
+  }
   
   closeBusRegistryDD();
-  lockRegistryFields(); // Yenidən kilidlə
+  
+  // ✅ 3. YENİDƏN KİLİDLƏ
+  lockRegistryFields();
+  
   bsFormDirty = true;
   scheduleBsDraftSave();
 }
@@ -1495,6 +1529,7 @@ function bkFillSelects(){
     };
   }
 }
+
 
 function bkFillSel(id, arr, placeholder){
   var el = document.getElementById(id);
