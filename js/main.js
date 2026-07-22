@@ -484,24 +484,26 @@ function renderBusRegistryDropdown(matches){
   if(!matches || matches.length === 0){
     dd.innerHTML = '<div class="bs-registry-empty">Uyğun D.Q.N. tapılmadı — məlumatları əl ilə daxil edin</div>';
   } else {
-    // Matches-i global dəyişəndə saxla - carrier-da dırnaq olduğu üçün HTML attribute işlətmirik
-    window._bsRegistryMatches = matches.slice(0, 8);
-    dd.innerHTML = window._bsRegistryMatches.map(function(m, idx){
-      return '<div class="bs-registry-item" data-idx="' + idx + '">' +
+    var visibleMatches = matches.slice(0, 8);
+    var fragment = document.createDocumentFragment();
+    visibleMatches.forEach(function(m){
+      var div = document.createElement('div');
+      div.className = 'bs-registry-item';
+      div.innerHTML =
         '<span class="reg-id">' + (m.dqn || '—') + '</span>' +
-        '<span class="reg-meta">BUS ID: ' + (m.id || '—') + ' · ' + (m.carrier || '—') + ' · ' + (m.model || '—') + '</span>' +
-        '</div>';
-    }).join('');
-    
-    Array.from(dd.querySelectorAll('.bs-registry-item')).forEach(function(el){
-      el.addEventListener('click', function(e){
-        e.stopPropagation();
-        var idx = parseInt(el.getAttribute('data-idx'));
-        var match = window._bsRegistryMatches[idx];
-        console.log('🔍 Seçilən match:', match);
-        if(match && match.dqn) selectBusRegistryMatch(match);
-      });
+        '<span class="reg-meta">BUS ID: ' + (m.id || '—') + ' · ' + (m.carrier || '—') + ' · ' + (m.model || '—') + '</span>';
+      // closure - m obyekti birbaşa JS-də saxlanılır, HTML attribute-a yazılmır
+      (function(match){
+        div.addEventListener('click', function(e){
+          e.stopPropagation();
+          console.log('🔍 Seçilən match:', match);
+          if(match.dqn) selectBusRegistryMatch(match);
+        });
+      })(m);
+      fragment.appendChild(div);
     });
+    dd.innerHTML = '';
+    dd.appendChild(fragment);
   }
   dd.classList.add('open');
 }
@@ -523,17 +525,16 @@ function selectBusRegistryMatch(match){
   // 2. KİLİDİ AÇ (dropdown-ları aktiv et)
   unlockRegistryFields();
   
-  // 3. DAŞIYICI - carrier olduğu kimi saxla (dırnaqlar daxil)
+  // 3. DAŞIYICI - olduğu kimi saxla
   if(match.carrier){
-    var cleanCarrier = match.carrier;
-    console.log('✅ Daşıyıcı:', cleanCarrier);
-    bsSelected.carrier = cleanCarrier;
+    bsSelected.carrier = match.carrier;
+    console.log('✅ Daşıyıcı:', match.carrier);
     var cLbl = document.getElementById('bs_carrier_lbl');
-    if(cLbl){ cLbl.textContent = cleanCarrier; cLbl.style.color='#12233B'; cLbl.classList.add('filled'); }
+    if(cLbl){ cLbl.textContent = match.carrier; cLbl.style.color='#12233B'; cLbl.classList.add('filled'); }
     var cBtn = document.getElementById('bs_carrier_btn');
     if(cBtn){
       var span = cBtn.querySelector('span');
-      if(span){ span.textContent = cleanCarrier; span.style.color='#12233B'; span.classList.add('filled'); }
+      if(span){ span.textContent = match.carrier; span.style.color='#12233B'; span.classList.add('filled'); }
       cBtn.classList.add('filled');
     }
   }
