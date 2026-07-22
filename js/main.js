@@ -1862,7 +1862,18 @@ function bkOnCarrierChange(){
   bkRenderCountBadge(matches.length);
 
   if(matches.length > 0){
-    document.getElementById('bkDqnFilterWrap').style.display = 'block';
+    var fw = document.getElementById('bkDqnFilterWrap');
+    fw.style.display = 'block';
+    // input təmizlə
+    var inp = document.getElementById('bkDqnInput');
+    if(inp) inp.value = '';
+    var clr = document.getElementById('bkDqnClear');
+    if(clr) clr.style.display = 'none';
+    var sugg = document.getElementById('bkDqnSuggestions');
+    if(sugg){ sugg.classList.remove('open'); sugg.innerHTML=''; }
+    // bkAllMode=true olduğu üçün search başlanğıcda solğun
+    var srch = document.querySelector('.bk-dqn-search-wrap');
+    if(srch){ srch.style.opacity='0.45'; srch.style.pointerEvents='none'; }
     bkRenderDqnChips();
     bkUpdateDqnNotice();
   } else {
@@ -1874,44 +1885,41 @@ function bkOnCarrierChange(){
 function bkRenderCountBadge(count){
   var wrap = document.getElementById('bkCarrierCountWrap');
   if(count === 0){
-    wrap.innerHTML = '<div class="bk-count-badge empty">'
+    wrap.innerHTML = '<div class="bk-count-badge empty" style="margin-top:12px;">'
       + '<div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>'
       + '<div><div class="bk-count-num">0</div><div class="bk-count-txt">avtobus tapılmadı</div></div>'
       + '</div>';
     return;
   }
-  wrap.innerHTML = '<div class="bk-count-badge" id="bkCountBadge">'
-    + '<button class="bk-count-toggle" id="bkAllToggle" onclick="bkToggleAllMode()" title="Hamısını seç / DQN seç">'
-    + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>'
+  // padding-top: toggle üçün yer açır (toggle absolute, yuxarı çıxır)
+  wrap.innerHTML = '<div class="bk-count-badge" id="bkCountBadge" style="padding-top:18px;">'
+    + '<button class="bk-count-toggle" id="bkAllToggle" onclick="bkToggleAllMode()" title="Hamısını seç / DQN ilə seç">'
+    + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>'
     + '</button>'
-    + '<div class="ic" id="bkCountIc"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div>'
-    + '<div><div class="bk-count-num" id="bkCountNum">'+count+'</div><div class="bk-count-txt" id="bkCountTxt">avtobus tapıldı</div></div>'
+    + '<div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div>'
+    + '<div><div class="bk-count-num">'+count+'</div><div class="bk-count-txt">avtobus tapıldı</div></div>'
     + '</div>';
 }
 
 function bkToggleAllMode(){
   bkAllMode = !bkAllMode;
-  var toggle  = document.getElementById('bkAllToggle');
-  var badge   = document.getElementById('bkCountBadge');
-  var notice  = document.getElementById('bkDqnNotice');
-  var search  = document.querySelector('.bk-dqn-search-wrap');
+  var toggle = document.getElementById('bkAllToggle');
+  var badge  = document.getElementById('bkCountBadge');
+  var search = document.querySelector('.bk-dqn-search-wrap');
 
   if(bkAllMode){
     // Yaşıl — hamısı seçili
-    if(toggle)  toggle.classList.remove('off');
-    if(badge)   badge.classList.remove('dimmed');
-    if(notice)  notice.style.display = 'flex';
-    if(search)  search.style.opacity = '0.5';
-    if(search)  search.style.pointerEvents = 'none';
+    if(toggle) toggle.classList.remove('off');
+    if(badge)  badge.classList.remove('dimmed');
+    // Search solğun - işləməz
+    if(search){ search.style.opacity='0.45'; search.style.pointerEvents='none'; }
     bkSelectedDqns = [];
     bkRenderDqnChips();
   } else {
-    // Boz — DQN seçim rejimi
-    if(toggle)  toggle.classList.add('off');
-    if(badge)   badge.classList.add('dimmed');
-    if(notice)  notice.style.display = 'flex';
-    if(search)  search.style.opacity = '1';
-    if(search)  search.style.pointerEvents = 'auto';
+    // Boz — DQN seçim rejimi aktiv
+    if(toggle) toggle.classList.add('off');
+    if(badge)  badge.classList.add('dimmed');
+    if(search){ search.style.opacity='1'; search.style.pointerEvents='auto'; }
   }
   bkUpdateDqnNotice();
   bkUpdateImportCount();
