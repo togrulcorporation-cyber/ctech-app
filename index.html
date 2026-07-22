@@ -785,6 +785,8 @@
               <div class="bk-cal-dow">B</div>
               <div id="bkCalDays" style="display:contents;"></div>
             </div>
+            <!-- Seçilmiş tarix göstəricisi -->
+            <div id="bkSelectedDateDisplay" style="display:none;margin-top:12px;padding:8px 12px;background:#2563EB;border-radius:8px;color:#FFFFFF;font-size:13px;font-weight:600;text-align:center;font-family:'Inter',sans-serif;"></div>
           </div>
           
           <!-- Sağ tərəf: saatlar + dropdownlar -->
@@ -811,7 +813,7 @@
             </div>
             <div class="bk-field">
               <label class="bk-label">Servis ünvanı</label>
-              <select class="bk-select" id="bk_location">
+              <select class="bk-select" id="bk_location" style="max-width:300px;">
                 <option value="">Seçin (könüllü)</option>
               </select>
             </div>
@@ -832,7 +834,7 @@
         <div class="bk-carrier-row">
           <div class="bk-field bk-carrier-dd-wrap">
             <label class="bk-label">Daşıyıcı firma *</label>
-            <select class="bk-select" id="bk_carrier" onchange="bkOnCarrierChange()">
+            <select class="bk-select" id="bk_carrier" onchange="bkOnCarrierChange()" style="max-width:400px;">
               <option value="">Seçin</option>
             </select>
           </div>

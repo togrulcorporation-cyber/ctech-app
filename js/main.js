@@ -1523,9 +1523,27 @@ function renderBkCal(){
         bkSelectedDate = thisDate;
         renderBkCal();
         bkUpdateImportCount();
+        updateSelectedDateDisplay();
       };
       daysEl.appendChild(el);
     })(d);
+  }
+  
+  updateSelectedDateDisplay();
+}
+
+function updateSelectedDateDisplay(){
+  var displayEl = document.getElementById('bkSelectedDateDisplay');
+  if(!displayEl) return;
+  if(bkSelectedDate){
+    var d = bkSelectedDate;
+    var day = String(d.getDate()).padStart(2, '0');
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var year = d.getFullYear();
+    displayEl.textContent = '📅 ' + day + '.' + month + '.' + year;
+    displayEl.style.display = 'block';
+  } else {
+    displayEl.style.display = 'none';
   }
 }
 
