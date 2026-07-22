@@ -1645,7 +1645,26 @@ function bkGetTime(id){
   return /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : '';
 }
 
-
+function bkOnCarrierChange(){
+  var carrier = document.getElementById('bk_carrier').value;
+  var wrap = document.getElementById('bkCarrierCountWrap');
+  bkUpdateImportCount();
+  
+  if(!carrier){
+    wrap.innerHTML = '';
+    return;
+  }
+  
+  var matches = (bsFormData && bsFormData.busRegistry ? bsFormData.busRegistry : []).filter(function(r){
+    return String(r.carrier || '').trim().toLowerCase() === carrier.trim().toLowerCase();
+  });
+  
+  if(matches.length === 0){
+    wrap.innerHTML = '<div class="bk-count-badge empty"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="bk-count-num">0</div><div class="bk-count-txt">Bu daşıyıcıya aid avtobus tapılmadı</div></div></div>';
+  } else {
+    wrap.innerHTML = '<div class="bk-count-badge"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div><div><div class="bk-count-num">' + matches.length + '</div><div class="bk-count-txt">avtobus tapıldı</div></div></div>';
+  }
+}
 
 function bkCollectData(){
   return {
@@ -1661,11 +1680,7 @@ function bkCollectData(){
     solution_template: document.getElementById('bk_solution_tmpl').value.trim(),
     technician_1: document.getElementById('bk_tech1').value,
     technician_2: document.getElementById('bk_tech2').value,
-    team_leader: document.getElementById('bk_leader').value,
-    // Spesifik DQN seçilibsə göndər, bkAllMode=true olarsa boş array
-    selectedDqns: (!bkAllMode && bkSelectedDqns.length > 0)
-      ? bkSelectedDqns.map(function(x){ return x.dqn; })
-      : []
+    team_leader: document.getElementById('bk_leader').value
   };
 }
 
@@ -1839,212 +1854,239 @@ function bkDateChanged(val){
 function bkDateIso(d){ return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function bkDateAz(d){ return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + d.getFullYear(); }
 
-// ═══════════════════════════════════════════════════
-// BULK SERVICE - CARRIER + DQN FILTER
-// ═══════════════════════════════════════════════════
-var bkSelectedDqns  = [];
-var bkAllMode       = true; // true = bütün avtobuslar, false = seçilmiş DQN-lər
 
-function bkOnCarrierChange(){
-  var carrier = document.getElementById('bk_carrier').value;
-  bkPreviewData = null;
-  bkClosePreview();
-  bkSelectedDqns = [];
-  bkAllMode = true;
+// ═══════════════════════════════════════════════════
+// TVM SERVICE
+// ═══════════════════════════════════════════════════
+var tvmFormData = {};
+var tvmSelected = { fault:[], solution:[], tech:'', leader:'' };
+var tvmNextTicketId = '';
+var tvmRegistry = []; // [{sn:'099', fullSn:'IKB19246877', location:'28 May M/St'}]
 
-  if(!carrier){
-    document.getElementById('bkCarrierCountWrap').innerHTML = '';
-    document.getElementById('bkDqnFilterWrap').style.display = 'none';
-    bkUpdateImportCount();
+// ddMeta-ya TVM dropdown-larını əlavə et
+ddMeta['tvm_fault']    = { lbl:'bs_tvm_fault_lbl',    list:'dd_tvm_fault_list',    multi:true,  onSelect:function(){ tvmUpdateChips('fault'); } };
+ddMeta['tvm_solution'] = { lbl:'bs_tvm_solution_lbl', list:'dd_tvm_solution_list', multi:true,  onSelect:function(){ tvmUpdateChips('solution'); } };
+ddMeta['tvm_tech']     = { lbl:'bs_tvm_tech_lbl',     list:'dd_tvm_tech_list',     multi:false, onSelect:null };
+ddMeta['tvm_leader']   = { lbl:'bs_tvm_leader_lbl',   list:'dd_tvm_leader_list',   multi:false, onSelect:null };
+
+function openTvmService(){
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('tvmServiceView').style.display = 'block';
+  document.getElementById('tvmServiceView').scrollTop = 0;
+  tvmSelected = { fault:[], solution:[], tech:'', leader:'' };
+  tvmUpdateChips('fault');
+  tvmUpdateChips('solution');
+  // Tarix
+  var now = new Date();
+  var bParts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Baku',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
+  document.getElementById('tvm_date').value = bParts;
+  // SN təmizlə
+  document.getElementById('tvm_sn').value = '';
+  document.getElementById('tvm_sn_dd').style.display = 'none';
+  document.getElementById('tvm_location_wrap').style.display = 'none';
+  document.getElementById('tvm_sn_full_wrap').style.display = 'none';
+  ['tvm_fault_time','tvm_start_time','tvm_end_time'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  document.getElementById('tvm_note').value = '';
+  // Form data yüklə
+  tvmLoadFormData();
+}
+
+function closeTvmService(){
+  document.getElementById('tvmServiceView').style.display = 'none';
+  document.getElementById('dashboardView').style.display = 'block';
+}
+
+function tvmLoadFormData(){
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTvmFormData'})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.status !== 'OK') return;
+    tvmFormData = d;
+    tvmRegistry = d.tvmRegistry || [];
+    // Ticket ID
+    var tid = d.nextTicketId || 'TVM-00001';
+    tvmNextTicketId = tid;
+    document.getElementById('tvmTicketBadge').innerHTML =
+      '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:5px 14px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:13px;color:#fff;letter-spacing:1px;">' + tid + '</span>';
+    // Dropdown-ları doldur
+    bsFormData.tvmFaults    = d.tvmFaults    || [];
+    bsFormData.tvmSolutions = d.tvmSolutions || [];
+    bsFormData.tvmLeaders   = d.tvmLeaders   || [];
+    if(!bsFormData.technicians) bsFormData.technicians = d.technicians || [];
+  })
+  .catch(function(){
+    document.getElementById('tvmTicketBadge').innerHTML =
+      '<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:5px 14px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:13px;color:#fff;letter-spacing:1px;">TVM-?????</span>';
+  });
+}
+
+// getListForKey-ə TVM dropdown-larını əlavə et
+var _origGetListForKey = getListForKey;
+function getListForKey(key){
+  if(key === 'tvm_fault')    return bsFormData.tvmFaults    || [];
+  if(key === 'tvm_solution') return bsFormData.tvmSolutions || [];
+  if(key === 'tvm_tech')     return bsFormData.technicians  || [];
+  if(key === 'tvm_leader')   return bsFormData.tvmLeaders   || [];
+  return _origGetListForKey(key);
+}
+
+// bsSelected-ə TVM seçimlərini əlavə et
+var _origSelectDDItem = selectDDItem;
+function selectDDItem(key, item){
+  if(key === 'tvm_fault' || key === 'tvm_solution'){
+    var arr = tvmSelected[key === 'tvm_fault' ? 'fault' : 'solution'];
+    var idx = arr.indexOf(item);
+    if(idx !== -1) arr.splice(idx,1); else arr.push(item);
+    renderDD(key);
+    tvmUpdateChips(key === 'tvm_fault' ? 'fault' : 'solution');
     return;
   }
-
-  var matches = (bsFormData && bsFormData.busRegistry || []).filter(function(r){
-    return String(r.carrier||'').trim().toLowerCase() === carrier.trim().toLowerCase();
-  });
-
-  bkRenderCountBadge(matches.length);
-
-  if(matches.length > 0){
-    var fw = document.getElementById('bkDqnFilterWrap');
-    fw.style.display = 'block';
-    // input təmizlə
-    var inp = document.getElementById('bkDqnInput');
-    if(inp) inp.value = '';
-    var clr = document.getElementById('bkDqnClear');
-    if(clr) clr.style.display = 'none';
-    var sugg = document.getElementById('bkDqnSuggestions');
-    if(sugg){ sugg.classList.remove('open'); sugg.innerHTML=''; }
-    // bkAllMode=true olduğu üçün search başlanğıcda solğun
-    var srch = document.querySelector('.bk-dqn-search-wrap');
-    if(srch){ srch.style.opacity='0.45'; srch.style.pointerEvents='none'; }
-    bkRenderDqnChips();
-    bkUpdateDqnNotice();
-  } else {
-    document.getElementById('bkDqnFilterWrap').style.display = 'none';
-  }
-  bkUpdateImportCount();
+  if(key === 'tvm_tech'){   tvmSelected.tech   = item; setDDValue(key,item); closeDD(key); return; }
+  if(key === 'tvm_leader'){ tvmSelected.leader = item; setDDValue(key,item); closeDD(key); return; }
+  _origSelectDDItem(key, item);
 }
 
-function bkRenderCountBadge(count){
-  var wrap = document.getElementById('bkCarrierCountWrap');
-  if(count === 0){
-    wrap.innerHTML = '<div class="bk-count-badge empty" style="margin-top:12px;">'
-      + '<div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>'
-      + '<div><div class="bk-count-num">0</div><div class="bk-count-txt">avtobus tapılmadı</div></div>'
-      + '</div>';
-    return;
-  }
-  // Toggle badge-in solunda - static layout, heç nə üst-üstə düşmür
-  wrap.innerHTML = '<div style="display:flex;align-items:center;gap:20px;margin-top:14px;">'
-    + '<button class="bk-count-toggle" id="bkAllToggle" onclick="bkToggleAllMode()" title="Hamısını seç / DQN ilə seç"><svg class="bk-toggle-tick" width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#3FCB78" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
-    + '<div class="bk-count-badge" id="bkCountBadge">'
-    + '<div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div>'
-    + '<div><div class="bk-count-num">'+count+'</div><div class="bk-count-txt">avtobus tapıldı</div></div>'
-    + '</div>'
-    + '</div>';
-}
-
-function bkToggleAllMode(){
-  bkAllMode = !bkAllMode;
-  var toggle = document.getElementById('bkAllToggle');
-  var badge  = document.getElementById('bkCountBadge');
-  var search = document.querySelector('.bk-dqn-search-wrap');
-
-  if(bkAllMode){
-    // Yaşıl — hamısı seçili
-    if(toggle) toggle.classList.remove('off');
-    if(badge)  badge.classList.remove('dimmed');
-    // Search solğun - işləməz
-    if(search){ search.style.opacity='0.45'; search.style.pointerEvents='none'; }
-    bkSelectedDqns = [];
-    bkRenderDqnChips();
-  } else {
-    // Boz — DQN seçim rejimi aktiv
-    if(toggle) toggle.classList.add('off');
-    if(badge)  badge.classList.add('dimmed');
-    if(search){ search.style.opacity='1'; search.style.pointerEvents='auto'; }
-  }
-  bkUpdateDqnNotice();
-  bkUpdateImportCount();
-}
-
-function bkUpdateDqnNotice(){
-  var notice = document.getElementById('bkDqnNoticeText');
-  if(!notice) return;
-  if(bkAllMode){
-    notice.textContent = 'Bütün avtobuslar seçilidir. Spesifik DQN seçmək üçün yuxarıdakı ✓ düyməsini söndürün.';
-  } else if(bkSelectedDqns.length === 0){
-    notice.textContent = 'DQN seçim rejimi aktifdir. Aşağıdan DQN axtarıb seçin.';
-  } else {
-    notice.textContent = bkSelectedDqns.length + ' DQN seçildi. İdxal yalnız bu avtobuslar üçün olacaq.';
-  }
-}
-
-function bkDqnInputHandler(el){
-  var q = el.value.toUpperCase().replace(/[^0-9A-Z]/g,'');
-  el.value = q;
-  var clear = document.getElementById('bkDqnClear');
-  if(clear) clear.style.display = q ? 'flex' : 'none';
-
-  var carrier = document.getElementById('bk_carrier').value;
-  var sugg = document.getElementById('bkDqnSuggestions');
-  if(!sugg) return;
-
-  if(q.length < 2){ sugg.classList.remove('open'); return; }
-
-  var already = bkSelectedDqns.map(function(x){ return x.dqn; });
-  var reg = (bsFormData && bsFormData.busRegistry || []).filter(function(r){
-    if(String(r.carrier||'').trim().toLowerCase() !== carrier.trim().toLowerCase()) return false;
-    if(already.indexOf(r.dqn) !== -1) return false;
-    var dqn = String(r.dqn||'').toUpperCase().replace(/[\s-]/g,'');
-    var qq  = q.replace(/[\s-]/g,'');
-    return dqn.indexOf(qq) !== -1;
-  });
-
-  sugg.innerHTML = '';
-  if(reg.length === 0){
-    sugg.innerHTML = '<div class="bk-dqn-suggest-item"><span class="bk-dqn-suggest-dqn" style="color:#9AACC4;">Uyğun DQN tapılmadı</span></div>';
-  } else {
-    reg.slice(0,10).forEach(function(r){
-      var div = document.createElement('div');
-      div.className = 'bk-dqn-suggest-item';
-      div.innerHTML = '<span class="bk-dqn-suggest-dqn">'+escapeHtml(r.dqn)+'</span>'
-        + '<span class="bk-dqn-suggest-meta">'+escapeHtml(r.id)+' · '+escapeHtml(r.model)+'</span>';
-      (function(match){
-        div.addEventListener('click', function(){
-          bkSelectDqn(match);
-          el.value = '';
-          if(clear) clear.style.display = 'none';
-          sugg.classList.remove('open');
-          el.focus();
-        });
-      })(r);
-      sugg.appendChild(div);
-    });
-  }
-  sugg.classList.add('open');
-}
-
-function bkClearDqnInput(){
-  var el = document.getElementById('bkDqnInput');
-  if(el) el.value = '';
-  var clear = document.getElementById('bkDqnClear');
-  if(clear) clear.style.display = 'none';
-  var sugg = document.getElementById('bkDqnSuggestions');
-  if(sugg) sugg.classList.remove('open');
-}
-
-function bkSelectDqn(match){
-  if(bkSelectedDqns.find(function(x){ return x.dqn === match.dqn; })) return;
-  bkSelectedDqns.push({dqn: match.dqn, id: match.id, model: match.model});
-  bkRenderDqnChips();
-  bkUpdateDqnNotice();
-  bkUpdateImportCount();
-}
-
-function bkRemoveDqn(dqn){
-  bkSelectedDqns = bkSelectedDqns.filter(function(x){ return x.dqn !== dqn; });
-  bkRenderDqnChips();
-  bkUpdateDqnNotice();
-  bkUpdateImportCount();
-}
-
-function bkRenderDqnChips(){
-  var container = document.getElementById('bkDqnChips');
+function tvmUpdateChips(type){
+  var arr = type === 'fault' ? tvmSelected.fault : tvmSelected.solution;
+  var containerId = type === 'fault' ? 'tvm_fault_chips' : 'tvm_solution_chips';
+  var lblId = type === 'fault' ? 'bs_tvm_fault_lbl' : 'bs_tvm_solution_lbl';
+  var container = document.getElementById(containerId);
   if(!container) return;
   container.innerHTML = '';
-  if(bkSelectedDqns.length === 0){
-    if(!bkAllMode){
-      container.innerHTML = '<span class="bk-dqn-empty">Hələ seçilməyib</span>';
-    }
+  if(arr.length === 0){
+    var lblEl = document.getElementById(lblId);
+    if(lblEl){ lblEl.textContent = 'Seçin (çoxlu seçim)'; lblEl.style.color='#9AACC4'; lblEl.classList.remove('filled'); }
     return;
   }
-  bkSelectedDqns.forEach(function(x){
+  var lblEl = document.getElementById(lblId);
+  if(lblEl){ lblEl.textContent = arr.length + ' seçim'; lblEl.style.color='#12233B'; lblEl.classList.add('filled'); }
+  arr.forEach(function(item){
     var chip = document.createElement('div');
-    chip.className = 'bk-dqn-chip';
-    var safe = x.dqn.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    chip.innerHTML = escapeHtml(x.dqn)
-      + '<button class="bk-dqn-chip-x" onclick="bkRemoveDqn(\'' + safe + '\')">&#x2715;</button>';
+    chip.className = 'bs-chip';
+    chip.innerHTML = escapeHtml(item) + '<button class="bs-chip-x" onclick="tvmRemoveChip(\'' + type + '\',\'' + escapeHtml(item).replace(/\'/g,"\\'") + '\')">✕</button>';
     container.appendChild(chip);
   });
 }
 
-function bkUpdateImportCount(){
-  var btn = document.getElementById('bkDirectSubmitBtn');
-  if(!btn) return;
-  var carrier = (document.getElementById('bk_carrier')||{}).value || '';
-  var allMatches = (bsFormData && bsFormData.busRegistry || []).filter(function(r){
-    return String(r.carrier||'').trim().toLowerCase() === carrier.trim().toLowerCase();
-  });
-  var count = (bkAllMode || bkSelectedDqns.length === 0) ? allMatches.length : bkSelectedDqns.length;
-  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
-    + ' İdxal et (' + count + ' ticket)';
+function tvmRemoveChip(type, item){
+  var arr = type === 'fault' ? tvmSelected.fault : tvmSelected.solution;
+  var idx = arr.indexOf(item);
+  if(idx !== -1) arr.splice(idx,1);
+  tvmUpdateChips(type);
 }
 
-document.addEventListener('click', function(e){
-  if(!e.target.closest('#bkDqnFilterWrap')){
-    var sugg = document.getElementById('bkDqnSuggestions');
-    if(sugg) sugg.classList.remove('open');
+// ── TVM SN axtarış ──
+function tvmSnInputHandler(el){
+  var q = el.value.replace(/[^0-9]/g,'').slice(0,3);
+  el.value = q;
+  var dd = document.getElementById('tvm_sn_dd');
+  document.getElementById('tvm_location_wrap').style.display = 'none';
+  document.getElementById('tvm_sn_full_wrap').style.display = 'none';
+  if(q.length < 1){ dd.style.display='none'; return; }
+  var matches = tvmRegistry.filter(function(r){
+    return String(r.sn||'').indexOf(q) === 0 || String(r.sn||'') === q;
+  });
+  if(matches.length === 0){ dd.style.display='none'; return; }
+  dd.innerHTML = matches.slice(0,6).map(function(r){
+    return '<div class="bs-registry-item" style="cursor:pointer;padding:10px 14px;border-bottom:1px solid #F0F5FC;" onclick="tvmSnSelect(\''+r.sn+'\')">'
+      + '<span class="reg-id">SN: ' + escapeHtml(r.sn) + '</span>'
+      + '<span class="reg-meta" style="font-size:11px;color:#8CA0BC;margin-left:8px;">' + escapeHtml(r.location||'—') + '</span>'
+      + '</div>';
+  }).join('');
+  dd.style.display = 'block';
+}
+
+function tvmSnSelect(sn){
+  var record = tvmRegistry.find(function(r){ return r.sn === sn; });
+  if(!record) return;
+  document.getElementById('tvm_sn').value = sn;
+  document.getElementById('tvm_sn_dd').style.display = 'none';
+  if(record.location){
+    document.getElementById('tvm_location_display').textContent = record.location;
+    document.getElementById('tvm_location_wrap').style.display = 'block';
   }
+  if(record.fullSn){
+    document.getElementById('tvm_sn_full_display').textContent = record.fullSn;
+    document.getElementById('tvm_sn_full_wrap').style.display = 'block';
+  }
+}
+
+// ── TVM Time format ──
+function tvmFormatTime(el){
+  var digits = el.value.replace(/[^0-9]/g,'').slice(0,4);
+  el.value = digits.length > 2 ? digits.slice(0,2)+':'+digits.slice(2) : digits;
+}
+
+// ── TVM Submit ──
+function submitTvmService(){
+  var date     = document.getElementById('tvm_date').value;
+  var sn       = document.getElementById('tvm_sn').value.trim();
+  var faultT   = document.getElementById('tvm_fault_time').value.trim();
+  var startT   = document.getElementById('tvm_start_time').value.trim();
+  var endT     = document.getElementById('tvm_end_time').value.trim();
+  var note     = document.getElementById('tvm_note').value.trim();
+  var location = document.getElementById('tvm_location_display').textContent.trim();
+
+  if(!date)               { alert('Tarix seçin'); return; }
+  if(!sn)                 { alert('TVM SN daxil edin'); return; }
+  if(!faultT)             { alert('Nasazlığın yaranma vaxtını daxil edin'); return; }
+  if(!startT)             { alert('Servis başlama vaxtını daxil edin'); return; }
+  if(!endT)               { alert('Servis bitmə vaxtını daxil edin'); return; }
+  if(tvmSelected.fault.length === 0)    { alert('Nasazlıq seçin'); return; }
+  if(tvmSelected.solution.length === 0) { alert('Görülən iş seçin'); return; }
+  if(!tvmSelected.tech)   { alert('Texnik seçin'); return; }
+  if(!tvmSelected.leader) { alert('Qrup rəhbəri seçin'); return; }
+
+  var data = {
+    report_date: date,
+    tvm_sn: sn,
+    location: location,
+    fault_time: faultT,
+    service_start_time: startT,
+    service_end_time: endT,
+    fault: tvmSelected.fault,
+    solution: tvmSelected.solution,
+    technician: tvmSelected.tech,
+    team_leader: tvmSelected.leader,
+    note: note
+  };
+
+  var ov = document.getElementById('tvmLoadingOverlay');
+  var sp = document.getElementById('tvmSpinner');
+  var ic = document.getElementById('tvmSuccessIcon');
+  var tx = document.getElementById('tvmLoadingText');
+  ov.style.display='flex'; sp.style.display='block'; ic.style.display='none';
+  tx.textContent = 'Göndərilir...';
+
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitTvmService',data:data,userEmail:currentUser?currentUser.email:''})})
+  .then(function(r){return r.json();})
+  .then(function(result){
+    sp.style.display='none'; ic.style.display='flex';
+    tx.textContent = result.status==='OK' ? ('Göndərildi! '+result.ticketId) : ('Xəta: '+(result.message||''));
+    setTimeout(function(){
+      ov.style.display='none';
+      if(result.status==='OK'){ closeTvmService(); }
+    }, 1800);
+  })
+  .catch(function(){
+    sp.style.display='none';
+    tx.textContent = 'Şəbəkə xətası';
+    setTimeout(function(){ ov.style.display='none'; }, 1500);
+  });
+}
+
+// Enter = Tab in TVM view
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Enter') return;
+  var view = document.getElementById('tvmServiceView');
+  if(!view || view.style.display === 'none') return;
+  var active = document.activeElement;
+  if(!active || !view.contains(active)) return;
+  if(active.tagName === 'BUTTON' || active.tagName === 'TEXTAREA') return;
+  e.preventDefault();
+  var focusable = Array.from(view.querySelectorAll('input:not([type=hidden]),select,textarea,button:not([tabindex="-1"])')).filter(function(el){ return !el.disabled && el.offsetParent !== null; });
+  var idx = focusable.indexOf(active);
+  if(idx !== -1 && idx < focusable.length-1) focusable[idx+1].focus();
 });
