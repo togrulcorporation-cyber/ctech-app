@@ -1,3 +1,4 @@
+
 var API_URL = "https://script.google.com/macros/s/AKfycbytFqFdrsHqKrD2YnurKsXATyjAMLbFAtV3gEcLxmPF_DjfGk2A9yyBrhs7XgoM-uYcbw/exec";
 var currentUser = null;
 var SESSION_KEY = "ctech_session";
@@ -484,9 +485,12 @@ function renderBusRegistryDropdown(matches){
     dd.innerHTML = '<div class="bs-registry-empty">Uyğun D.Q.N. tapılmadı — məlumatları əl ilə daxil edin</div>';
   } else {
     dd.innerHTML = matches.slice(0, 8).map(function(m){
-      // ✅ carrier-ı düzgün ötür (dırnaqları təmizləmədən, olduğu kimi)
-      var carrierAttr = m.carrier || '';
-      return '<div class="bs-registry-item" data-dqn="' + (m.dqn || '') + '" data-id="' + (m.id || '') + '" data-carrier="' + carrierAttr + '" data-model="' + (m.model || '') + '">' +
+      // carrier-da dırnaq işarəsi varsa HTML attribute-u qırır - encode edirik
+      var carrierAttr = (m.carrier || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      var dqnAttr     = (m.dqn   || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      var idAttr      = (m.id    || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      var modelAttr   = (m.model || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      return '<div class="bs-registry-item" data-dqn="' + dqnAttr + '" data-id="' + idAttr + '" data-carrier="' + carrierAttr + '" data-model="' + modelAttr + '">' +
         '<span class="reg-id">' + (m.dqn || '—') + '</span>' +
         '<span class="reg-meta">BUS ID: ' + (m.id || '—') + ' · ' + (m.carrier || '—') + ' · ' + (m.model || '—') + '</span>' +
         '</div>';
@@ -526,32 +530,12 @@ function selectBusRegistryMatch(match){
   // 2. KİLİDİ AÇ (dropdown-ları aktiv et)
   unlockRegistryFields();
   
-  // 3. DAŞIYICI - Dırnaqları təmizlə
+  // 3. DAŞIYICI
   if(match.carrier){
-    var cleanCarrier = match.carrier.replace(/^"|"$/g, '').trim();
-    console.log('✅ Təmizlənmiş daşıyıcı:', cleanCarrier);
-    
-    bsSelected.carrier = cleanCarrier;
-    
-    // Label-a yaz
-    var cLbl = document.getElementById('bs_carrier_lbl');
-    if(cLbl){
-      cLbl.textContent = cleanCarrier;
-      cLbl.style.color = '#12233B';
-      cLbl.classList.add('filled');
-    }
-    
-    // Button-a yaz
-    var cBtn = document.getElementById('bs_carrier_btn');
-    if(cBtn){
-      var span = cBtn.querySelector('span');
-      if(span){
-        span.textContent = cleanCarrier;
-        span.style.color = '#12233B';
-        span.classList.add('filled');
-      }
-      cBtn.classList.add('filled');
-    }
+    // &quot; encode-unu decode et, sonra baş/son dırnaqları sil
+    var cleanCarrier = match.carrier.replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/^"|"$/g,'').trim();
+    console.log('✅ Daşıyıcı:', cleanCarrier);
+    setDDValue('carrier', cleanCarrier);
   }
   
   // 4. MODEL
