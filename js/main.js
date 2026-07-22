@@ -32,7 +32,7 @@ function login(){
   .then(function(result){
     if(result.status==='OK'){ currentUser=result; if(document.getElementById('rememberMe').checked){saveSession(result);}else{clearSession();} showLoadingSuccess(function(){showDashboard();}); }
     else if(result.status==='WRONG_PASSWORD'){ showLoadingFail('Şifrə yanlışdır'); }
-    else { showLoadingFail((result.debug||'DENIED')+'\n\n'+(result.debug||'Bu hesab üçün giriş icazəsi yoxdur')); }
+    else { showLoadingFail(result.debug?'DENIED\n\n'+result.debug:'Bu hesab üçün giriş icazəsi yoxdur'); }
   })
   .catch(function(e){ showLoadingFail('XƏTA: '+e.message); });
 }
@@ -372,7 +372,7 @@ function openBusServiceForEdit(ticketId){
     updateMultiLabel('solution'); updateSolutionChips();
     document.getElementById('bs_location_note_wrap').style.display=(d.service_location||'').toLowerCase().indexOf('digər')!==-1?'block':'none';
     bsFormDirty=false;
-  }).catch(function(){ ov.style.display='none'; alert('Şəbəkə xətası — ticket yüklənə bilmədi'); });
+  }).catch(function(){ ov.style.display='none'; alert('Şəbəkə xətası: ticket yüklənə bilmədi'); });
 }
 
 function submitBusService(){
@@ -996,22 +996,37 @@ var BK_MONTHS=['Yanvar','Fevral','Mart','Aprel','May','İyun','İyul','Avqust','
 var bkPreviewData=null,bkFormDataLoaded=false;
 
 function openBusBulk(){
-  if(currentUser){var level=getAccessLevel(currentUser.role);if(level==='technician'){alert('Bu bölməyə giriş icazəniz yoxdur. Yalnız admin və qrup rəhbərləri istifadə edə bilər.');return;}}
-  var now=bakuNowDate();
-  document.getElementById('busServiceView').style.display='none';
-  document.getElementById('busBulkView').style.display='flex';
+  // Yalnız Admin və Team Leader üçün
+  if(currentUser){
+    var level = getAccessLevel(currentUser.role);
+    if(level === 'technician'){
+      alert('Bu bölməyə giriş icazəniz yoxdur. Yalnız admin və qrup rəhbərləri istifadə edə bilər.');
+      return;
+    }
+  }
+  
+  var now = bakuNowDate();
+  document.getElementById('busServiceView').style.display = 'none';
+  document.getElementById('busBulkView').style.display = 'flex';
   ensureBulkFormData();
-  if(!bkSelectedDate){bkCalYear=now.getFullYear();bkCalMonth=now.getMonth();bkSelectedDate=new Date(now.getFullYear(),now.getMonth(),now.getDate());}
+  if(!bkSelectedDate){
+    bkCalYear = now.getFullYear();
+    bkCalMonth = now.getMonth();
+    bkSelectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }
   renderBkCal();
   bkUpdateImportCount();
 }
+
 function closeBusBulk(){document.getElementById('busBulkView').style.display='none';document.getElementById('busServiceView').style.display='block';}
+
 function ensureBulkFormData(){
   if(bsFormData&&bsFormData.carriers){bkFillSelects();bkFormDataLoaded=true;return;}
   fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getFormData'})})
     .then(function(r){return r.json();})
     .then(function(d){if(d.status==='OK'){bsFormData=d;}bkFillSelects();bkFormDataLoaded=true;});
 }
+
 function bkFillSelects(){
   var d=bsFormData||{};
   bkFillSel('bk_carrier',d.carriers,'Seçin');
@@ -1023,10 +1038,12 @@ function bkFillSelects(){
   var locEl=document.getElementById('bk_location');
   if(locEl)locEl.onchange=function(){var isDigar=(this.value).toLowerCase().indexOf('digər')!==-1;document.getElementById('bk_location_note_wrap').style.display=isDigar?'block':'none';};
 }
+
 function bkFillSel(id,arr,placeholder){
   var el=document.getElementById(id);if(!el)return;
   el.innerHTML='<option value="">'+placeholder+'</option>'+(arr||[]).map(function(x){return'<option value="'+escapeHtml(x)+'">'+escapeHtml(x)+'</option>';}).join('');
 }
+
 function renderBkCal(){
   var labelEl=document.getElementById('bkCalLabel');
   var daysEl=document.getElementById('bkCalDays');
@@ -1051,11 +1068,13 @@ function renderBkCal(){
     })(d);
   }
 }
+
 function bkSameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+
 function bkCalNav(dir){bkCalMonth+=dir;if(bkCalMonth<0){bkCalMonth=11;bkCalYear--;}if(bkCalMonth>11){bkCalMonth=0;bkCalYear++;}renderBkCal();}
-function bkDateIso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function bkDateAz(d){return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();}
+
 function bkFormatTime(el){var digits=el.value.replace(/[^0-9]/g,'').slice(0,4);el.value=digits.length>2?digits.slice(0,2)+':'+digits.slice(2):digits;}
+
 function bkGetTime(id){var v=(document.getElementById(id)||{}).value||'';v=v.trim();return/^([01]\d|2[0-3])[0-5]\d$/.test(v)?v:'';}
 
 function bkOnCarrierChange(){
@@ -1067,6 +1086,7 @@ function bkOnCarrierChange(){
   if(matches.length===0){wrap.innerHTML='<div class="bk-count-badge empty"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="bk-count-num">0</div><div class="bk-count-txt">Bu daşıyıcıya aid avtobus tapılmadı</div></div></div>';}
   else{wrap.innerHTML='<div class="bk-count-badge"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div><div><div class="bk-count-num">'+matches.length+'</div><div class="bk-count-txt">avtobus tapıldı</div></div></div>';}
 }
+
 function bkCollectData(){
   return{
     carrier:document.getElementById('bk_carrier').value,
@@ -1084,6 +1104,7 @@ function bkCollectData(){
     team_leader:document.getElementById('bk_leader').value
   };
 }
+
 function bkValidate(data){
   if(!data.carrier)return'Daşıyıcı firma seçilməyib';
   if(!data.report_date)return'Servis tarixi seçilməyib';
@@ -1096,90 +1117,127 @@ function bkValidate(data){
   if(data.service_location&&data.service_location.toLowerCase().indexOf('digər')!==-1&&!data.service_location_note)return'Ünvan qeydi yazın';
   return null;
 }
-function bkOpenPreview(){
-  var data=bkCollectData();var err=bkValidate(data);if(err){alert(err);return;}
-  document.getElementById('bkMainLayout').classList.add('preview-open');
-  var body=document.getElementById('bkPreviewBody');
-  body.innerHTML='<div class="bk-loading-mini"><div class="spinner" style="width:38px;height:38px;border-width:4px;"></div><div style="font-size:13px;color:#5C7089;font-weight:600;">Hazırlanır...</div></div>';
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'previewBulkImport',data:data})})
-  .then(function(r){return r.json();})
-  .then(function(d){if(d.status!=='OK'){body.innerHTML=bkEmptyBodyHtml(d.message||'Xəta baş verdi');return;}bkPreviewData=d;renderBkPreviewPanel(data,d);})
-  .catch(function(e){body.innerHTML=bkEmptyBodyHtml('Şəbəkə xətası: '+e.message);});
-}
-function bkClosePreview(){
-  document.getElementById('bkMainLayout').classList.remove('preview-open');
-  var body=document.getElementById('bkPreviewBody');
-  if(body)body.innerHTML='<div class="bk-empty-state"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><div>Parametrləri doldurun və "Ön baxış" düyməsinə basın</div></div>';
-}
-function bkEmptyBodyHtml(msg){return'<div class="bk-empty-state"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div>'+escapeHtml(msg)+'</div></div>';}
-function bkEmptyHtml(msg){return bkEmptyBodyHtml(msg);}
-function renderBkPreviewPanel(data,previewResult){
-  var count=previewResult.count||0,sample=previewResult.sample||[];
-  var body=document.getElementById('bkPreviewBody');if(!body)return;
-  var html='<div class="bk-carrier-card"><div class="bk-carrier-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div><div><div class="bk-carrier-name">'+escapeHtml(data.carrier)+'</div><div class="bk-carrier-count">'+count+' avtobus tapıldı</div></div></div>';
-  if(count===0){html+='<div class="bk-empty-state"><div>Bu daşıyıcıya aid reyestrdə avtobus tapılmadı.</div></div>';body.innerHTML=html;return;}
-  var pvRow=function(label,value,extra){return'<div class="bk-pv-row'+(extra?' '+extra:'')+'">'+'<div class="bk-pv-label">'+label+'</div><div class="bk-pv-value">'+escapeHtml(value||'—')+'</div></div>';};
-  html+=pvRow('Servis tarixi:',bkDateAz(bkSelectedDate));
-  html+=pvRow('Başlanğıc - Bitiş:',(data.service_start_time||'—')+' - '+(data.service_end_time||'—'));
-  html+=pvRow('Servis kateqoriyası:',data.changed_device_type);
-  html+=pvRow('Servis ünvanı:',data.service_location?(data.service_location+(data.service_location_note?' ('+data.service_location_note+')':'')):'—');
-  html+=pvRow('Daşıyıcı firma:',data.carrier);
-  html+=pvRow('Tapılan avtobus sayı:',String(count),'highlight');
-  html+=pvRow('Texniklər:',[data.technician_1,data.technician_2].filter(Boolean).join(', ')||'—');
-  html+=pvRow('Qrup rəhbəri:',data.team_leader);
-  html+=pvRow('Tələb (şablon):',data.request_template);
-  html+=pvRow('Qeyd / Note:',data.note||'Qeyd daxil edilməyib');
-  html+=pvRow('Həll (şablon):',data.solution_template);
-  if(sample.length){
-    html+='<div class="bk-pv-section-title">Nümunə siyahı (ilk '+sample.length+' sətir)</div>';
-    html+='<table class="bk-sample-table"><thead><tr><th>BUS ID</th><th>D.Q.N.</th><th>Marka / Model</th></tr></thead><tbody>';
-    sample.forEach(function(s){html+='<tr><td>'+escapeHtml(s.busId||'')+'</td><td>'+escapeHtml(s.dqn||'')+'</td><td>'+escapeHtml(s.model||'')+'</td></tr>';});
-    html+='</tbody></table>';
-    if(count>sample.length)html+='<div class="bk-sample-more">... və daha <b>'+(count-sample.length)+'</b> avtobus</div>';
-  }
-  html+='<div class="bk-preview-note"><div class="bk-preview-note-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="bk-preview-note-title">Qeyd:</div><div class="bk-preview-note-text">İdxal prosesi tamamlandıqdan sonra bütün ticket-lər BUS Service siyahısına əlavə olunacaq və müvafiq bildirişlər göndəriləcək.</div></div></div>';
-  html+='<div class="bk-preview-footer"><button class="bk-btn-outline" onclick="bkClosePreview()">Ləğv et</button><button class="bk-btn-primary" onclick="bkConfirmImport()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>İdxal et ('+count+' ticket)</button></div>';
-  body.innerHTML=html;
-  bkUpdateImportCount();
-}
+
 function bkUpdateImportCount(){
-  var carrier=document.getElementById('bk_carrier')?document.getElementById('bk_carrier').value:'';
-  var count=0;
-  if(carrier&&bsFormData&&bsFormData.busRegistry){count=(bsFormData.busRegistry||[]).filter(function(r){return String(r.carrier).trim().toLowerCase()===carrier.trim().toLowerCase();}).length;}
-  var el=document.getElementById('bkImportCount');if(el)el.textContent=count;
+  var carrier = document.getElementById('bk_carrier') ? document.getElementById('bk_carrier').value : '';
+  var count = 0;
+  if(carrier && bsFormData && bsFormData.busRegistry){
+    count = (bsFormData.busRegistry || []).filter(function(r){
+      return String(r.carrier).trim().toLowerCase() === carrier.trim().toLowerCase();
+    }).length;
+  }
+  var el = document.getElementById('bkImportCount');
+  if(el) el.textContent = count;
 }
-function bkConfirmImport(){
-  var data=bkCollectData();var err=bkValidate(data);if(err){alert(err);return;}
-  if(!bkPreviewData||bkPreviewData.count===0){alert('İdxal ediləcək avtobus yoxdur');return;}
-  bkRunImport(data,bkPreviewData.count);
-}
+
 function bkSubmitDirect(){
-  var data=bkCollectData();var err=bkValidate(data);if(err){alert(err);return;}
-  var btn=document.getElementById('bkDirectSubmitBtn');btn.disabled=true;
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'previewBulkImport',data:data})})
-  .then(function(r){return r.json();})
+  var data = bkCollectData();
+  var err = bkValidate(data);
+  if(err){ alert(err); return; }
+  
+  var btn = document.getElementById('bkDirectSubmitBtn');
+  btn.disabled = true;
+  
+  var ov = document.getElementById('bkLoadingOverlay');
+  var sp = document.getElementById('bkSpinner');
+  var ic = document.getElementById('bkSuccessIcon');
+  var tx = document.getElementById('bkLoadingText');
+  
+  ov.classList.add('open');
+  sp.style.display = 'block';
+  ic.style.display = 'none';
+  ic.classList.remove('show');
+  tx.textContent = 'İdxal edilir...';
+  
+  fetch(API_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'previewBulkImport',data:data})
+  })
+  .then(function(r){ return r.json(); })
   .then(function(d){
-    btn.disabled=false;
-    if(d.status!=='OK'){alert(d.message||'Xəta baş verdi');return;}
-    if(d.count===0){alert('"'+data.carrier+'" daşıyıcısına aid reyestrdə avtobus tapılmadı.');return;}
-    if(!confirm(d.count+' avtobus üçün ticket yaradılacaq. Davam edilsin?'))return;
-    bkRunImport(data,d.count);
-  }).catch(function(e){btn.disabled=false;alert('Şəbəkə xətası: '+e.message);});
+    btn.disabled = false;
+    if(d.status !== 'OK'){
+      sp.style.display = 'none';
+      tx.textContent = 'Xəta: ' + (d.message || '');
+      setTimeout(function(){ ov.classList.remove('open'); }, 2000);
+      return;
+    }
+    if(d.count === 0){
+      sp.style.display = 'none';
+      tx.textContent = '"' + data.carrier + '" daşıyıcısına aid avtobus tapılmadı.';
+      setTimeout(function(){ ov.classList.remove('open'); }, 2000);
+      return;
+    }
+    if(!confirm(d.count + ' avtobus üçün ticket yaradılacaq. Davam edilsin?')){
+      ov.classList.remove('open');
+      btn.disabled = false;
+      return;
+    }
+    bkRunImport(data, d.count);
+  })
+  .catch(function(e){
+    btn.disabled = false;
+    sp.style.display = 'none';
+    tx.textContent = 'Şəbəkə xətası: ' + e.message;
+    setTimeout(function(){ ov.classList.remove('open'); }, 2000);
+  });
 }
-function bkRunImport(data,count){
-  var ov=document.getElementById('bkLoadingOverlay');var sp=document.getElementById('bkSpinner');
-  var ic=document.getElementById('bkSuccessIcon');var tx=document.getElementById('bkLoadingText');
-  ov.classList.add('open');sp.style.display='block';ic.style.display='none';
-  tx.textContent=count+' ticket idxal edilir...';
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitBulkImport',data:data,userEmail:currentUser?currentUser.email:''})})
-  .then(function(r){return r.json();})
+
+function bkRunImport(data, count){
+  var ov = document.getElementById('bkLoadingOverlay');
+  var sp = document.getElementById('bkSpinner');
+  var ic = document.getElementById('bkSuccessIcon');
+  var tx = document.getElementById('bkLoadingText');
+  
+  ov.classList.add('open');
+  sp.style.display = 'block';
+  ic.style.display = 'none';
+  ic.classList.remove('show');
+  tx.textContent = count + ' ticket idxal edilir...';
+  
+  var btn = document.getElementById('bkDirectSubmitBtn');
+  if(btn) btn.disabled = false;
+  
+  fetch(API_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({
+      action:'submitBulkImport',
+      data:data,
+      userEmail:currentUser ? currentUser.email : ''
+    })
+  })
+  .then(function(r){ return r.json(); })
   .then(function(result){
-    sp.style.display='none';ic.style.display='flex';
-    if(result.status==='OK'){tx.textContent='İdxal tamamlandı! '+result.count+' ticket ('+result.firstTicketId+' → '+result.lastTicketId+')';}
-    else{tx.textContent='Xəta: '+(result.message||'');}
-    setTimeout(function(){ov.classList.remove('open');if(result.status==='OK'){resetBulkForm();closeBusBulk();}},2200);
-  }).catch(function(e){sp.style.display='none';tx.textContent='Şəbəkə xətası';setTimeout(function(){ov.classList.remove('open');},1500);});
+    sp.style.display = 'none';
+    ic.style.display = 'flex';
+    ic.classList.add('show');
+    
+    if(result.status === 'OK'){
+      tx.textContent = '✅ Yekunlaşdı! ' + result.count + ' ticket (' + result.firstTicketId + ' → ' + result.lastTicketId + ')';
+    } else {
+      tx.textContent = '❌ Xəta: ' + (result.message || '');
+    }
+    
+    setTimeout(function(){
+      ov.classList.remove('open');
+      ic.classList.remove('show');
+      ic.style.display = 'none';
+      if(result.status === 'OK'){
+        resetBulkForm();
+        closeBusBulk();
+        if(typeof loadReportData === 'function') loadReportData();
+      }
+    }, 2500);
+  })
+  .catch(function(e){
+    sp.style.display = 'none';
+    tx.textContent = '❌ Şəbəkə xətası: ' + e.message;
+    setTimeout(function(){ ov.classList.remove('open'); }, 2000);
+  });
 }
+
 function resetBulkForm(){
   bkClosePreview();bkPreviewData=null;
   ['bk_carrier','bk_category','bk_location','bk_tech1','bk_tech2','bk_leader'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
@@ -1191,3 +1249,7 @@ function resetBulkForm(){
   bkSelectedDate=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   renderBkCal();bkUpdateImportCount();
 }
+
+// Köhnə funksiyalar (uyğunluq üçün saxlanılır)
+function bkOpenPreview(){ /* Ön baxış funksiyası artıq istifadə olunmur */ }
+function bkClosePreview(){ /* Ön baxış funksiyası artıq istifadə olunmur */ }

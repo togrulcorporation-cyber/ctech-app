@@ -733,7 +733,7 @@
   </div>
 </div>
 
-<!-- ===== BUS BULK SERVICE VIEW (YENİ DİZAYN) ===== -->
+<!-- ===== BUS BULK SERVICE VIEW (YENİ DİZAYN - Ön baxış yoxdur) ===== -->
 <div id="busBulkView">
   <!-- HEADER -->
   <div class="bk-header">
@@ -759,157 +759,134 @@
 
   <!-- BODY -->
   <div class="bk-body">
-    <div class="bk-main-layout" id="bkMainLayout">
+    <div class="bk-main-layout">
       
-      <!-- FORM COLUMN -->
-      <div class="bk-form-col">
-        
-        <!-- === SECTION 1: Servis Parametrləri === -->
-        <div class="bk-panel">
-          <div class="bk-panel-title">
-            <span class="bk-num">1</span> 📅 Servis Parametrləri
-          </div>
-          
-          <div class="bk-params-layout">
-            <!-- Kalendar (sol) -->
-            <div class="bk-cal-wrap">
-              <div class="bk-cal-head">
-                <button class="bk-cal-nav" onclick="bkCalNav(-1)">‹</button>
-                <div class="bk-cal-label" id="bkCalLabel">İyul 2026</div>
-                <button class="bk-cal-nav" onclick="bkCalNav(1)">›</button>
-              </div>
-              <div class="bk-cal-grid" id="bkCalDays">
-                <!-- JS tərəfindən doldurulur -->
-              </div>
-            </div>
-            
-            <!-- Sağ tərəf -->
-            <div class="bk-params-right">
-              <div class="bk-field">
-                <label class="bk-label">Servis başlanğıc saatı *</label>
-                <div class="bk-time-input">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
-                  <input type="text" inputmode="numeric" maxlength="5" id="bk_start_time" placeholder="09:00" oninput="bkFormatTime(this)">
-                </div>
-              </div>
-              <div class="bk-field">
-                <label class="bk-label">Servis bitiş saatı *</label>
-                <div class="bk-time-input">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
-                  <input type="text" inputmode="numeric" maxlength="5" id="bk_end_time" placeholder="12:00" oninput="bkFormatTime(this)">
-                </div>
-              </div>
-              <div class="bk-field">
-                <label class="bk-label">Servis kateqoriyası *</label>
-                <select class="bk-select" id="bk_category">
-                  <option value="">Seçin</option>
-                  <!-- JS tərəfindən doldurulur -->
-                </select>
-              </div>
-              <div class="bk-field">
-                <label class="bk-label">Servis ünvanı</label>
-                <select class="bk-select" id="bk_location">
-                  <option value="">Seçin (könüllü)</option>
-                  <!-- JS tərəfindən doldurulur -->
-                </select>
-              </div>
-              <div class="bk-field" id="bk_location_note_wrap" style="display:none;">
-                <label class="bk-label">Ünvan qeydi *</label>
-                <input type="text" class="bk-input" id="bk_location_note" placeholder="Ünvanı ətraflı yazın...">
-              </div>
-            </div>
-          </div>
+      <!-- === SECTION 1: Servis Parametrləri === -->
+      <div class="bk-panel">
+        <div class="bk-panel-title">
+          <span class="bk-num">1</span> 📅 Servis Parametrləri
         </div>
-
-        <!-- === SECTION 2: Daşıyıcı === -->
-        <div class="bk-panel">
-          <div class="bk-panel-title">
-            <span class="bk-num">2</span> 🚌 Daşıyıcı
-          </div>
-          
-          <div class="bk-carrier-row">
-            <div class="bk-field bk-carrier-dd-wrap">
-              <label class="bk-label">Daşıyıcı firma *</label>
-              <select class="bk-select" id="bk_carrier" onchange="bkOnCarrierChange()">
-                <option value="">Seçin</option>
-                <!-- JS tərəfindən doldurulur -->
-              </select>
+        
+        <div class="bk-params-layout">
+          <!-- Kalendar (sol) -->
+          <div class="bk-cal-wrap">
+            <div class="bk-cal-head">
+              <button class="bk-cal-nav" onclick="bkCalNav(-1)">‹</button>
+              <div class="bk-cal-label" id="bkCalLabel">İyul 2026</div>
+              <button class="bk-cal-nav" onclick="bkCalNav(1)">›</button>
             </div>
-            <div id="bkCarrierCountWrap">
+            <div class="bk-cal-grid" id="bkCalDays">
               <!-- JS tərəfindən doldurulur -->
             </div>
           </div>
-        </div>
-
-        <!-- === SECTION 3: Şablon Mətnlər === -->
-        <div class="bk-panel">
-          <div class="bk-panel-title">
-            <span class="bk-num">3</span> 📄 Şablon Mətnlər
-          </div>
           
-          <div class="bk-tmpl-grid">
+          <!-- Sağ tərəf: saatlar + dropdownlar -->
+          <div class="bk-params-right">
             <div class="bk-field">
-              <label class="bk-label">Tələb (şablon) *</label>
-              <textarea class="bk-textarea bk-tmpl-ta" id="bk_request_tmpl" placeholder="Məs. AYNA tərəfindən göndərilən marşrut yenilənməsi tələbinə uyğun olaraq..."></textarea>
+              <label class="bk-label">Servis başlanğıc saatı *</label>
+              <div class="bk-time-input">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+                <input type="text" inputmode="numeric" maxlength="5" id="bk_start_time" placeholder="09:00" oninput="bkFormatTime(this)">
+              </div>
             </div>
             <div class="bk-field">
-              <label class="bk-label">Qeyd / Note</label>
-              <textarea class="bk-textarea bk-tmpl-ta" id="bk_note" placeholder="Qeyd daxil edin (istəyə bağlı)"></textarea>
+              <label class="bk-label">Servis bitiş saatı *</label>
+              <div class="bk-time-input">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+                <input type="text" inputmode="numeric" maxlength="5" id="bk_end_time" placeholder="12:00" oninput="bkFormatTime(this)">
+              </div>
             </div>
             <div class="bk-field">
-              <label class="bk-label">Həll (şablon) *</label>
-              <textarea class="bk-textarea bk-tmpl-ta" id="bk_solution_tmpl" placeholder="Məs. Sistem vasitəsilə route yenilənməsi uğurla tamamlandı."></textarea>
-            </div>
-          </div>
-        </div>
-
-        <!-- === SECTION 4: Personal === -->
-        <div class="bk-panel">
-          <div class="bk-panel-title">
-            <span class="bk-num">4</span> 👥 Personal
-          </div>
-          
-          <div class="bk-personal-row">
-            <div class="bk-field">
-              <label class="bk-label">Texnik 1 *</label>
-              <select class="bk-select" id="bk_tech1">
+              <label class="bk-label">Servis kateqoriyası *</label>
+              <select class="bk-select" id="bk_category">
                 <option value="">Seçin</option>
                 <!-- JS tərəfindən doldurulur -->
               </select>
             </div>
             <div class="bk-field">
-              <label class="bk-label">Texnik 2</label>
-              <select class="bk-select" id="bk_tech2">
+              <label class="bk-label">Servis ünvanı</label>
+              <select class="bk-select" id="bk_location">
                 <option value="">Seçin (könüllü)</option>
                 <!-- JS tərəfindən doldurulur -->
               </select>
             </div>
-            <div class="bk-field">
-              <label class="bk-label">Qrup rəhbəri *</label>
-              <select class="bk-select" id="bk_leader">
-                <option value="">Seçin</option>
-                <!-- JS tərəfindən doldurulur -->
-              </select>
+            <div class="bk-field" id="bk_location_note_wrap" style="display:none;">
+              <label class="bk-label">Ünvan qeydi *</label>
+              <input type="text" class="bk-input" id="bk_location_note" placeholder="Ünvanı ətraflı yazın...">
             </div>
           </div>
         </div>
+      </div>
 
-      </div><!-- /bk-form-col -->
-      
-      <!-- PREVIEW COLUMN (sağda, yalnız ön baxış açıqda görünür) -->
-      <div class="bk-preview-col">
-        <div class="bk-preview-panel" id="bkPreviewPanel">
-          <div class="bk-preview-head">
-            <div class="bk-preview-title">Ön baxış</div>
-            <button class="bk-preview-close" onclick="bkClosePreview()" aria-label="Bağla">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
-            </button>
+      <!-- === SECTION 2: Daşıyıcı === -->
+      <div class="bk-panel">
+        <div class="bk-panel-title">
+          <span class="bk-num">2</span> 🚌 Daşıyıcı
+        </div>
+        
+        <div class="bk-carrier-row">
+          <div class="bk-field bk-carrier-dd-wrap">
+            <label class="bk-label">Daşıyıcı firma *</label>
+            <select class="bk-select" id="bk_carrier" onchange="bkOnCarrierChange()">
+              <option value="">Seçin</option>
+              <!-- JS tərəfindən doldurulur -->
+            </select>
           </div>
-          <div class="bk-preview-body" id="bkPreviewBody">
-            <div class="bk-empty-state">
-              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
-              <div>Parametrləri doldurun və<br>"Ön baxış" düyməsinə basın</div>
-            </div>
+          <div id="bkCarrierCountWrap">
+            <!-- JS tərəfindən doldurulur -->
+          </div>
+        </div>
+      </div>
+
+      <!-- === SECTION 3: Şablon Mətnlər === -->
+      <div class="bk-panel">
+        <div class="bk-panel-title">
+          <span class="bk-num">3</span> 📄 Şablon Mətnlər
+        </div>
+        
+        <div class="bk-tmpl-grid">
+          <div class="bk-field">
+            <label class="bk-label">Tələb (şablon) *</label>
+            <textarea class="bk-textarea bk-tmpl-ta" id="bk_request_tmpl" placeholder="Məs. AYNA tərəfindən göndərilən marşrut yenilənməsi tələbinə uyğun olaraq..."></textarea>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Qeyd / Note</label>
+            <textarea class="bk-textarea bk-tmpl-ta" id="bk_note" placeholder="Qeyd daxil edin (istəyə bağlı)"></textarea>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Həll (şablon) *</label>
+            <textarea class="bk-textarea bk-tmpl-ta" id="bk_solution_tmpl" placeholder="Məs. Sistem vasitəsilə route yenilənməsi uğurla tamamlandı."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- === SECTION 4: Personal === -->
+      <div class="bk-panel">
+        <div class="bk-panel-title">
+          <span class="bk-num">4</span> 👥 Personal
+        </div>
+        
+        <div class="bk-personal-row">
+          <div class="bk-field">
+            <label class="bk-label">Texnik 1 *</label>
+            <select class="bk-select" id="bk_tech1">
+              <option value="">Seçin</option>
+              <!-- JS tərəfindən doldurulur -->
+            </select>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Texnik 2</label>
+            <select class="bk-select" id="bk_tech2">
+              <option value="">Seçin (könüllü)</option>
+              <!-- JS tərəfindən doldurulur -->
+            </select>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Qrup rəhbəri *</label>
+            <select class="bk-select" id="bk_leader">
+              <option value="">Seçin</option>
+              <!-- JS tərəfindən doldurulur -->
+            </select>
           </div>
         </div>
       </div>
@@ -917,16 +894,12 @@
     </div><!-- /bk-main-layout -->
   </div><!-- /bk-body -->
 
-  <!-- FOOTER (sabit) -->
+  <!-- FOOTER (sabit) - ÖN BAXIŞ BUTTONU YOXDUR -->
   <div class="bk-footer">
     <div class="bk-footer-hint">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
       Seçilmiş məlumatları yoxlayın və "İdxal et" düyməsi ilə bütün ticket-ləri avtomatik yaradın.
     </div>
-    <button class="bk-btn-outline" onclick="bkOpenPreview()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-      Ön baxış
-    </button>
     <button class="bk-btn-primary" id="bkDirectSubmitBtn" onclick="bkSubmitDirect()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       İdxal et (<span id="bkImportCount">0</span> ticket)
@@ -934,13 +907,15 @@
   </div>
 </div>
 
-<!-- Bulk Submit Loading -->
+<!-- Bulk Submit Loading Overlay (idxal prosesi üçün) -->
 <div id="bkLoadingOverlay">
-  <div class="spinner" id="bkSpinner" style="width:48px;height:48px;border-width:5px;"></div>
-  <div id="bkSuccessIcon" style="display:none;width:64px;height:64px;border-radius:50%;background:#3FCB78;align-items:center;justify-content:center;animation:popIn .35s ease;">
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>
+  <div class="bk-loading-box">
+    <div class="spinner" id="bkSpinner"></div>
+    <div id="bkSuccessIcon" style="display:none;width:64px;height:64px;border-radius:50%;background:#3FCB78;align-items:center;justify-content:center;animation:popIn .35s ease;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>
+    </div>
+    <div class="bk-loading-text" id="bkLoadingText">Hazırlanır...</div>
   </div>
-  <div class="loading-text" id="bkLoadingText">Hazırlanır...</div>
 </div>
 
 <script src="js/main.js"></script>
