@@ -484,13 +484,10 @@ function renderBusRegistryDropdown(matches){
   if(!matches || matches.length === 0){
     dd.innerHTML = '<div class="bs-registry-empty">Uyğun D.Q.N. tapılmadı — məlumatları əl ilə daxil edin</div>';
   } else {
-    dd.innerHTML = matches.slice(0, 8).map(function(m){
-      // carrier-da dırnaq işarəsi varsa HTML attribute-u qırır - encode edirik
-      var carrierAttr = (m.carrier || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-      var dqnAttr     = (m.dqn   || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-      var idAttr      = (m.id    || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-      var modelAttr   = (m.model || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-      return '<div class="bs-registry-item" data-dqn="' + dqnAttr + '" data-id="' + idAttr + '" data-carrier="' + carrierAttr + '" data-model="' + modelAttr + '">' +
+    // Matches-i global dəyişəndə saxla - carrier-da dırnaq olduğu üçün HTML attribute işlətmirik
+    window._bsRegistryMatches = matches.slice(0, 8);
+    dd.innerHTML = window._bsRegistryMatches.map(function(m, idx){
+      return '<div class="bs-registry-item" data-idx="' + idx + '">' +
         '<span class="reg-id">' + (m.dqn || '—') + '</span>' +
         '<span class="reg-meta">BUS ID: ' + (m.id || '—') + ' · ' + (m.carrier || '—') + ' · ' + (m.model || '—') + '</span>' +
         '</div>';
@@ -499,14 +496,10 @@ function renderBusRegistryDropdown(matches){
     Array.from(dd.querySelectorAll('.bs-registry-item')).forEach(function(el){
       el.addEventListener('click', function(e){
         e.stopPropagation();
-        var match = {
-          dqn: el.getAttribute('data-dqn'),
-          id: el.getAttribute('data-id'),
-          carrier: el.getAttribute('data-carrier'),  // ✅ Burada carrier gəlir
-          model: el.getAttribute('data-model')
-        };
-        console.log('🔍 Seçilən match:', match); // Debug üçün
-        if(match.dqn) selectBusRegistryMatch(match);
+        var idx = parseInt(el.getAttribute('data-idx'));
+        var match = window._bsRegistryMatches[idx];
+        console.log('🔍 Seçilən match:', match);
+        if(match && match.dqn) selectBusRegistryMatch(match);
       });
     });
   }
@@ -530,12 +523,19 @@ function selectBusRegistryMatch(match){
   // 2. KİLİDİ AÇ (dropdown-ları aktiv et)
   unlockRegistryFields();
   
-  // 3. DAŞIYICI
+  // 3. DAŞIYICI - carrier olduğu kimi saxla (dırnaqlar daxil)
   if(match.carrier){
-    // &quot; encode-unu decode et, sonra baş/son dırnaqları sil
-    var cleanCarrier = match.carrier.replace(/&quot;/g,'"').replace(/&amp;/g,'&').trim();
+    var cleanCarrier = match.carrier;
     console.log('✅ Daşıyıcı:', cleanCarrier);
-    setDDValue('carrier', cleanCarrier);
+    bsSelected.carrier = cleanCarrier;
+    var cLbl = document.getElementById('bs_carrier_lbl');
+    if(cLbl){ cLbl.textContent = cleanCarrier; cLbl.style.color='#12233B'; cLbl.classList.add('filled'); }
+    var cBtn = document.getElementById('bs_carrier_btn');
+    if(cBtn){
+      var span = cBtn.querySelector('span');
+      if(span){ span.textContent = cleanCarrier; span.style.color='#12233B'; span.classList.add('filled'); }
+      cBtn.classList.add('filled');
+    }
   }
   
   // 4. MODEL
