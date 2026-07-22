@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CTECH Service Platform</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2F6FED">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CTECH Service">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+
+<script>
+  (function(){
+    var meta = document.querySelector('meta[name="viewport"]');
+    if(!meta){ meta = document.createElement('meta'); meta.name="viewport"; document.head.appendChild(meta); }
+    meta.setAttribute("content","width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover");
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@600&display=optional" rel="stylesheet">
+
+<!-- ===== CSS ===== -->
+<link rel="stylesheet" href="css/style.css">
+
+<!-- ===== VIEW LOADER ===== -->
+<script>
+// View-ləri yükləmək üçün
+function loadView(viewPath, callback) {
+  var containerId = viewPath.replace(/\//g, '-') + 'Container';
+  var container = document.getElementById(containerId);
+  if (!container) {
+    container = document.createElement('div');
+    container.id = containerId;
+    container.style.display = 'none';
+    document.body.appendChild(container);
+  }
+  
+  fetch('views/' + viewPath + '.html')
+    .then(function(response) { return response.text(); })
+    .then(function(html) {
+      container.innerHTML = html;
+      container.style.display = 'block';
+      if (callback) callback();
+      var initFn = window['init_' + viewPath.replace(/\//g, '_')];
+      if (typeof initFn === 'function') {
+        initFn();
+      }
+    })
+    .catch(function(error) {
+      console.error('View yüklənmədi:', viewPath, error);
+    });
+}
+
+function hideView(viewPath) {
+  var container = document.getElementById(viewPath.replace(/\//g, '-') + 'Container');
+  if (container) container.style.display = 'none';
+}
+
+function loadScript(src, callback) {
+  var script = document.createElement('script');
+  script.src = src;
+  script.onload = function() { if (callback) callback(); };
+  script.onerror = function() { console.error('Script yüklənmədi:', src); if (callback) callback(); };
+  document.head.appendChild(script);
+}
+
+// BUS modulları
+function startBusService() {
+  loadView('bus/bus-service', function() {
+    if (typeof init_bus_service === 'function') init_bus_service();
+  });
+}
+
+function openBusReport() {
+  loadView('bus/bus-report', function() {
+    if (typeof init_bus_report === 'function') init_bus_report();
+  });
+}
+
+function openBusDashboard() {
+  loadView('bus/bus-dashboard', function() {
+    if (typeof init_bus_dashboard === 'function') init_bus_dashboard();
+  });
+}
+
+function openBusDetail(ticketId) {
+  loadView('bus/bus-detail', function() {
+    if (typeof init_bus_detail === 'function') init_bus_detail(ticketId);
+  });
+}
+
+function openBusBulk() {
+  loadView('bus/bus-bulk', function() {
+    if (typeof init_bus_bulk === 'function') init_bus_bulk();
+  });
+}
+
+// TVM modulları (gələcək)
+function startTvmService() {
+  loadView('tvm/tvm-service', function() {
+    if (typeof init_tvm_service === 'function') init_tvm_service();
+  });
+}
+
+function openTvmReport() {
+  loadView('tvm/tvm-report', function() {
+    if (typeof init_tvm_report === 'function') init_tvm_report();
+  });
+}
+
+function openTvmDashboard() {
+  loadView('tvm/tvm-dashboard', function() {
+    if (typeof init_tvm_dashboard === 'function') init_tvm_dashboard();
+  });
+}
+</script>
+</head>
+
+<body>
+
+<!-- ===== LOGIN VIEW ===== -->
+<div id="loginView">
+  <svg class="route-line" viewBox="0 0 800 800" preserveAspectRatio="none">
+    <polyline points="0,650 180,650 260,570 500,570 580,490 800,490" fill="none" stroke="#4E93FA" stroke-width="1.5" stroke-dasharray="2 8"/>
+    <polyline points="800,150 620,150 540,230 300,230 220,310 0,310" fill="none" stroke="#8FB8FB" stroke-width="1.5" stroke-dasharray="2 8"/>
+  </svg>
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-name">CTECH <span>SOLUTIONS</span> MMC</div>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <h1>Technical Service Platform</h1>
+        <span class="field-label">Email ünvanı</span>
+        <div class="input-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C7089" stroke-width="2"><path d="M3 6l9 7 9-7M3 6v12h18V6H3z"/></svg>
+          <input id="email" type="email" placeholder="ad.soyad@ctech.az" autocomplete="email">
+        </div>
+        <span class="field-label">Şifrə</span>
+        <div class="input-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C7089" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <input id="password" type="password" placeholder="Şifrəni daxil edin" autocomplete="current-password">
+          <button type="button" class="toggle-eye" onclick="togglePassword()" aria-label="Şifrəni göstər">
+            <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C7089" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <button class="primary" onclick="login()" id="loginBtn">Daxil ol</button>
+        <label class="remember">
+          <input type="checkbox" id="rememberMe">
+          Girişi yadda saxla
+        </label>
+      </div>
+    </div>
+    <div class="footer-note">© 2026 Ctech Solutions MMC</div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD VIEW ===== -->
+<div id="dashboardView">
+  <div class="header">
+    <div class="header-left">
+      <div class="menu-wrap">
+        <button class="icon-btn" onclick="toggleMenu()" aria-label="Menyu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <div class="menu-panel" id="menuPanel">
+          <button class="menu-item" onclick="goHome()">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+            <span>Ana səhifə</span>
+          </button>
+          <button class="menu-item" onclick="showAbout()">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r=".6" fill="currentColor" stroke="none"/></svg>
+            <span>Haqqında</span>
+          </button>
+          <button class="menu-item" id="adminMenuItem" onclick="moduleAlert('Admin-Panel')" style="display:none;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Admin Panel</span>
+          </button>
+          <button class="menu-item" onclick="signOut()">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+            <span>Çıxış</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="brand-mini">CTECH <span>SOLUTIONS</span> MMC</div>
+    <div class="header-right">
+      <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Gecə rejimi">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="clock-box">
+        <div class="status-dot"></div>
+        <span id="clockDate">--.--.----</span>
+        <span class="clock-sep">|</span>
+        <span id="clock">--:--</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-row">
+    <div class="profile-chip">
+      <div class="profile-avatar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+      </div>
+      <div class="profile-text">
+        <div class="profile-name" id="profileName">-</div>
+        <div class="profile-role" id="profileRole">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="welcome">
+    <div class="welcome-box">
+      <div class="welcome-name" id="welcomeName">Xoş gəlmisiniz</div>
+      <div class="welcome-sub">Bugün hansı bölmə ilə işləyirsiniz?</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="primary-row">
+      <div class="card-big" onclick="startBusService()">
+        <div class="card-icon-big icon-bus">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><path d="M3 16v1.5a1 1 0 0 0 1 1h1"/><path d="M21 16v1.5a1 1 0 0 1-1 1h-1"/><path d="M6 5v6M12 5v6M18 5v6"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg>
+        </div>
+        <div class="card-title-big">BUS SERVICE</div>
+        <div class="card-sub-big">Avtobus texniki servis əməliyyatları</div>
+      </div>
+      <div class="card-big" onclick="startTvmService()">
+        <div class="card-icon-big icon-tvm">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="16.5" rx="1.5"/><rect x="8" y="4.5" width="8" height="6" rx=".5"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="15.3" x2="13" y2="15.3"/><path d="M9 21.5h6l-1-2.8h-4z"/></svg>
+        </div>
+        <div class="card-title-big">TVM SERVICE</div>
+        <div class="card-sub-big">Bilet satış aparatları texniki servis</div>
+      </div>
+    </div>
+
+    <div id="dashboardsSection">
+      <div class="dash-divider">
+        <div class="dash-badge">DASHBOARDS</div>
+        <div class="dash-connector"></div>
+      </div>
+      <div class="secondary-row">
+        <div class="card-small" onclick="openBusDashboard()">
+          <div class="card-icon-small icon-bus">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+          </div>
+          <div><div class="card-title-small">Dashboard BUS</div><div class="card-sub-small">Statistika və hesabatlar</div></div>
+        </div>
+        <div class="card-small" onclick="openTvmDashboard()">
+          <div class="card-icon-small icon-tvm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+          </div>
+          <div><div class="card-title-small">Dashboard TVM</div><div class="card-sub-small">Statistika və hesabatlar</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="reportsSection">
+      <div class="dash-divider">
+        <div class="dash-badge">HESABATLAR</div>
+        <div class="dash-connector"></div>
+      </div>
+      <div class="secondary-row">
+        <div class="card-small" onclick="openBusReport()">
+          <div class="card-icon-small icon-bus">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
+          </div>
+          <div><div class="card-title-small">BUS Real-Time Report</div><div class="card-sub-small">Canlı siyahı və Excel ixracı</div></div>
+        </div>
+        <div class="card-small" onclick="openTvmReport()">
+          <div class="card-icon-small icon-tvm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
+          </div>
+          <div><div class="card-title-small">TVM Real-Time Report</div><div class="card-sub-small">Canlı siyahı və Excel ixracı</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="banner-wrap">
+      <img class="banner-img" src="banner.webp" alt="İctimai nəqliyyat">
+    </div>
+  </div>
+  <div class="footer-note-dash">© 2026 Ctech Solutions MMC</div>
+</div>
+
+<!-- ===== VIEW CONTAINERS ===== -->
+<div id="bus-bus-serviceContainer" style="display:none;"></div>
+<div id="bus-bus-reportContainer" style="display:none;"></div>
+<div id="bus-bus-dashboardContainer" style="display:none;"></div>
+<div id="bus-bus-detailContainer" style="display:none;"></div>
+<div id="bus-bus-bulkContainer" style="display:none;"></div>
+<div id="tvm-tvm-serviceContainer" style="display:none;"></div>
+<div id="tvm-tvm-reportContainer" style="display:none;"></div>
+<div id="tvm-tvm-dashboardContainer" style="display:none;"></div>
+
+<!-- ===== OVERLAYS ===== -->
+<div id="busOpenOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(244,248,253,0.95);z-index:55;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <div style="width:60px;height:60px;border:5px solid #DCE6F5;border-top-color:#2F6FED;border-radius:50%;animation:spin .8s linear infinite;"></div>
+  <div style="font-size:15px;font-weight:600;color:#2F4C6E;font-family:'Inter',sans-serif;">Yüklənir...</div>
+  <div style="font-size:12px;color:#8CA0BC;">Məlumatlar hazırlanır</div>
+</div>
+
+<div id="bsLoadingOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(244,248,253,.92);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div class="spinner" id="bsSpinner"></div>
+  <div id="bsSuccessIcon" style="display:none;width:64px;height:64px;border-radius:50%;background:#3FCB78;align-items:center;justify-content:center;animation:popIn .35s ease;">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>
+  </div>
+  <div class="loading-text" id="bsLoadingText">Göndərilir...</div>
+</div>
+
+<div id="bkLoadingOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(244,248,253,.94);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div class="spinner" id="bkSpinner" style="width:48px;height:48px;border-width:5px;"></div>
+  <div id="bkSuccessIcon" style="display:none;width:64px;height:64px;border-radius:50%;background:#3FCB78;align-items:center;justify-content:center;animation:popIn .35s ease;">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>
+  </div>
+  <div class="loading-text" id="bkLoadingText">Hazırlanır...</div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="spinner" id="loadingSpinner"></div>
+    <div class="result-icon success" id="successIcon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>
+    </div>
+    <div class="result-icon fail" id="failIcon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </div>
+    <div class="loading-text" id="loadingText">Yoxlanılır...</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal-box">
+    <div class="modal-brand"><div class="modal-brand-text">CTECH <span>SOLUTIONS</span> MMC</div></div>
+    <div class="modal-title">Texniki Servis Platforma haqqında</div>
+    <div class="modal-text">Texniki Servis Platforması, CTECH Solutions MMC-nin ictimai nəqliyyatda (BUS and METRO) istifadə olunan <strong>nağdsız ödəniş sistemi avadanlıqları</strong> və <strong>bilet satış avtomatları (TVM)</strong> üzrə texniki xidmət proseslərini vahid rəqəmsal sistemdə idarə etmək məqsədilə hazırlanıb.</div>
+    <div class="modal-text">Sahədə iş görən texniklərin gördükləri işləri sürətli və standart formada qeydə almasını, bu məlumatların isə real vaxt rejimində hesabat və statistikaya çevrilməsini təmin edir.</div>
+    <div class="modal-subtitle">İstifadə qaydası</div>
+    <div class="modal-steps">
+      <div class="modal-step"><div class="modal-step-num">1</div><div class="modal-step-text">Aid olduğunuz bölməni seçin — BUS Service və ya TVM Service.</div></div>
+      <div class="modal-step"><div class="modal-step-num">2</div><div class="modal-step-text">Xidmət göstərdiyiniz obyekti müəyyən edin və aşkar olunan problemi qeyd edin.</div></div>
+      <div class="modal-step"><div class="modal-step-num">3</div><div class="modal-step-text">Mövcud şablonlardan uyğun olanı seçərək formu doldurun.</div></div>
+      <div class="modal-step"><div class="modal-step-num">4</div><div class="modal-step-text">"Göndər" düyməsi ilə məlumatı sistemə ötürün — qeydiyyat avtomatik təsdiqlənir.</div></div>
+    </div>
+    <div class="modal-text">Daxil etdiyiniz hər məlumat Dashboard bölmələrində strukturlaşdırılmış hesabata çevrilir və komanda rəhbərliyi tərəfindən izlənilir.</div>
+    <button class="modal-close" onclick="hideAbout()">Bağla</button>
+  </div>
+</div>
+
+<div id="bsConfirmOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(18,35,59,.5);z-index:90;align-items:center;justify-content:center;padding:24px;">
+  <div class="bs-confirm-box">
+    <div class="bs-confirm-title">Çıxmaq istəyirsiniz?</div>
+    <div class="bs-confirm-text">Daxil etdiyiniz məlumatlar silinəcək.</div>
+    <div class="bs-confirm-btns">
+      <button class="bs-confirm-no" onclick="closeConfirm()">Xeyr</button>
+      <button class="bs-confirm-yes" onclick="confirmExit()">Bəli</button>
+    </div>
+  </div>
+</div>
+
+<div id="bsDraftConfirmOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(18,35,59,.5);z-index:95;align-items:center;justify-content:center;padding:24px;">
+  <div class="bs-confirm-box">
+    <div class="bs-confirm-title">Yarımçıq qalmış məlumat tapıldı</div>
+    <div class="bs-confirm-text" id="bsDraftConfirmText">Bu formada natamam saxlanılmış məlumat var. Davam etmək istəyirsiniz?</div>
+    <div class="bs-confirm-btns">
+      <button class="bs-confirm-no" onclick="declineBsDraft()">Xeyr</button>
+      <button class="bs-confirm-yes" onclick="acceptBsDraft()">Bəli</button>
+    </div>
+  </div>
+</div>
+
+<div id="bsRefreshConfirmOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(18,35,59,.5);z-index:95;align-items:center;justify-content:center;padding:24px;">
+  <div class="bs-confirm-box">
+    <div class="bs-confirm-title">Səhifəni yeniləmək istəyirsiniz?</div>
+    <div class="bs-confirm-text">Daxil etdiyiniz məlumatlar yadda saxlanılmayıb — yeniləsəniz silinəcək.</div>
+    <div class="bs-confirm-btns">
+      <button class="bs-confirm-no" onclick="cancelPullRefresh()">Xeyr</button>
+      <button class="bs-confirm-yes" onclick="confirmPullRefresh()">Bəli</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="js/app.js"></script>
+
+<!-- BUS Scripts -->
+<script src="js/bus/bus-service.js"></script>
+<script src="js/bus/bus-report.js"></script>
+<script src="js/bus/bus-dashboard.js"></script>
+<script src="js/bus/bus-detail.js"></script>
+<script src="js/bus/bus-bulk.js"></script>
+
+<!-- TVM Scripts (gələcəkdə) -->
+<!-- <script src="js/tvm/tvm-service.js"></script> -->
+<!-- <script src="js/tvm/tvm-report.js"></script> -->
+<!-- <script src="js/tvm/tvm-dashboard.js"></script> -->
+
+<!-- Telegram Bot -->
+<!-- <script src="js/telegram-bot.js"></script> -->
+
+</body>
+</html>

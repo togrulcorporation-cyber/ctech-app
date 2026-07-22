@@ -1,0 +1,143 @@
+<!-- ============================================================ -->
+<!-- BUS DASHBOARD VIEW - HTML -->
+<!-- ============================================================ -->
+
+<div id="busDashboardView" style="display:flex;flex-direction:column;">
+
+  <div class="dash-header">
+    <button onclick="closeBusDashboard()" class="bs-home-btn" aria-label="Ana səhifəyə qayıt">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    </button>
+    <div class="dash-title">BUS <span>DASHBOARD</span></div>
+    <div class="dash-right">
+      <button class="icon-btn" onclick="toggleTheme()" aria-label="Tema">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dashThemeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="dash-tabs" id="dashTabs">
+        <div class="dash-tab active" data-period="24h">24 saat</div>
+        <div class="dash-tab" data-period="week">Bu həftə</div>
+        <div class="dash-tab" data-period="month">Bu ay</div>
+        <div class="dash-tab" data-period="all">Hamısı</div>
+      </div>
+      <button class="dash-excel-btn" onclick="exportDashboardExcel()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Excel
+      </button>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- Desktop tam görünüş -->
+    <div class="dash-desktop-view">
+      <div class="dash-container">
+
+        <div class="dash-top-grid">
+          <div class="dash-metric">
+            <div><div class="dash-metric-label">Ümumi servis</div><div class="dash-metric-value" id="dashTotalAll">—</div></div>
+            <div class="dash-metric-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10a2 2 0 0 0 2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-2a2 2 0 0 0-2-2z"/></svg></div>
+          </div>
+          <div class="dash-metric">
+            <div><div class="dash-metric-label">Bu gün</div><div class="dash-metric-value" id="dashTotalToday">—</div></div>
+            <div class="dash-metric-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></div>
+          </div>
+          <div class="dash-metric">
+            <div><div class="dash-metric-label">Bu həftə</div><div class="dash-metric-value" id="dashTotalWeek">—</div></div>
+            <div class="dash-metric-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          </div>
+          <div class="dash-range-btn" onclick="openDashModal()">
+            <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+            <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+          </div>
+        </div>
+
+        <div class="dash-section-title">Ən çox rast gəlinən problem</div>
+        <div class="dash-radial-grid" id="dashProblemGrid"></div>
+
+        <div class="dash-section-title">Ən çox rast gəlinən həll</div>
+        <div class="dash-ranklist" id="dashSolutionList"></div>
+
+        <div class="dash-section-title">Servis kateqoriyaları</div>
+        <div class="dash-tile-grid" id="dashCategoryGrid"></div>
+
+        <div class="dash-grid-2" style="margin-top:20px;">
+          <div>
+            <div class="dash-section-title" style="margin-top:0;">Texnik fəaliyyəti</div>
+            <div class="dash-lead-card" id="dashTechList"></div>
+          </div>
+          <div>
+            <div class="dash-section-title" style="margin-top:0;">Qrup rəhbəri fəaliyyəti</div>
+            <div class="dash-lead-card" id="dashLeaderList"></div>
+          </div>
+        </div>
+
+        <div class="dash-grid-2" style="margin-top:20px;">
+          <div>
+            <div class="dash-section-title" style="margin-top:0;">Daşıyıcı firma üzrə statistika</div>
+            <div class="dash-ranklist" id="dashCarrierList"></div>
+          </div>
+          <div>
+            <div class="dash-section-title" style="margin-top:0;">Servis verilən ünvan</div>
+            <div class="dash-ranklist" id="dashLocationList"></div>
+          </div>
+        </div>
+
+        <div class="dash-section-title">Təkrarlanan problemli avtobuslar</div>
+        <div class="dash-alert-panel" id="dashRecurringPanel"></div>
+
+      </div>
+    </div>
+
+    <!-- Mobil sadə görünüş -->
+    <div class="dash-mobile-view">
+      <div class="dash-m-metrics">
+        <div>Ümumi servis: <b id="dashMTotalAll">—</b></div>
+        <div>Bu gün: <b id="dashMTotalToday">—</b></div>
+        <div>Bu həftə: <b id="dashMTotalWeek">—</b></div>
+      </div>
+      <div id="dashMobileSections"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Tarix/Filtr modalı -->
+<div class="dash-modal-overlay" id="dashModal">
+  <div class="dash-modal">
+    <div class="dash-modal-head">
+      <div class="dash-modal-head-title" id="dashModalTitle">Tarix aralığı və filtrlər</div>
+      <div class="dash-modal-head-btns">
+        <button class="dash-reset-btn" id="dashResetBtnEl" onclick="resetDashFilters()">Sıfırla</button>
+        <button class="dash-close-btn" onclick="closeDashModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+    </div>
+    <div class="dash-modal-body" id="dashModalFilterBody">
+      <div class="dash-modal-left">
+        <div class="dcal-head">
+          <div class="dcal-nav" onclick="dcalNav(-1)">‹</div>
+          <div class="dcal-label" id="dcalLabel"></div>
+          <div class="dcal-nav" onclick="dcalNav(1)">›</div>
+        </div>
+        <div class="dcal-grid" id="dcalGrid"></div>
+        <div class="dcal-selected-txt" id="dcalSelectedTxt">Başlanğıc tarixi seçin</div>
+      </div>
+      <div class="dash-modal-right">
+        <div class="dash-chip-row" id="dashChipRow"></div>
+        <div id="dashSubfilters"></div>
+        <div class="dash-search-warn" id="dashSearchWarn" style="display:none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Zəhmət olmasa tarix aralığı seçin və ya ən azı bir filtr kateqoriyası aktivləşdirin.
+        </div>
+        <button class="dash-search-btn" onclick="runDashSearch()">Axtar</button>
+      </div>
+    </div>
+    <div class="dash-modal-results" id="dashModalResults">
+      <div id="dashModalResultsBody"></div>
+    </div>
+  </div>
+</div>
+
+<div class="dash-loading-overlay" id="dashLoading">
+  <div class="spinner" style="width:44px;height:44px;border-width:4px;"></div>
+  <div class="dash-loading-text">Hazırlanır...</div>
+</div>

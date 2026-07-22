@@ -1,0 +1,222 @@
+<!-- ============================================================ -->
+<!-- BUS SERVICE VIEW - HTML -->
+<!-- ============================================================ -->
+
+<div id="busServiceView" class="bus-service-view">
+  <div class="bs-header">
+    <button onclick="attemptBusHome()" class="bs-home-btn" aria-label="Ana səhifəyə qayıt">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    </button>
+    <span style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;letter-spacing:2px;color:#12233B;text-transform:uppercase;text-align:center;">CTECH <span style="color:#2F6FED;">SOLUTIONS</span> MMC</span>
+    <div></div>
+  </div>
+
+  <div class="bs-body">
+
+    <!-- Ticket ID -->
+    <div id="bsTicketRow" style="padding:0 0 8px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <div id="bsTicketBadge"></div>
+      <div id="bsBulkBannerWrap" style="display:none;">
+        <button onclick="openBusBulk()" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#4E93FA,#2F6FED);color:#fff;border:none;padding:6px 16px;border-radius:10px;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 6px 16px rgba(47,111,237,.28);letter-spacing:.2px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Toplu İdxal
+        </button>
+      </div>
+    </div>
+
+    <!-- Tarix / Saat -->
+    <div class="bs-section">
+      <div class="bs-section-title">Müraciət məlumatları</div>
+      <div class="bs-date-time-row">
+        <div class="bs-field">
+          <label class="bs-label">Tarix *</label>
+          <input type="date" id="bs_date" class="bs-input">
+        </div>
+        <div class="bs-field">
+          <label class="bs-label">Saat *</label>
+          <input type="text" inputmode="numeric" pattern="[0-9:]*" maxlength="5" id="bs_time_lbl" class="bs-input" placeholder="--:--" autocomplete="off" oninput="formatTimeInput(this)">
+        </div>
+      </div>
+      <div class="bs-field">
+        <label class="bs-label">Müraciət edən (Ad Soyad, Vəzifə) *</label>
+        <input type="text" id="bs_requester" class="bs-input" placeholder="Məs. Əli Hüseynov, Sürücü">
+      </div>
+      <div class="bs-field">
+        <label class="bs-label">Əlaqə nömrəsi *</label>
+        <input type="tel" id="bs_phone" class="bs-input" placeholder="+994 XX XXX XX XX">
+      </div>
+    </div>
+
+    <!-- Avtobus məlumatları -->
+    <div class="bs-section">
+      <div class="bs-section-title">Avtobus məlumatları</div>
+
+      <div class="bs-row">
+        <div class="bs-field">
+          <label class="bs-label">D.Q.N. *</label>
+          <div class="bs-busid-wrap" id="busid_wrap">
+            <input type="text" id="bs_plate" class="bs-input" placeholder="99-AA-000" maxlength="10" autocomplete="off" autocapitalize="characters">
+            <div class="bs-registry-dd" id="bs_registry_dd"></div>
+          </div>
+          <div class="bs-registry-reset" id="bs_registry_reset" onclick="resetRegistrySelection()">✕ Reyestr seçimini ləğv et</div>
+        </div>
+        <div class="bs-field">
+          <label class="bs-label">BUS ID *</label>
+          <input type="text" id="bs_busid" class="bs-input" placeholder="ID" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="bs-field">
+        <label class="bs-label">Daşıyıcı şirkət *</label>
+        <div class="bs-inline-dd" id="dd_carrier">
+          <button type="button" class="bs-picker-btn" id="bs_carrier_btn" onclick="toggleDD('carrier')">
+            <span id="bs_carrier_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_carrier_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_carrier_list"></div>
+        </div>
+      </div>
+
+      <div class="bs-row">
+        <div class="bs-field">
+          <label class="bs-label">Marka/Modeli *</label>
+          <div class="bs-inline-dd" id="dd_brand">
+            <button type="button" class="bs-picker-btn" id="bs_brand_btn" onclick="toggleDD('brand')">
+              <span id="bs_brand_lbl" style="color:#9AACC4;">Seçin</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_brand_arrow"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="bs-dd-list" id="dd_brand_list"></div>
+          </div>
+        </div>
+        <div class="bs-field">
+          <label class="bs-label">Marşrut nömrəsi *</label>
+          <input type="text" id="bs_route" class="bs-input" placeholder="Məs. 125A" autocapitalize="characters">
+        </div>
+      </div>
+    </div>
+
+    <!-- Problem / Həll -->
+    <div class="bs-section">
+      <div class="bs-section-title">Servis məlumatları</div>
+      <div class="bs-field">
+        <label class="bs-label">Müraciət / Problem *</label>
+        <div class="bs-inline-dd" id="dd_problem">
+          <button type="button" class="bs-picker-btn" id="bs_problem_btn" onclick="toggleDD('problem')">
+            <span id="bs_problem_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_problem_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_problem_list"></div>
+        </div>
+      </div>
+      <div class="bs-field">
+        <label class="bs-label">Həll / Açıqlama *</label>
+        <div class="bs-inline-dd" id="dd_solution">
+          <button type="button" class="bs-picker-btn" id="bs_solution_btn" onclick="toggleDD('solution')">
+            <span id="bs_solution_lbl" style="color:#9AACC4;">Seçin (çoxlu seçim)</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_solution_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_solution_list"></div>
+        </div>
+        <div class="bs-chips" id="bs_solution_chips"></div>
+      </div>
+      <div class="bs-field" id="bs_note_wrap">
+        <label class="bs-label">Qeyd</label>
+        <textarea id="bs_note" class="bs-textarea" placeholder="Əlavə qeyd yazın (könüllü)..."></textarea>
+      </div>
+    </div>
+
+    <!-- Cihaz dəyişimi -->
+    <div class="bs-section">
+      <div class="bs-section-title">Servis Kategoriyası</div>
+      <div class="bs-field">
+        <label class="bs-label">Servis Kategoriyası *</label>
+        <div class="bs-inline-dd" id="dd_equipment">
+          <button type="button" class="bs-picker-btn" id="bs_equipment_btn" onclick="toggleDD('equipment')">
+            <span id="bs_equipment_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_equipment_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_equipment_list"></div>
+        </div>
+      </div>
+      <div class="bs-row">
+        <div class="bs-field">
+          <label class="bs-label">Köhnə cihaz SN</label>
+          <input type="text" id="bs_old_sn" class="bs-input" placeholder="SN">
+        </div>
+        <div class="bs-field">
+          <label class="bs-label">Yeni cihaz SN</label>
+          <input type="text" id="bs_new_sn" class="bs-input" placeholder="SN">
+        </div>
+      </div>
+    </div>
+
+    <!-- Servis vaxtı / yeri -->
+    <div class="bs-section">
+      <div class="bs-section-title">Servis vaxtı və yeri</div>
+      <div class="bs-row">
+        <div class="bs-field">
+          <label class="bs-label">Başlanğıc saatı *</label>
+          <input type="text" inputmode="numeric" pattern="[0-9:]*" maxlength="5" id="bs_start_lbl" class="bs-input" placeholder="--:--" autocomplete="off" oninput="formatTimeInput(this)">
+        </div>
+        <div class="bs-field">
+          <label class="bs-label">Bitiş saatı *</label>
+          <input type="text" inputmode="numeric" pattern="[0-9:]*" maxlength="5" id="bs_end_lbl" class="bs-input" placeholder="--:--" autocomplete="off" oninput="formatTimeInput(this)">
+        </div>
+      </div>
+      <div class="bs-field">
+        <label class="bs-label">Servis verilən ünvan *</label>
+        <div class="bs-inline-dd" id="dd_location">
+          <button type="button" class="bs-picker-btn" id="bs_location_btn" onclick="toggleDD('location')">
+            <span id="bs_location_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_location_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_location_list"></div>
+        </div>
+      </div>
+      <div class="bs-field" id="bs_location_note_wrap" style="display:none;">
+        <label class="bs-label">Ünvan qeydi *</label>
+        <textarea id="bs_location_note" class="bs-textarea" placeholder="Ünvanı ətraflı yazın..."></textarea>
+      </div>
+    </div>
+
+    <!-- Texnik heyət -->
+    <div class="bs-section">
+      <div class="bs-section-title">Texnik heyət</div>
+      <div class="bs-field">
+        <label class="bs-label">1. Texnik</label>
+        <div class="bs-inline-dd" id="dd_tech1">
+          <button type="button" class="bs-picker-btn" id="bs_tech1_btn" onclick="toggleDD('tech1')">
+            <span id="bs_tech1_lbl" style="color:#9AACC4;">Seçin (könüllü)</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_tech1_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_tech1_list"></div>
+        </div>
+      </div>
+      <div class="bs-field">
+        <label class="bs-label">2. Texnik</label>
+        <div class="bs-inline-dd" id="dd_tech2">
+          <button type="button" class="bs-picker-btn" id="bs_tech2_btn" onclick="toggleDD('tech2')">
+            <span id="bs_tech2_lbl" style="color:#9AACC4;">Seçin (könüllü)</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_tech2_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_tech2_list"></div>
+        </div>
+      </div>
+      <div class="bs-field">
+        <label class="bs-label">Qrup rəhbəri *</label>
+        <div class="bs-inline-dd" id="dd_leader">
+          <button type="button" class="bs-picker-btn" id="bs_leader_btn" onclick="toggleDD('leader')">
+            <span id="bs_leader_lbl" style="color:#9AACC4;">Seçin</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_leader_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_leader_list"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bs-submit">
+    <button type="button" class="bs-submit-btn" id="bsSubmitBtn" onclick="submitBusService()">Göndər</button>
+  </div>
+</div>
