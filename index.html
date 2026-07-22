@@ -839,23 +839,32 @@
               <option value="">Seçin</option>
             </select>
           </div>
-          <div id="bkCarrierCountWrap">
-            <!-- JS tərəfindən doldurulur -->
-          </div>
+          <!-- Say badge + "Hamısını seç" toggle -->
+          <div id="bkCarrierCountWrap" style="display:flex;align-items:flex-start;gap:12px;margin-top:14px;"></div>
 
-          <!-- DQN Filter -->
-          <div id="bkDqnFilterWrap" class="bk-dqn-filter-wrap" style="display:none;">
-            <span class="bk-dqn-label">DQN ilə filtrlə (boş buraxsan bütün avtobuslar seçilir)</span>
-            <div class="bk-dqn-filter-row">
-              <input type="text" class="bk-dqn-input" id="bkDqnInput"
-                placeholder="DQN yazın, məs. 99JV697"
-                oninput="bkDqnInputHandler(this)"
-                autocomplete="off">
+          <!-- DQN Filter bölməsi -->
+          <div id="bkDqnFilterWrap" style="display:none;margin-top:14px;border-top:1.5px solid #E1EAF6;padding-top:14px;">
+            <!-- Bildiriş -->
+            <div class="bk-dqn-notice" id="bkDqnNotice">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r=".6" fill="currentColor" stroke="none"/></svg>
+              <span id="bkDqnNoticeText">Bütün avtobuslar seçilidir — spesifik DQN seçmək istəyirsinizsə aşağıdan axtarın.</span>
             </div>
-            <div class="bk-dqn-suggestions" id="bkDqnSuggestions"></div>
-            <div class="bk-dqn-chips" id="bkDqnChips">
-              <span class="bk-dqn-empty">Hələ seçilməyib — bütün avtobuslar idxal olunacaq</span>
+            <!-- Axtarış inputu -->
+            <div class="bk-dqn-search-wrap">
+              <div class="bk-dqn-search-box">
+                <svg class="bk-dqn-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" class="bk-dqn-search-input" id="bkDqnInput"
+                  placeholder="DQN axtar, məs: 99-JV-697"
+                  oninput="bkDqnInputHandler(this)"
+                  autocomplete="off">
+                <button class="bk-dqn-search-clear" id="bkDqnClear" onclick="bkClearDqnInput()" style="display:none;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+              </div>
+              <div class="bk-dqn-suggestions" id="bkDqnSuggestions"></div>
             </div>
+            <!-- Seçilmiş DQN chipləri -->
+            <div class="bk-dqn-chips" id="bkDqnChips"></div>
           </div>
         </div>
       </div>
