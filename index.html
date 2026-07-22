@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -841,6 +842,21 @@
           <div id="bkCarrierCountWrap">
             <!-- JS tərəfindən doldurulur -->
           </div>
+
+          <!-- DQN Filter -->
+          <div id="bkDqnFilterWrap" class="bk-dqn-filter-wrap" style="display:none;">
+            <span class="bk-dqn-label">DQN ilə filtrlə (boş buraxsan bütün avtobuslar seçilir)</span>
+            <div class="bk-dqn-filter-row">
+              <input type="text" class="bk-dqn-input" id="bkDqnInput"
+                placeholder="DQN yazın, məs. 99JV697"
+                oninput="bkDqnInputHandler(this)"
+                autocomplete="off">
+            </div>
+            <div class="bk-dqn-suggestions" id="bkDqnSuggestions"></div>
+            <div class="bk-dqn-chips" id="bkDqnChips">
+              <span class="bk-dqn-empty">Hələ seçilməyib — bütün avtobuslar idxal olunacaq</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -932,3 +948,4 @@
 <script src="js/main.js"></script>
 </body>
 </html>
+
