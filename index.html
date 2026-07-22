@@ -138,7 +138,7 @@
         <div class="card-title-big">BUS SERVICE</div>
         <div class="card-sub-big">Avtobus texniki servis əməliyyatları</div>
       </div>
-      <div class="card-big" onclick="moduleAlert('TVM-Services')">
+      <div class="card-big" onclick="openTvmService()">
         <div class="card-icon-big icon-tvm">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="16.5" rx="1.5"/><rect x="8" y="4.5" width="8" height="6" rx=".5"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="15.3" x2="13" y2="15.3"/><path d="M9 21.5h6l-1-2.8h-4z"/></svg>
         </div>
@@ -761,190 +761,127 @@
   <!-- BODY -->
   <div class="bk-body">
     <div class="bk-main-layout">
-      
-      <!-- === SECTION 1: Servis Parametrləri === -->
+
+      <!-- SECTION 1: Servis Parametrləri -->
       <div class="bk-panel">
-        <div class="bk-panel-title">
-          <span class="bk-num">1</span> 📅 Servis Parametrləri
-        </div>
-        
+        <div class="bk-panel-title"><span class="bk-num">1</span> 📅 Servis Parametrləri</div>
         <div class="bk-params-layout">
-          <!-- Kalendar (sol) -->
           <div class="bk-cal-wrap">
             <div class="bk-cal-head">
               <button class="bk-cal-nav" onclick="bkCalNav(-1)">‹</button>
               <div class="bk-cal-label" id="bkCalLabel">İyul 2026</div>
               <button class="bk-cal-nav" onclick="bkCalNav(1)">›</button>
             </div>
-            <div class="bk-cal-grid">
-              <div class="bk-cal-dow">B</div>
-              <div class="bk-cal-dow">E</div>
-              <div class="bk-cal-dow">Ç</div>
-              <div class="bk-cal-dow">A</div>
-              <div class="bk-cal-dow">C</div>
-              <div class="bk-cal-dow">Ş</div>
-              <div class="bk-cal-dow">B</div>
-              <div id="bkCalDays" style="display:contents;"></div>
-            </div>
-            <!-- Seçilmiş tarix göstəricisi -->
-            <div id="bkSelectedDateDisplay" style="display:none;margin-top:12px;padding:8px 12px;background:#2563EB;border-radius:8px;color:#FFFFFF;font-size:13px;font-weight:600;text-align:center;font-family:'Inter',sans-serif;"></div>
+            <div class="bk-cal-grid" id="bkCalGrid"></div>
           </div>
-          
-          <!-- Sağ tərəf: saatlar + dropdownlar -->
-          <div class="bk-params-right">
-            <div class="bk-field">
-              <label class="bk-label">Servis başlanğıc saatı *</label>
-              <div class="bk-time-input">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
-                <input type="text" inputmode="numeric" maxlength="5" id="bk_start_time" placeholder="09:00" oninput="bkFormatTime(this)">
-              </div>
+          <div class="bk-times-wrap">
+            <label class="bk-label">Başlanğıc saatı *</label>
+            <div class="bk-time-input">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <input type="text" inputmode="numeric" maxlength="5" id="bk_start_time" placeholder="--:--" oninput="bkFormatTime(this)">
             </div>
-            <div class="bk-field">
-              <label class="bk-label">Servis bitiş saatı *</label>
-              <div class="bk-time-input">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
-                <input type="text" inputmode="numeric" maxlength="5" id="bk_end_time" placeholder="12:00" oninput="bkFormatTime(this)">
-              </div>
+            <label class="bk-label" style="margin-top:10px;">Bitiş saatı *</label>
+            <div class="bk-time-input">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <input type="text" inputmode="numeric" maxlength="5" id="bk_end_time" placeholder="--:--" oninput="bkFormatTime(this)">
             </div>
-            <div class="bk-field">
-              <label class="bk-label">Servis kateqoriyası *</label>
-              <select class="bk-select" id="bk_category">
-                <option value="">Seçin</option>
-              </select>
-            </div>
-            <div class="bk-field">
-              <label class="bk-label">Servis ünvanı</label>
-              <select class="bk-select" id="bk_location" style="max-width:300px;">
-                <option value="">Seçin (könüllü)</option>
-              </select>
-            </div>
-            <div class="bk-field" id="bk_location_note_wrap" style="display:none;">
-              <label class="bk-label">Ünvan qeydi *</label>
-              <input type="text" class="bk-input" id="bk_location_note" placeholder="Ünvanı ətraflı yazın...">
+            <label class="bk-label" style="margin-top:10px;">Servis kateqoriyası *</label>
+            <select class="bk-select" id="bk_category"><option value="">Seçin</option></select>
+            <label class="bk-label" style="margin-top:10px;">Servis ünvanı</label>
+            <select class="bk-select" id="bk_location"><option value="">Seçin (könüllü)</option></select>
+            <div id="bk_location_note_wrap" style="display:none;margin-top:8px;">
+              <textarea class="bk-textarea" id="bk_location_note" placeholder="Ünvanı ətraflı yazın..."></textarea>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- === SECTION 2: Daşıyıcı === -->
+      <!-- SECTION 2: Daşıyıcı -->
       <div class="bk-panel">
-        <div class="bk-panel-title">
-          <span class="bk-num">2</span> 🚌 Daşıyıcı
+        <div class="bk-panel-title"><span class="bk-num">2</span> 🚌 Daşıyıcı</div>
+        <div class="bk-field">
+          <label class="bk-label">Daşıyıcı firma *</label>
+          <select class="bk-select" id="bk_carrier" onchange="bkOnCarrierChange()"><option value="">Seçin</option></select>
         </div>
-        
-        <div class="bk-carrier-row">
-          <div class="bk-field bk-carrier-dd-wrap">
-            <label class="bk-label">Daşıyıcı firma *</label>
-            <select class="bk-select" id="bk_carrier" onchange="bkOnCarrierChange()" style="max-width:400px;">
-              <option value="">Seçin</option>
-            </select>
+        <div id="bkCarrierCountWrap"></div>
+        <div id="bkDqnFilterWrap" style="display:none;">
+          <div class="bk-dqn-notice" id="bkDqnNotice">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r=".6" fill="currentColor" stroke="none"/></svg>
+            <span id="bkDqnNoticeText">Bütün avtobuslar seçilidir.</span>
           </div>
-          <!-- Say badge + "Hamısını seç" toggle -->
-          <div id="bkCarrierCountWrap" style="display:flex;align-items:flex-start;gap:12px;margin-top:14px;"></div>
-
-          <!-- DQN Filter bölməsi -->
-          <div id="bkDqnFilterWrap" style="display:none;margin-top:14px;border-top:1.5px solid #E1EAF6;padding-top:14px;">
-            <!-- Bildiriş -->
-            <div class="bk-dqn-notice" id="bkDqnNotice">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r=".6" fill="currentColor" stroke="none"/></svg>
-              <span id="bkDqnNoticeText">Bütün avtobuslar seçilidir — spesifik DQN seçmək istəyirsinizsə aşağıdan axtarın.</span>
+          <div class="bk-dqn-search-wrap">
+            <div class="bk-dqn-search-box">
+              <svg class="bk-dqn-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" class="bk-dqn-search-input" id="bkDqnInput" placeholder="DQN axtar, məs: 99-JV-697" oninput="bkDqnInputHandler(this)" autocomplete="off">
+              <button class="bk-dqn-search-clear" id="bkDqnClear" onclick="bkClearDqnInput()" style="display:none;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
             </div>
-            <!-- Axtarış inputu -->
-            <div class="bk-dqn-search-wrap">
-              <div class="bk-dqn-search-box">
-                <svg class="bk-dqn-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-                <input type="text" class="bk-dqn-search-input" id="bkDqnInput"
-                  placeholder="DQN axtar, məs: 99-JV-697"
-                  oninput="bkDqnInputHandler(this)"
-                  autocomplete="off">
-                <button class="bk-dqn-search-clear" id="bkDqnClear" onclick="bkClearDqnInput()" style="display:none;">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                </button>
-              </div>
-              <div class="bk-dqn-suggestions" id="bkDqnSuggestions"></div>
-            </div>
-            <!-- Seçilmiş DQN chipləri -->
-            <div class="bk-dqn-chips" id="bkDqnChips"></div>
+            <div class="bk-dqn-suggestions" id="bkDqnSuggestions"></div>
           </div>
+          <div class="bk-dqn-chips" id="bkDqnChips"></div>
         </div>
       </div>
 
-      <!-- === SECTION 3: Şablon Mətnlər === -->
+      <!-- SECTION 3: Şablon Mətnlər -->
       <div class="bk-panel">
-  <div class="bk-panel-title">
-    <span class="bk-num">3</span> 📄 Şablon Mətnlər
-  </div>
-  
-  <div class="bk-tmpl-grid">
-    <div class="bk-field">
-      <label class="bk-label">Tələb (şablon) *</label>
-      <!-- ✅ TEXTAREA -> SELECT olaraq dəyişdirildi -->
-      <select class="bk-select" id="bk_request_tmpl">
-        <option value="">Seçin</option>
-        <!-- JS tərəfindən doldurulur -->
-      </select>
-    </div>
-    <div class="bk-field">
-      <label class="bk-label">Qeyd / Note</label>
-      <textarea class="bk-textarea bk-tmpl-ta" id="bk_note" placeholder="Qeyd daxil edin (istəyə bağlı)"></textarea>
-    </div>
-    <div class="bk-field">
-      <label class="bk-label">Həll (şablon) *</label>
-      <!-- ✅ TEXTAREA -> SELECT olaraq dəyişdirildi -->
-      <select class="bk-select" id="bk_solution_tmpl">
-        <option value="">Seçin</option>
-        <!-- JS tərəfindən doldurulur -->
-      </select>
-    </div>
-  </div>
-</div>
-
-      <!-- === SECTION 4: Personal === -->
-      <div class="bk-panel">
-        <div class="bk-panel-title">
-          <span class="bk-num">4</span> 👥 Personal
-        </div>
-        
-        <div class="bk-personal-row">
+        <div class="bk-panel-title"><span class="bk-num">3</span> 📄 Şablon Mətnlər</div>
+        <div class="bk-tmpl-grid">
           <div class="bk-field">
-            <label class="bk-label">Texnik 1 *</label>
-            <select class="bk-select" id="bk_tech1">
-              <option value="">Seçin</option>
-            </select>
+            <label class="bk-label">Tələb (şablon) *</label>
+            <select class="bk-select" id="bk_request_tmpl"><option value="">Seçin</option></select>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Qeyd / Note</label>
+            <textarea class="bk-textarea" id="bk_note" placeholder="Qeyd daxil edin (istəyə bağlı)"></textarea>
+          </div>
+          <div class="bk-field">
+            <label class="bk-label">Həll (şablon) *</label>
+            <select class="bk-select" id="bk_solution_tmpl"><option value="">Seçin</option></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: Personal -->
+      <div class="bk-panel">
+        <div class="bk-panel-title"><span class="bk-num">4</span> 👥 Personal</div>
+        <div class="bk-row">
+          <div class="bk-field">
+            <label class="bk-label">Texnik 1</label>
+            <select class="bk-select" id="bk_tech1"><option value="">Seçin</option></select>
           </div>
           <div class="bk-field">
             <label class="bk-label">Texnik 2</label>
-            <select class="bk-select" id="bk_tech2">
-              <option value="">Seçin (könüllü)</option>
-            </select>
+            <select class="bk-select" id="bk_tech2"><option value="">Seçin</option></select>
           </div>
-          <div class="bk-field">
-            <label class="bk-label">Qrup rəhbəri *</label>
-            <select class="bk-select" id="bk_leader">
-              <option value="">Seçin</option>
-            </select>
-          </div>
+        </div>
+        <div class="bk-field">
+          <label class="bk-label">Qrup rəhbəri *</label>
+          <select class="bk-select" id="bk_leader"><option value="">Seçin</option></select>
         </div>
       </div>
 
-    </div><!-- /bk-main-layout -->
-  </div><!-- /bk-body -->
+    </div>
+  </div>
 
   <!-- FOOTER -->
   <div class="bk-footer">
     <div class="bk-footer-hint">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-      Seçilmiş məlumatları yoxlayın və "İdxal et" düyməsi ilə bütün ticket-ləri avtomatik yaradın.
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+      Seçimləri tamamlayın, sonra "Ön baxış" edin.
     </div>
-    <button class="bk-btn-primary" id="bkDirectSubmitBtn" onclick="bkSubmitDirect()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      İdxal et (<span id="bkImportCount">0</span> ticket)
+    <button class="bk-preview-btn" onclick="bkOpenPreview()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      Ön baxış
+    </button>
+    <button class="bk-submit-btn" onclick="bkSubmitDirect()" id="bkDirectSubmitBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      İdxal et
     </button>
   </div>
 </div>
 
-<!-- Bulk Submit Loading Overlay -->
-<div id="bkLoadingOverlay">
+id="bkLoadingOverlay">
   <div class="bk-loading-box">
     <div class="spinner" id="bkSpinner"></div>
     <div id="bkSuccessIcon" style="display:none;width:64px;height:64px;border-radius:50%;background:#3FCB78;align-items:center;justify-content:center;animation:popIn .35s ease;">
@@ -955,6 +892,171 @@
 </div>
 
 <script src="js/main.js"></script>
+
+<!-- ===== TVM SERVICE VIEW ===== -->
+<div id="tvmServiceView" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#EEF4FC;z-index:41;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+
+  <div class="bs-header">
+    <button class="bs-home-btn" onclick="closeTvmService()" aria-label="Geri">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    </button>
+    <div class="bs-header-center">
+      <div class="bs-logo">C<span>TECH</span></div>
+      <div class="bs-logo-sub">TVM Servis Raportu</div>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()" aria-label="Tema">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="tvmThemeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+
+  <!-- Ticket badge -->
+  <div style="padding:10px 16px 0;display:flex;align-items:center;justify-content:space-between;">
+    <div id="tvmTicketBadge"></div>
+  </div>
+
+  <div class="bs-body" style="max-width:560px;margin:0 auto;">
+
+    <!-- 1. Servis məlumatları -->
+    <div class="bs-section">
+      <div class="bs-section-title">Servis məlumatları</div>
+
+      <div class="bs-field">
+        <label class="bs-label">Tarix *</label>
+        <input type="date" class="bs-input" id="tvm_date">
+      </div>
+
+      <div class="bs-field">
+        <label class="bs-label">Nasazlığın yaranma vaxtı *</label>
+        <div class="bs-time-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <input type="text" class="bs-time-input" id="tvm_fault_time" inputmode="numeric" maxlength="5" placeholder="--:--" oninput="tvmFormatTime(this)">
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. TVM SN -->
+    <div class="bs-section">
+      <div class="bs-section-title">Validator məlumatları</div>
+      <div class="bs-field">
+        <label class="bs-label">TVM SN *</label>
+        <div style="position:relative;">
+          <input type="text" class="bs-input" id="tvm_sn" placeholder="Məs: 099" inputmode="numeric" maxlength="3" oninput="tvmSnInputHandler(this)" autocomplete="off" style="font-family:'IBM Plex Mono',monospace;font-size:22px;letter-spacing:4px;text-align:center;">
+          <div class="bs-registry-dd" id="tvm_sn_dd" style="display:none;"></div>
+        </div>
+      </div>
+      <div class="bs-field" id="tvm_location_wrap" style="display:none;">
+        <label class="bs-label">Lokasiya</label>
+        <div class="bs-input" id="tvm_location_display" style="background:#EAF8F0;border-color:#B7EBC9;color:#0C6B34;font-weight:600;"></div>
+      </div>
+      <div class="bs-field" id="tvm_sn_full_wrap" style="display:none;">
+        <label class="bs-label">Tam SN</label>
+        <div class="bs-input" id="tvm_sn_full_display" style="background:#F0F5FC;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#5C7089;"></div>
+      </div>
+    </div>
+
+    <!-- 3. Vaxt məlumatları -->
+    <div class="bs-section">
+      <div class="bs-section-title">Vaxt məlumatları</div>
+      <div class="bs-row">
+        <div class="bs-field">
+          <label class="bs-label">Servis başladı *</label>
+          <div class="bs-time-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <input type="text" class="bs-time-input" id="tvm_start_time" inputmode="numeric" maxlength="5" placeholder="--:--" oninput="tvmFormatTime(this)">
+          </div>
+        </div>
+        <div class="bs-field">
+          <label class="bs-label">Servis bitdi *</label>
+          <div class="bs-time-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <input type="text" class="bs-time-input" id="tvm_end_time" inputmode="numeric" maxlength="5" placeholder="--:--" oninput="tvmFormatTime(this)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Problem və həll -->
+    <div class="bs-section">
+      <div class="bs-section-title">Problem və həll</div>
+
+      <div class="bs-field">
+        <label class="bs-label">Nasazlıq *</label>
+        <div class="bs-inline-dd" id="dd_tvm_fault">
+          <button type="button" class="bs-picker-btn" id="bs_tvm_fault_btn" onclick="toggleDD('tvm_fault')">
+            <span id="bs_tvm_fault_lbl" style="color:#9AACC4;">Seçin (çoxlu seçim)</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_tvm_fault_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_tvm_fault_list"></div>
+        </div>
+        <div class="bs-chips" id="tvm_fault_chips"></div>
+      </div>
+
+      <div class="bs-field">
+        <label class="bs-label">Görülən iş *</label>
+        <div class="bs-inline-dd" id="dd_tvm_solution">
+          <button type="button" class="bs-picker-btn" id="bs_tvm_solution_btn" onclick="toggleDD('tvm_solution')">
+            <span id="bs_tvm_solution_lbl" style="color:#9AACC4;">Seçin (çoxlu seçim)</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_tvm_solution_arrow"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bs-dd-list" id="dd_tvm_solution_list"></div>
+        </div>
+        <div class="bs-chips" id="tvm_solution_chips"></div>
+      </div>
+
+      <div class="bs-field">
+        <label class="bs-label">Qeyd</label>
+        <textarea class="bs-textarea" id="tvm_note" placeholder="Əlavə qeyd yazın (könüllü)..." rows="3"></textarea>
+      </div>
+    </div>
+
+    <!-- 5. Personal -->
+    <div class="bs-section">
+      <div class="bs-section-title">Personal</div>
+      <div class="bs-row">
+        <div class="bs-field">
+          <label class="bs-label">Texnik *</label>
+          <div class="bs-inline-dd" id="dd_tvm_tech">
+            <button type="button" class="bs-picker-btn" id="bs_tvm_tech_btn" onclick="toggleDD('tvm_tech')">
+              <span id="bs_tvm_tech_lbl" style="color:#9AACC4;">Seçin</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_tvm_tech_arrow"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="bs-dd-list" id="dd_tvm_tech_list"></div>
+          </div>
+        </div>
+        <div class="bs-field">
+          <label class="bs-label">Qrup rəhbəri *</label>
+          <div class="bs-inline-dd" id="dd_tvm_leader">
+            <button type="button" class="bs-picker-btn" id="bs_tvm_leader_btn" onclick="toggleDD('tvm_leader')">
+              <span id="bs_tvm_leader_lbl" style="color:#9AACC4;">Seçin</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dd_tvm_leader_arrow"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="bs-dd-list" id="dd_tvm_leader_list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.bs-body -->
+
+  <!-- FOOTER -->
+  <div class="bs-submit">
+    <button class="bs-submit-btn" onclick="submitTvmService()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+      Göndər
+    </button>
+  </div>
+
+</div><!-- /#tvmServiceView -->
+
+<!-- TVM Loading Overlay -->
+<div id="tvmLoadingOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(244,248,253,.95);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div class="spinner" id="tvmSpinner"></div>
+  <div id="tvmSuccessIcon" style="display:none;width:64px;height:64px;border-radius:50%;background:#3FCB78;align-items:center;justify-content:center;">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>
+  </div>
+  <div class="loading-text" id="tvmLoadingText">Göndərilir...</div>
+</div>
+
 </body>
 </html>
 
