@@ -2273,3 +2273,52 @@ body.dark-mode .bk-dqn-chip-x { background:#3E6FCB; color:#E8EEF5; }
   body.dark-mode #dashboardsSection .secondary-row .card-small:nth-child(1)::after{ background:#123322; color:#4ADE80; }
   body.dark-mode #dashboardsSection .secondary-row .card-small:nth-child(2)::after{ background:#241C3D; color:#B79CF5; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBİL: "APP" HİSSİ (brauzer deyil) — QLOBAL, TƏHLÜKƏSİZ ƏLAVƏLƏR
+   Yalnız toxunma davranışını yaxşılaşdırır — heç bir layout/dizayn
+   dəyişmir, heç bir elementin ölçüsü/mövqeyi təsirlənmir.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 300ms tıklama gecikməsini aradan qaldırır, toxunuşları ani hiss etdirir */
+button, a, .card-big, .card-small, .icon-btn, .menu-item,
+.bs-home-btn, .rpt-icon-btn, .dash-tab, [onclick]{
+  touch-action:manipulation;
+}
+
+/* Toxunanda brauzerin boz-flaş "highlight" effektini söndürür */
+button, a, [onclick], .card-big, .card-small, .icon-btn{
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* Düymələrə uzun basanda native "kontekst menyu/böyütmə" çıxmasın */
+button, .icon-btn, .card-big, .card-small, .bs-home-btn, .rpt-icon-btn{
+  -webkit-touch-callout:none;
+}
+
+/* Düymə/kart mətnləri təsadüfən "seçilməsin" (app-larda adi olduğu kimi) —
+   input, textarea və cədvəl xanaları buna daxil deyil, orda seçim sərbəstdir */
+button, .icon-btn, .card-big, .card-small, .menu-item, .dash-tab,
+.rpt-icon-btn, .bs-home-btn, .header, .rpt-header, .bs-header{
+  -webkit-user-select:none;
+  user-select:none;
+}
+
+/* Scroll edilən bütün konteynerlərdə iOS-da "momentum" (yumşaq) scroll */
+.modal-box, .dash-modal-results, .dash-modal-left, .dash-modal-right{
+  -webkit-overflow-scrolling:touch;
+}
+
+@media (max-width:900px){
+  /* Body-nin özü "lastiklənmə" (rubber-band) effektini göstərməsin —
+     səhifə kənarlarını sürüşdürəndə arxa boşluq görünməsin */
+  html, body{ overscroll-behavior:none; }
+
+  /* Fixed görünüşlərin (Service/Report/Bulk) daxilində momentum scroll,
+     scrollbar-ın native app kimi nazik/gizli olması */
+  #busServiceView, #tvmServiceView, #busBulkView,
+  #busReportView, #tvmReportView, #busDetailView, #tvmDetailView,
+  #busDashboardView{
+    -webkit-overflow-scrolling:touch;
+  }
+}
