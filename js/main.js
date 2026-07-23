@@ -98,6 +98,7 @@ function switchAdminSection(key, btn){
   var target=document.getElementById('admSection-'+key);
   if(target) target.style.display='block';
   if(key==='users' && typeof loadAdminUsers==='function') loadAdminUsers();
+  if(key==='tvm' && typeof loadTvmManagementData==='function') loadTvmManagementData();
 }
 document.addEventListener('click',function(e){ var panel=document.getElementById('menuPanel'); if(!panel)return; if(!panel.contains(e.target)&&!e.target.closest('.icon-btn'))closeMenu(); });
 
@@ -295,27 +296,33 @@ function submitUserModal(){
   });
 }
 
-function openDeleteConfirm(userId, name){
-  admUsrDeletingId=userId;
-  document.getElementById('admDeleteText').textContent='"'+name+'" istifadəçisini silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.';
+var admDeleteConfirmAction=null;
+function admOpenDeleteConfirm(text, actionFn){
+  admDeleteConfirmAction=actionFn;
+  document.getElementById('admDeleteText').textContent=text;
   var ov=document.getElementById('admDeleteConfirm');
   ov.style.display='flex'; ov.classList.add('open');
+}
+function openDeleteConfirm(userId, name){
+  admOpenDeleteConfirm('"'+name+'" istifadəçisini silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.', function(){
+    return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteUser', userId:userId, requesterEmail: currentUser?currentUser.email:''})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
+      loadAdminUsers();
+    });
+  });
 }
 function closeDeleteConfirm(){
   var ov=document.getElementById('admDeleteConfirm');
   ov.classList.remove('open'); ov.style.display='none';
-  admUsrDeletingId=null;
+  admDeleteConfirmAction=null;
 }
-function confirmDeleteUser(){
-  if(!admUsrDeletingId) return;
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteUser', userId:admUsrDeletingId, requesterEmail: currentUser?currentUser.email:''})})
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    closeDeleteConfirm();
-    if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
-    loadAdminUsers();
-  })
-  .catch(function(e){ closeDeleteConfirm(); alert('Şəbəkə xətası: '+e.message); });
+function admConfirmDelete(){
+  if(!admDeleteConfirmAction) return;
+  var action=admDeleteConfirmAction;
+  closeDeleteConfirm();
+  action().catch(function(e){ alert('Şəbəkə xətası: '+e.message); });
 }
 
 function admExportUsers(){
@@ -330,6 +337,272 @@ function admExportUsers(){
   XLSX.utils.book_append_sheet(wb, ws, 'Users');
   var today=new Date();
   XLSX.writeFile(wb, 'Users_'+String(today.getDate()).padStart(2,'0')+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+today.getFullYear()+'.xlsx');
+}
+
+// ── TVM MANAGEMENT ───────────────────────────────────
+var admTvmRegistryAll=[], admTvmProblems=[], admTvmSolutions=[], admTvmLeaders=[];
+var admTvmRegCurrentPage=1, admTvmRegPageSize=8, admTvmRegEditingId=null;
+var admTvmListEditingSheet=null, admTvmListEditingValue=null;
+var admTvmRegSearchDebounceTimer=null;
+var ADM_TVM_SHEET_LABEL={ 'TVM_PROBLEMS':'Nasazlıq', 'TVM_SOLUTIONS':'Həll', 'TVM_TeamLeaders':'Qrup Rəhbəri' };
+var ADM_TVM_LIST_MAP={ 'TVM_PROBLEMS':'admTvmProblemsList', 'TVM_SOLUTIONS':'admTvmSolutionsList', 'TVM_TeamLeaders':'admTvmLeadersList' };
+var ADM_TVM_COUNT_MAP={ 'TVM_PROBLEMS':'admTvmProblemsCount', 'TVM_SOLUTIONS':'admTvmSolutionsCount', 'TVM_TeamLeaders':'admTvmLeadersCount' };
+
+function switchTvmSubtab(key, btn){
+  document.querySelectorAll('#admSection-tvm .adm-subtab').forEach(function(el){ el.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.adm-tvm-sub').forEach(function(el){ el.style.display='none'; });
+  var target=document.getElementById('admTvmSub-'+key);
+  if(target) target.style.display='block';
+}
+
+function loadTvmManagementData(){
+  var body=document.getElementById('admTvmRegTableBody');
+  if(body) body.innerHTML='<tr><td colspan="4"><div class="adm-empty">Yüklənir...</div></td></tr>';
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTvmManagementData', requesterEmail: currentUser?currentUser.email:''})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status!=='OK'){
+      if(body) body.innerHTML='<tr><td colspan="4"><div class="adm-empty">Xəta: '+escapeHtml(d.message||'')+'</div></td></tr>';
+      return;
+    }
+    admTvmRegistryAll=d.registry||[];
+    admTvmProblems=d.problems||[];
+    admTvmSolutions=d.solutions||[];
+    admTvmLeaders=d.leaders||[];
+    var s=d.registryStats||{};
+    var elT=document.getElementById('admTvmStatTotal'); if(elT) elT.textContent=s.total!=null?s.total:'0';
+    var elM=document.getElementById('admTvmStatMetro'); if(elM) elM.textContent=s.metro!=null?s.metro:'0';
+    var elS=document.getElementById('admTvmStatStops'); if(elS) elS.textContent=s.stops!=null?s.stops:'0';
+    admTvmRegCurrentPage=1;
+    admRenderTvmRegistryTable();
+    admRenderTvmSimpleList('TVM_PROBLEMS', admTvmProblems);
+    admRenderTvmSimpleList('TVM_SOLUTIONS', admTvmSolutions);
+    admRenderTvmSimpleList('TVM_TeamLeaders', admTvmLeaders);
+  })
+  .catch(function(e){
+    if(body) body.innerHTML='<tr><td colspan="4"><div class="adm-empty">Şəbəkə xətası: '+escapeHtml(e.message)+'</div></td></tr>';
+  });
+}
+
+// ── TVM Reyestri (TVM_SN_AND_LOC) ──
+function admTvmRegDebouncedRender(){ clearTimeout(admTvmRegSearchDebounceTimer); admTvmRegSearchDebounceTimer=setTimeout(function(){ admTvmRegCurrentPage=1; admRenderTvmRegistryTable(); },180); }
+function admGetFilteredTvmRegistry(){
+  var q=(document.getElementById('admTvmRegSearch').value||'').toLowerCase().trim();
+  if(!q) return admTvmRegistryAll;
+  return admTvmRegistryAll.filter(function(r){
+    return r.id.toLowerCase().indexOf(q)!==-1 || r.location.toLowerCase().indexOf(q)!==-1 || r.serviceLocation.toLowerCase().indexOf(q)!==-1;
+  });
+}
+function admRenderTvmRegistryTable(){
+  var filtered=admGetFilteredTvmRegistry();
+  var totalPages=Math.max(1, Math.ceil(filtered.length/admTvmRegPageSize));
+  if(admTvmRegCurrentPage>totalPages) admTvmRegCurrentPage=totalPages;
+  var startIdx=(admTvmRegCurrentPage-1)*admTvmRegPageSize;
+  var visible=filtered.slice(startIdx, startIdx+admTvmRegPageSize);
+
+  var body=document.getElementById('admTvmRegTableBody');
+  if(visible.length===0){
+    body.innerHTML='<tr><td colspan="4"><div class="adm-empty">TVM tapılmadı</div></td></tr>';
+  } else {
+    body.innerHTML=visible.map(function(r){
+      var safeId=r.id.replace(/'/g,'');
+      return '<tr>'
+        +'<td class="adm-mono">'+escapeHtml(r.id)+'</td>'
+        +'<td>'+escapeHtml(r.location||'—')+'</td>'
+        +'<td>'+escapeHtml(r.serviceLocation||'—')+'</td>'
+        +'<td class="adm-th-act">'
+        +'<button class="adm-icon-btn" onclick="openTvmRegistryModal(\''+safeId+'\')" aria-label="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>'
+        +'<button class="adm-icon-btn adm-icon-btn-danger" onclick="admDeleteTvmRegistry(\''+safeId+'\')" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
+        +'</td></tr>';
+    }).join('');
+  }
+
+  var infoEl=document.getElementById('admTvmRegPageInfo');
+  if(filtered.length===0){ infoEl.textContent='Showing 0 entries'; }
+  else { infoEl.textContent='Showing '+(startIdx+1)+' to '+Math.min(startIdx+admTvmRegPageSize,filtered.length)+' of '+filtered.length+' entries'; }
+
+  var btnsEl=document.getElementById('admTvmRegPageBtns');
+  var html='';
+  html+='<button class="adm-page-btn" '+(admTvmRegCurrentPage<=1?'disabled':'')+' onclick="admTvmRegGoPage('+(admTvmRegCurrentPage-1)+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>';
+  var startPage=Math.max(1, admTvmRegCurrentPage-1), endPage=Math.min(totalPages, startPage+3);
+  startPage=Math.max(1, endPage-3);
+  for(var p=startPage; p<=endPage; p++){
+    html+='<button class="adm-page-btn'+(p===admTvmRegCurrentPage?' adm-page-btn-active':'')+'" onclick="admTvmRegGoPage('+p+')">'+p+'</button>';
+  }
+  html+='<button class="adm-page-btn" '+(admTvmRegCurrentPage>=totalPages?'disabled':'')+' onclick="admTvmRegGoPage('+(admTvmRegCurrentPage+1)+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>';
+  btnsEl.innerHTML=html;
+}
+function admTvmRegGoPage(p){ if(p<1) return; admTvmRegCurrentPage=p; admRenderTvmRegistryTable(); }
+
+function openTvmRegistryModal(id){
+  admTvmRegEditingId=id||null;
+  document.getElementById('admTvmRegFormError').style.display='none';
+  document.getElementById('admTvmRegId').value='';
+  document.getElementById('admTvmRegLocation').value='';
+  document.getElementById('admTvmRegServiceLocation').value='';
+  if(id){
+    var r=admTvmRegistryAll.find(function(x){ return x.id===id; });
+    document.getElementById('admTvmRegModalTitle').textContent='Edit TVM';
+    document.getElementById('admTvmRegSaveBtn').textContent='Save Changes';
+    if(r){
+      document.getElementById('admTvmRegId').value=r.id;
+      document.getElementById('admTvmRegLocation').value=r.location;
+      document.getElementById('admTvmRegServiceLocation').value=r.serviceLocation;
+    }
+  } else {
+    document.getElementById('admTvmRegModalTitle').textContent='Add TVM';
+    document.getElementById('admTvmRegSaveBtn').textContent='Save';
+  }
+  var ov=document.getElementById('admTvmRegModal');
+  ov.style.display='flex'; ov.classList.add('open');
+}
+function closeTvmRegistryModal(){
+  var ov=document.getElementById('admTvmRegModal');
+  ov.classList.remove('open'); ov.style.display='none';
+  admTvmRegEditingId=null;
+}
+function submitTvmRegistryModal(){
+  var id=document.getElementById('admTvmRegId').value.trim();
+  var location=document.getElementById('admTvmRegLocation').value.trim();
+  var serviceLocation=document.getElementById('admTvmRegServiceLocation').value.trim();
+  var errEl=document.getElementById('admTvmRegFormError');
+  errEl.style.display='none';
+  if(!id){ errEl.textContent='TVM İD daxil edin.'; errEl.style.display='block'; return; }
+
+  var btn=document.getElementById('admTvmRegSaveBtn');
+  btn.disabled=true; var origText=btn.textContent; btn.textContent='Yadda saxlanılır...';
+
+  var payload = admTvmRegEditingId
+    ? { action:'updateTvmRegistryEntry', originalId:admTvmRegEditingId, data:{id:id, location:location, serviceLocation:serviceLocation}, requesterEmail: currentUser?currentUser.email:'' }
+    : { action:'addTvmRegistryEntry', data:{id:id, location:location, serviceLocation:serviceLocation}, requesterEmail: currentUser?currentUser.email:'' };
+
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    btn.disabled=false; btn.textContent=origText;
+    if(d.status!=='OK'){ errEl.textContent=d.message||'Xəta baş verdi'; errEl.style.display='block'; return; }
+    closeTvmRegistryModal();
+    loadTvmManagementData();
+  })
+  .catch(function(e){
+    btn.disabled=false; btn.textContent=origText;
+    errEl.textContent='Şəbəkə xətası: '+e.message; errEl.style.display='block';
+  });
+}
+function admDeleteTvmRegistry(id){
+  admOpenDeleteConfirm('"'+id+'" TVM cihazını silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.', function(){
+    return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteTvmRegistryEntry', id:id, requesterEmail: currentUser?currentUser.email:''})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
+      loadTvmManagementData();
+    });
+  });
+}
+function admExportTvmRegistry(){
+  var filtered=admGetFilteredTvmRegistry();
+  if(filtered.length===0){ alert('Export üçün məlumat yoxdur'); return; }
+  if(typeof XLSX==='undefined'){ alert('Excel kitabxanası yüklənməyib'); return; }
+  var wsData=[['TVM İD','Lokasiya','Servis Lokasiyası']];
+  filtered.forEach(function(r){ wsData.push([r.id, r.location, r.serviceLocation]); });
+  var ws=XLSX.utils.aoa_to_sheet(wsData);
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'TVM Registry');
+  var today=new Date();
+  XLSX.writeFile(wb, 'TVM_Registry_'+String(today.getDate()).padStart(2,'0')+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+today.getFullYear()+'.xlsx');
+}
+
+// ── Sadə siyahılar (Nasazlıq/Həll/Qrup Rəhbəri) — sıralana bilən ──
+function admGetListArray(sheetName){
+  if(sheetName==='TVM_PROBLEMS') return admTvmProblems;
+  if(sheetName==='TVM_SOLUTIONS') return admTvmSolutions;
+  if(sheetName==='TVM_TeamLeaders') return admTvmLeaders;
+  return [];
+}
+function admRenderTvmSimpleList(sheetName, arr){
+  var listEl=document.getElementById(ADM_TVM_LIST_MAP[sheetName]);
+  var countEl=document.getElementById(ADM_TVM_COUNT_MAP[sheetName]);
+  if(countEl) countEl.textContent=arr.length+' element';
+  if(!listEl) return;
+  if(arr.length===0){ listEl.innerHTML='<div class="adm-empty">Siyahı boşdur</div>'; return; }
+  listEl.innerHTML=arr.map(function(val, idx){
+    var safeVal=val.replace(/'/g,'');
+    return '<div class="adm-reorder-row">'
+      +'<span class="adm-reorder-num">'+(idx+1)+'</span>'
+      +'<span class="adm-reorder-text">'+escapeHtml(val)+'</span>'
+      +'<div class="adm-reorder-arrows">'
+      +'<button class="adm-reorder-arrow" '+(idx===0?'disabled':'')+' onclick="admMoveTvmListItem(\''+sheetName+'\',\''+safeVal+'\',\'up\')" aria-label="Yuxarı"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg></button>'
+      +'<button class="adm-reorder-arrow" '+(idx===arr.length-1?'disabled':'')+' onclick="admMoveTvmListItem(\''+sheetName+'\',\''+safeVal+'\',\'down\')" aria-label="Aşağı"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></button>'
+      +'</div>'
+      +'<button class="adm-icon-btn" onclick="openTvmListModal(\''+sheetName+'\',\''+safeVal+'\')" aria-label="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>'
+      +'<button class="adm-icon-btn adm-icon-btn-danger" onclick="admDeleteTvmListItem(\''+sheetName+'\',\''+safeVal+'\')" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
+      +'</div>';
+  }).join('');
+}
+function admMoveTvmListItem(sheetName, value, direction){
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'moveTvmListItem', sheetName:sheetName, value:value, direction:direction, requesterEmail: currentUser?currentUser.email:''})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
+    loadTvmManagementData();
+  })
+  .catch(function(e){ alert('Şəbəkə xətası: '+e.message); });
+}
+function openTvmListModal(sheetName, oldValue){
+  admTvmListEditingSheet=sheetName;
+  admTvmListEditingValue=oldValue||null;
+  document.getElementById('admTvmListFormError').style.display='none';
+  var label=ADM_TVM_SHEET_LABEL[sheetName]||'Dəyər';
+  document.getElementById('admTvmListModalTitle').textContent=(oldValue?'Edit ':'Add ')+label;
+  document.getElementById('admTvmListFieldLabel').textContent=label+' *';
+  document.getElementById('admTvmListValue').placeholder=label+' daxil edin';
+  document.getElementById('admTvmListValue').value=oldValue||'';
+  document.getElementById('admTvmListSaveBtn').textContent=oldValue?'Save Changes':'Save';
+  var ov=document.getElementById('admTvmListModal');
+  ov.style.display='flex'; ov.classList.add('open');
+}
+function closeTvmListModal(){
+  var ov=document.getElementById('admTvmListModal');
+  ov.classList.remove('open'); ov.style.display='none';
+  admTvmListEditingSheet=null; admTvmListEditingValue=null;
+}
+function submitTvmListModal(){
+  var value=document.getElementById('admTvmListValue').value.trim();
+  var errEl=document.getElementById('admTvmListFormError');
+  errEl.style.display='none';
+  if(!value){ errEl.textContent='Boş dəyər saxlanıla bilməz.'; errEl.style.display='block'; return; }
+
+  var btn=document.getElementById('admTvmListSaveBtn');
+  btn.disabled=true; var origText=btn.textContent; btn.textContent='Yadda saxlanılır...';
+
+  var payload = admTvmListEditingValue
+    ? { action:'updateTvmListItem', sheetName:admTvmListEditingSheet, oldValue:admTvmListEditingValue, newValue:value, requesterEmail: currentUser?currentUser.email:'' }
+    : { action:'addTvmListItem', sheetName:admTvmListEditingSheet, value:value, requesterEmail: currentUser?currentUser.email:'' };
+
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    btn.disabled=false; btn.textContent=origText;
+    if(d.status!=='OK'){ errEl.textContent=d.message||'Xəta baş verdi'; errEl.style.display='block'; return; }
+    closeTvmListModal();
+    loadTvmManagementData();
+  })
+  .catch(function(e){
+    btn.disabled=false; btn.textContent=origText;
+    errEl.textContent='Şəbəkə xətası: '+e.message; errEl.style.display='block';
+  });
+}
+function admDeleteTvmListItem(sheetName, value){
+  var label=ADM_TVM_SHEET_LABEL[sheetName]||'dəyəri';
+  admOpenDeleteConfirm('"'+value+'" '+label+'ni silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.', function(){
+    return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteTvmListItem', sheetName:sheetName, value:value, requesterEmail: currentUser?currentUser.email:''})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
+      loadTvmManagementData();
+    });
+  });
 }
 function showAbout(){ closeMenu(); document.getElementById('aboutModal').classList.add('open'); }
 function hideAbout(){ document.getElementById('aboutModal').classList.remove('open'); }
