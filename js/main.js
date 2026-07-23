@@ -1,4 +1,3 @@
-
 var API_URL = "https://script.google.com/macros/s/AKfycbytFqFdrsHqKrD2YnurKsXATyjAMLbFAtV3gEcLxmPF_DjfGk2A9yyBrhs7XgoM-uYcbw/exec";
 var currentUser = null;
 var SESSION_KEY = "ctech_session";
@@ -1690,6 +1689,7 @@ function bkSubmitDirect(){
   var ic = document.getElementById('bkSuccessIcon');
   var tx = document.getElementById('bkLoadingText');
   
+  ov.style.display = 'flex';
   ov.classList.add('open');
   sp.style.display = 'block';
   ic.style.display = 'none';
@@ -1707,13 +1707,13 @@ function bkSubmitDirect(){
     if(d.status !== 'OK'){
       sp.style.display = 'none';
       tx.textContent = 'Xəta: ' + (d.message || '');
-      setTimeout(function(){ ov.classList.remove('open'); }, 2000);
+      setTimeout(function(){ ov.classList.remove('open'); ov.style.display='none'; }, 2000);
       return;
     }
     if(d.count === 0){
       sp.style.display = 'none';
       tx.textContent = '"' + data.carrier + '" daşıyıcısına aid avtobus tapılmadı.';
-      setTimeout(function(){ ov.classList.remove('open'); }, 2000);
+      setTimeout(function(){ ov.classList.remove('open'); ov.style.display='none'; }, 2000);
       return;
     }
     // ✅ CONFIRM SİLİNDİ - BİRBAŞA İDXAL
@@ -1723,7 +1723,7 @@ function bkSubmitDirect(){
     btn.disabled = false;
     sp.style.display = 'none';
     tx.textContent = 'Şəbəkə xətası: ' + e.message;
-    setTimeout(function(){ ov.classList.remove('open'); }, 2000);
+    setTimeout(function(){ ov.classList.remove('open'); ov.style.display='none'; }, 2000);
   });
 }
 
@@ -1733,6 +1733,7 @@ function bkRunImport(data, count){
   var ic = document.getElementById('bkSuccessIcon');
   var tx = document.getElementById('bkLoadingText');
   
+  ov.style.display = 'flex';
   ov.classList.add('open');
   sp.style.display = 'block';
   ic.style.display = 'none';
@@ -1765,6 +1766,7 @@ function bkRunImport(data, count){
     
     setTimeout(function(){
       ov.classList.remove('open');
+      ov.style.display = 'none';
       ic.classList.remove('show');
       ic.style.display = 'none';
       
@@ -1780,12 +1782,14 @@ function bkRunImport(data, count){
     tx.textContent = '❌ Şəbəkə xətası: ' + e.message;
     setTimeout(function(){ 
       ov.classList.remove('open');
+      ov.style.display = 'none';
       // Xəta olsa da BUS Service-ə qayıt
       resetBulkForm();
       closeBusBulk();
     }, 2000);
   });
 }
+
 
 function resetBulkForm(){
   bkClosePreview();
