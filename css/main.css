@@ -2127,139 +2127,140 @@ body.dark-mode .bk-dqn-chip-x { background:#3E6FCB; color:#E8EEF5; }
   #bsBulkBannerWrap { display:none !important; }
 }
 
-
 /* ═══════════════════════════════════════════════════════════════
    DASHBOARD MENYUSU — YALNIZ VEB (MASAÜSTÜ) VERSİYA ÜÇÜN
    Bu blok yalnız #dashboardView-a təsir edir. Başqa heç bir görünüşə
-   (Bus/TVM Service, Bulk, Report, Dashboard-BUS və s.) toxunmur.
-   Mobil görünüş bu media query-dən kənarda qalıb, olduğu kimi qalır.
-   Bütün ölçülər KOMPAKT saxlanılıb ki, hər şey bir ekranda (scroll
-   olmadan) sığsın — banner daxil.
+   toxunmur. Mobil görünüş bu media query-dən kənarda qalıb.
+   Ölçülər clamp() ilə ekran ölçüsünə görə çevik böyüyür/kiçilir —
+   geniş ekranlarda daha böyük, dar ekranlarda daha kompakt olur,
+   həmişə bir səhifəyə (scroll olmadan) sığır.
    ═══════════════════════════════════════════════════════════════ */
 @media (min-width:901px){
 
   html, body{ height:100%; }
   #dashboardView{
-    display:grid !important;
-    grid-template-columns: 1fr minmax(0,740px) minmax(0,320px) 1fr;
-    grid-template-rows: auto auto 1fr auto;
-    grid-template-areas:
-      "head head head head"
-      ".    wel  pro  ."
-      ".    cont cont ."
-      ".    foot foot .";
+    display:flex !important;
+    flex-direction:column;
     height:100vh;
-    row-gap:0;
     overflow:hidden;
   }
-  #dashboardView > .header{ grid-area:head; min-height:0; padding:9px 20px; }
+  #dashboardView > .header{ flex:0 0 auto; min-height:0; padding:clamp(10px,1.6vh,16px) clamp(24px,3vw,48px); }
 
-  /* ── Welcome + Profil eyni sırada ── */
+  /* ── Hero zolağı: Welcome mərkəzdə, Profil saatın altında sağda ── */
+  #dashboardView > .welcome,
+  #dashboardView > .profile-row{ flex:0 0 auto; }
+  #dashboardView{ position:relative; }
   #dashboardView > .welcome{
-    grid-area:wel;
-    max-width:none; margin:0; text-align:left;
-    padding:12px 0 0 32px;
-    display:flex; align-items:center;
+    max-width:none; margin:0; text-align:center;
+    padding:clamp(14px,2.2vh,26px) clamp(24px,3vw,48px) 0;
+    display:flex; justify-content:center;
   }
   #dashboardView .welcome-box{
-    width:100%; box-sizing:border-box; display:block;
-    text-align:left; padding:11px 20px; border-radius:12px;
+    display:inline-flex; flex-direction:column; align-items:flex-start;
+    width:auto; box-sizing:border-box;
+    text-align:left; padding:clamp(12px,1.8vh,18px) clamp(24px,3vw,34px);
+    border-radius:14px;
   }
   #dashboardView .welcome-name{
-    font-size:15px; display:flex; align-items:center; gap:7px;
+    font-size:clamp(16px,2vh,20px); display:flex; align-items:center; gap:9px; white-space:nowrap;
   }
-  #dashboardView .welcome-name::before{ content:"👋"; font-size:16px; }
-  #dashboardView .welcome-sub{ font-size:11.5px; margin-top:2px; }
+  #dashboardView .welcome-name::before{ content:"👋"; font-size:1.1em; }
+  #dashboardView .welcome-sub{ font-size:clamp(12px,1.4vh,14px); margin-top:3px; white-space:nowrap; }
 
   #dashboardView > .profile-row{
-    grid-area:pro;
-    padding:12px 32px 0 0;
-    align-self:center;
-    justify-content:flex-end;
+    position:absolute;
+    top:clamp(64px,9vh,88px);
+    right:clamp(24px,3vw,48px);
+    padding:0; justify-content:flex-end;
   }
-  #dashboardView .profile-chip{ max-width:none; padding:5px 12px 5px 5px; }
-  #dashboardView .profile-avatar{ width:30px; height:30px; border-radius:9px; }
-  #dashboardView .profile-name{ font-size:12px; }
-  #dashboardView .profile-role{ font-size:10px; }
+  #dashboardView .profile-chip{
+    max-width:none; padding:clamp(7px,1vh,10px) clamp(18px,1.6vw,24px) clamp(7px,1vh,10px) clamp(7px,1vh,10px);
+    gap:12px; border-radius:16px;
+  }
+  #dashboardView .profile-avatar{ width:clamp(38px,5vh,48px); height:clamp(38px,5vh,48px); border-radius:12px; }
+  #dashboardView .profile-avatar svg{ width:55%; height:55%; }
+  #dashboardView .profile-name{ font-size:clamp(14px,1.6vh,16px); }
+  #dashboardView .profile-role{ font-size:clamp(11.5px,1.3vh,13px); }
 
-  /* ── Əsas kartlar (BUS/TVM SERVICE) ── */
+  /* ── Əsas kartlar (BUS/TVM SERVICE) — daha geniş məzmun sütunu ── */
   #dashboardView > .container{
-    grid-area:cont; max-width:none; padding:10px 32px 0;
-    display:flex; flex-direction:column; justify-content:center; min-height:0;
+    flex:1 1 auto; min-height:0; max-width:none;
+    padding:clamp(10px,1.6vh,18px) clamp(24px,3vw,48px) 0;
+    display:flex; flex-direction:column; justify-content:center;
   }
-  #dashboardView .primary-row{ gap:16px; margin-bottom:10px; }
+  #dashboardView .primary-row{ gap:clamp(16px,1.8vw,26px); margin-bottom:clamp(12px,1.6vh,18px); }
   #dashboardView .card-big{
     flex-direction:row; align-items:center; justify-content:flex-start;
-    text-align:left; gap:14px; padding:14px 18px; min-height:0;
-    border-radius:14px; box-shadow:0 8px 20px rgba(30,68,130,.06);
+    text-align:left; gap:clamp(16px,1.8vw,24px); padding:clamp(18px,2.6vh,28px) clamp(24px,2.4vw,34px);
+    min-height:0; border-radius:16px; box-shadow:0 10px 26px rgba(30,68,130,.07);
   }
-  #dashboardView .card-icon-big{ border-radius:50%; flex-shrink:0; width:42px; height:42px; }
-  #dashboardView .card-icon-big svg{ width:21px; height:21px; }
-  #dashboardView .card-title-big{ font-size:14.5px; letter-spacing:.1px; }
-  #dashboardView .card-sub-big{ font-size:11px; margin-top:1px; }
+  #dashboardView .card-icon-big{ border-radius:50%; flex-shrink:0; width:clamp(52px,7vh,68px); height:clamp(52px,7vh,68px); }
+  #dashboardView .card-icon-big svg{ width:50%; height:50%; }
+  #dashboardView .card-title-big{ font-size:clamp(17px,2.2vh,21px); letter-spacing:.2px; }
+  #dashboardView .card-sub-big{ font-size:clamp(12.5px,1.5vh,14px); margin-top:2px; }
   #dashboardView .card-big::after{
     content:"→"; margin-left:auto; flex-shrink:0;
-    width:30px; height:30px; border-radius:50%;
+    width:clamp(38px,4.6vh,46px); height:clamp(38px,4.6vh,46px); border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    font-size:14px; font-weight:700; background:#E6F1FB; color:#2F6FED;
+    font-size:clamp(16px,2vh,19px); font-weight:700; background:#E6F1FB; color:#2F6FED;
   }
   #dashboardView .primary-row .card-big:nth-child(2)::after{ background:#FDF1E3; color:#D97706; }
 
-  /* ── Bölmə başlıqları (DASHBOARDS / HESABATLAR) ── */
-  #dashboardView .dash-divider{ flex-direction:row; align-items:center; gap:10px; margin:6px 0 10px; }
+  /* ── Bölmə başlıqları ── */
+  #dashboardView .dash-divider{ flex-direction:row; align-items:center; gap:12px; margin:clamp(8px,1.2vh,14px) 0 clamp(10px,1.4vh,16px); }
   #dashboardView .dash-badge{
     background:none; border:none; padding:0; color:#2F6FED;
-    font-size:10.5px; letter-spacing:2px;
-    display:flex; align-items:center; gap:8px; white-space:nowrap;
+    font-size:clamp(11.5px,1.3vh,13px); letter-spacing:2.2px;
+    display:flex; align-items:center; gap:9px; white-space:nowrap;
   }
   #dashboardView .dash-badge::before,
-  #dashboardView .dash-badge::after{ content:"•"; color:#B9CDEF; font-size:13px; }
+  #dashboardView .dash-badge::after{ content:"•"; color:#B9CDEF; font-size:14px; }
   #dashboardView .dash-connector{
     clip-path:none; width:100%; height:1px;
     background:linear-gradient(to right,transparent,#DCE6F5 15%,#DCE6F5 85%,transparent);
   }
 
   /* ── Kiçik kartlar (Dashboard/Report sıraları) ── */
-  #dashboardView .secondary-row{ gap:16px; }
+  #dashboardView .secondary-row{ gap:clamp(16px,1.8vw,26px); }
   #dashboardView .card-small{
-    padding:11px 16px; gap:11px; border-radius:12px;
-    box-shadow:0 6px 16px rgba(30,68,130,.05);
+    padding:clamp(14px,2vh,22px) clamp(18px,2vw,26px); gap:clamp(12px,1.4vw,18px); border-radius:14px;
+    box-shadow:0 8px 20px rgba(30,68,130,.06);
   }
-  #dashboardView .card-icon-small{ width:32px; height:32px; border-radius:50%; }
-  #dashboardView .card-icon-small svg{ width:16px; height:16px; }
-  #dashboardView .card-title-small{ font-size:12.5px; }
-  #dashboardView .card-sub-small{ font-size:10.5px; margin-top:0; }
+  #dashboardView .card-icon-small{ width:clamp(38px,5vh,50px); height:clamp(38px,5vh,50px); border-radius:50%; flex-shrink:0; }
+  #dashboardView .card-icon-small svg{ width:50%; height:50%; }
+  #dashboardView .card-title-small{ font-size:clamp(14px,1.7vh,16.5px); }
+  #dashboardView .card-sub-small{ font-size:clamp(11.5px,1.3vh,13px); margin-top:1px; }
   #dashboardView .card-small::after{
     content:"→"; margin-left:auto; flex-shrink:0;
-    width:26px; height:26px; border-radius:50%;
+    width:clamp(30px,3.8vh,38px); height:clamp(30px,3.8vh,38px); border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    font-size:12.5px; font-weight:700; background:#E6F1FB; color:#2F6FED;
+    font-size:clamp(13px,1.6vh,16px); font-weight:700; background:#E6F1FB; color:#2F6FED;
   }
   #dashboardView .secondary-row .card-small:nth-child(2)::after{ background:#FDF1E3; color:#D97706; }
 
-  /* Dashboard sırası: yaşıl / bənövşəyi */
   #dashboardsSection .card-icon-small{ background:#E5F6ED; color:#188A4B; }
   #dashboardsSection .secondary-row .card-small:nth-child(2) .card-icon-small{ background:#EFE7FB; color:#6E3FD1; }
   #dashboardsSection .secondary-row .card-small:nth-child(1)::after{ background:#E5F6ED; color:#188A4B; }
   #dashboardsSection .secondary-row .card-small:nth-child(2)::after{ background:#EFE7FB; color:#6E3FD1; }
 
-  /* ── Banner: kart deyil, arxa fonla qovuşan divar kağızı effekti ── */
+  /* ── Banner: arxa fonla qovuşan divar kağızı effekti ── */
   #dashboardView .banner-wrap{
-    margin-top:10px; border-radius:14px; overflow:hidden;
-    border:none; box-shadow:none; position:relative; flex:1; min-height:0; max-height:150px;
+    margin:clamp(10px,1.6vh,18px) 0 0;
+    border-radius:16px; overflow:hidden; border:none; box-shadow:none;
+    position:relative; flex:1 1 auto; min-height:0; max-height:clamp(120px,22vh,220px);
     background:linear-gradient(180deg,#E4EBFA,#DCE6F8);
   }
   #dashboardView .banner-img{
     width:100%; height:100%; object-fit:cover; display:block;
     -webkit-mask-image:linear-gradient(to bottom, transparent, black 18%, black 82%, transparent),
-                        linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+                        linear-gradient(to right, transparent, black 3%, black 97%, transparent);
     -webkit-mask-composite:source-in;
     mask-image:linear-gradient(to bottom, transparent, black 18%, black 82%, transparent),
-               linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+               linear-gradient(to right, transparent, black 3%, black 97%, transparent);
     mask-composite:intersect;
   }
 
-  #dashboardView > .footer-note-dash{ grid-area:foot; padding:4px 0 8px; font-size:10.5px; }
+  #dashboardView > .footer-note-dash{ flex:0 0 auto; padding:clamp(6px,1vh,10px) 0; font-size:clamp(11px,1.2vh,12.5px); }
 
   body.dark-mode #dashboardView{ background:#0F1826; }
   body.dark-mode #dashboardView .banner-wrap{ background:linear-gradient(180deg,#16212E,#0F1826); }
@@ -2271,17 +2272,4 @@ body.dark-mode .bk-dqn-chip-x { background:#3E6FCB; color:#E8EEF5; }
   body.dark-mode #dashboardsSection .secondary-row .card-small:nth-child(2) .card-icon-small{ background:#241C3D; color:#B79CF5; }
   body.dark-mode #dashboardsSection .secondary-row .card-small:nth-child(1)::after{ background:#123322; color:#4ADE80; }
   body.dark-mode #dashboardsSection .secondary-row .card-small:nth-child(2)::after{ background:#241C3D; color:#B79CF5; }
-
-  /* Alçaq (768px-ə qədər) ekranlar üçün daha da sıxlaşdırma */
-  @media (max-height:820px){
-    #dashboardView > .header{ padding:6px 20px; }
-    #dashboardView > .welcome{ padding-top:8px; }
-    #dashboardView > .profile-row{ padding-top:8px; }
-    #dashboardView .welcome-box{ padding:8px 18px; }
-    #dashboardView .card-big{ padding:10px 16px; }
-    #dashboardView .card-icon-big{ width:36px; height:36px; }
-    #dashboardView .dash-divider{ margin:4px 0 8px; }
-    #dashboardView .card-small{ padding:8px 14px; }
-    #dashboardView .banner-wrap{ max-height:110px; }
-  }
 }
