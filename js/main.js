@@ -1498,7 +1498,11 @@ function isUnsavedWorkPresent(){
 document.addEventListener('touchstart', function(e){ ptrTracking=(window.scrollY===0&&document.documentElement.scrollTop===0); ptrStartY=e.touches[0].clientY; }, {passive:true});
 document.addEventListener('touchmove', function(e){ if(!ptrTracking) return; if(e.touches[0].clientY-ptrStartY>PTR_THRESHOLD){ ptrTracking=false; triggerPullRefresh(); } }, {passive:true});
 document.addEventListener('touchend', function(){ ptrTracking=false; });
-function triggerPullRefresh(){ if(isUnsavedWorkPresent()){ document.getElementById('bsRefreshConfirmOverlay').style.display='flex'; } else { location.reload(); } }
+function isInsideServiceForm(){
+  var ids=['busServiceView','busBulkView','tvmServiceView'];
+  return ids.some(function(id){ var el=document.getElementById(id); return el && el.style.display!=='none'; });
+}
+function triggerPullRefresh(){ if(isUnsavedWorkPresent()||isInsideServiceForm()){ document.getElementById('bsRefreshConfirmOverlay').style.display='flex'; } else { location.reload(); } }
 function cancelPullRefresh(){ document.getElementById('bsRefreshConfirmOverlay').style.display='none'; }
 function confirmPullRefresh(){ document.getElementById('bsRefreshConfirmOverlay').style.display='none'; clearBsDraft(); location.reload(); }
 window.addEventListener('beforeunload', function(e){ if(isUnsavedWorkPresent()){ e.preventDefault(); e.returnValue=''; } });
@@ -2207,7 +2211,7 @@ function loadTvmFormData(){
 function resetTvmFormFields(){
   tvmFormDirty = false;
   tvmSelectedSn = null;
-  ['tvm_fault_time','tvm_sn','tvm_start_time','tvm_end_time','tvm_note'].forEach(function(id){
+  ['tvm_fault_time','tvm_sn','tvm_start_time','tvm_end_time','tvm_note','tvm_old_sn','tvm_new_sn'].forEach(function(id){
     var el = document.getElementById(id); if(el) el.value = '';
   });
   var dateEl = document.getElementById('tvm_date'); if(dateEl) dateEl.value = '';
@@ -2224,6 +2228,7 @@ function resetTvmFormFields(){
   updateTvmChips('fault'); updateTvmChips('solution');
 
   var locWrap = document.getElementById('tvm_location_wrap'); if(locWrap) locWrap.style.display = 'none';
+  var svcLocWrap = document.getElementById('tvm_service_location_wrap'); if(svcLocWrap) svcLocWrap.style.display = 'none';
   closeTvmSnDD();
 }
 
@@ -2239,6 +2244,7 @@ function tvmSnInputHandler(el){
   if(tvmSelectedSn && tvmSelectedSn.id.replace(/[^0-9]/g,'') !== digits){
     tvmSelectedSn = null;
     var locWrap = document.getElementById('tvm_location_wrap'); if(locWrap) locWrap.style.display = 'none';
+    var svcLocWrap = document.getElementById('tvm_service_location_wrap'); if(svcLocWrap) svcLocWrap.style.display = 'none';
   }
 
   if(digits.length < 1){ closeTvmSnDD(); return; }
@@ -2286,6 +2292,13 @@ function selectTvmSnMatch(match){
     if(locWrap) locWrap.style.display = 'block';
   } else if(locWrap){ locWrap.style.display = 'none'; }
 
+  var svcLocWrap = document.getElementById('tvm_service_location_wrap');
+  var svcLocDisp = document.getElementById('tvm_service_location_display');
+  if(match.serviceLocation){
+    if(svcLocDisp) svcLocDisp.textContent = match.serviceLocation;
+    if(svcLocWrap) svcLocWrap.style.display = 'block';
+  } else if(svcLocWrap){ svcLocWrap.style.display = 'none'; }
+
   closeTvmSnDD();
   tvmFormDirty = true;
 }
@@ -2318,12 +2331,15 @@ function submitTvmService(){
     fault_time: document.getElementById('tvm_fault_time').value.trim(),
     tvm_sn: document.getElementById('tvm_sn').value.trim(),
     location: tvmSelectedSn ? (tvmSelectedSn.location || '') : '',
+    service_location: tvmSelectedSn ? (tvmSelectedSn.serviceLocation || '') : '',
     fault: bsSelected.tvm_fault,
     solution: bsSelected.tvm_solution,
     service_start_time: startVal,
     service_end_time: endVal,
     technician: bsSelected.tvm_tech,
     team_leader: bsSelected.tvm_leader,
+    old_sn: document.getElementById('tvm_old_sn') ? document.getElementById('tvm_old_sn').value.trim() : '',
+    new_sn: document.getElementById('tvm_new_sn') ? document.getElementById('tvm_new_sn').value.trim() : '',
     note: document.getElementById('tvm_note').value.trim()
   };
 
