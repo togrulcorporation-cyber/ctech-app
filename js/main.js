@@ -79,7 +79,7 @@ function moduleAlert(n){ alert(n+' modulu tezliklə hazır olacaq'); }
 var MOON_PATH='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
 var SUN_PATH='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
 function applyTheme(isDark){
-  var icons=[document.getElementById('themeIcon'),document.getElementById('rptThemeIcon'),document.getElementById('dashThemeIcon'),document.getElementById('bkThemeIcon')];
+  var icons=[document.getElementById('themeIcon'),document.getElementById('rptThemeIcon'),document.getElementById('dashThemeIcon'),document.getElementById('bkThemeIcon'),document.getElementById('tvmRptThemeIcon')];
   icons.forEach(function(icon){ if(!icon)return; icon.innerHTML=isDark?SUN_PATH:MOON_PATH; });
   if(isDark){document.body.classList.add('dark-mode');}else{document.body.classList.remove('dark-mode');}
 }
@@ -986,6 +986,165 @@ function openBusDetail(ticketId){
 function closeBusDetail(){
   document.getElementById('busDetailView').style.display='none';
   document.getElementById('busReportView').style.display='flex';
+}
+
+// ═══════════════════════════════════════════════════
+// TVM REAL-TIME REPORT
+// ═══════════════════════════════════════════════════
+var tvmRptAllRows=[], tvmRptColumns=[], tvmRptFiltered=[], tvmRptShownCount=20, tvmRptPageSize=20, tvmRptAutoRefresh=null;
+var TVM_RPT_SEARCH_FIELDS=['Ticket ID','Tarix','TVM SN','TVM Lokasiya'];
+
+function updateTvmRptDate(){
+  var dEl=document.getElementById('tvmRptDateBox');
+  var tEl=document.getElementById('tvmRptClockBox');
+  if(!dEl||!tEl) return;
+  var now=new Date();
+  var parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baku',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(now);
+  var map={}; parts.forEach(function(p){ map[p.type]=p.value; });
+  dEl.textContent=map.day+'.'+map.month+'.'+map.year;
+  tEl.textContent=map.hour+':'+map.minute+':'+map.second;
+}
+var tvmRptDateInterval=null;
+
+function openTvmReport(){
+  document.getElementById('dashboardView').style.display='none';
+  var view=document.getElementById('tvmReportView');
+  view.style.display='flex';
+  document.getElementById('tvmRptGlobalSearch').value='';
+  document.getElementById('tvmRptExcelBtn').style.display=(getAccessLevel(currentUser.role)==='technician')?'none':'flex';
+  tvmRptShownCount=tvmRptPageSize;
+  updateTvmRptDate();
+  if(tvmRptDateInterval) clearInterval(tvmRptDateInterval);
+  tvmRptDateInterval=setInterval(updateTvmRptDate,1000);
+  loadTvmReportData();
+  if(tvmRptAutoRefresh) clearInterval(tvmRptAutoRefresh);
+  tvmRptAutoRefresh=setInterval(loadTvmReportData,120000);
+}
+function closeTvmReport(){
+  if(tvmRptAutoRefresh){ clearInterval(tvmRptAutoRefresh); tvmRptAutoRefresh=null; }
+  if(tvmRptDateInterval){ clearInterval(tvmRptDateInterval); tvmRptDateInterval=null; }
+  document.getElementById('tvmReportView').style.display='none';
+  document.getElementById('dashboardView').style.display='block';
+}
+function tvmRptSortKey(row){
+  var d=row['Tarix']||'';
+  var t=row['Bildirilmə Saatı']||'00:00';
+  var dp=d.split('.');
+  if(dp.length!==3) return 0;
+  var iso=dp[2]+'-'+dp[1]+'-'+dp[0]+'T'+(t||'00:00')+':00';
+  var ts=new Date(iso).getTime();
+  return isNaN(ts)?0:ts;
+}
+function loadTvmReportData(){
+  document.getElementById('tvmRptTableBody').innerHTML='<tr><td colspan="5"><div class="rpt-loading"><div class="spinner" style="width:36px;height:36px;border-width:4px;"></div><span>Yüklənir...</span></div></td></tr>';
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTvmReportData'})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status!=='OK'){
+      document.getElementById('tvmRptTableBody').innerHTML='<tr><td colspan="5"><div class="rpt-empty">Xəta: '+(d.message||'məlumat gəlmədi')+'</div></td></tr>';
+      return;
+    }
+    tvmRptAllRows=(d.rows||[]).slice().sort(function(a,b){ return tvmRptSortKey(b)-tvmRptSortKey(a); });
+    tvmRptColumns=d.columns||[];
+    applyTvmFilters();
+  }).catch(function(e){
+    document.getElementById('tvmRptTableBody').innerHTML='<tr><td colspan="5"><div class="rpt-empty">Şəbəkə xətası: '+e.message+'</div></td></tr>';
+  });
+}
+function applyTvmFilters(){
+  var q=(document.getElementById('tvmRptGlobalSearch').value||'').toLowerCase().trim();
+  tvmRptShownCount=tvmRptPageSize;
+  tvmRptFiltered=q?tvmRptAllRows.filter(function(row){
+    for(var i=0;i<TVM_RPT_SEARCH_FIELDS.length;i++){
+      var f=TVM_RPT_SEARCH_FIELDS[i];
+      if((row[f]||'').toLowerCase().indexOf(q)!==-1) return true;
+    }
+    return false;
+  }):tvmRptAllRows;
+  renderTvmTable();
+}
+function canEditTvmTicket(row){
+  var level=getAccessLevel(currentUser.role);
+  if(level==='leader'||level==='admin') return true;
+  var createdBy=(row['_created_by']||'').toLowerCase().trim();
+  var me=(currentUser.email||'').toLowerCase().trim();
+  return createdBy&&me&&createdBy===me;
+}
+function renderTvmTable(){
+  var body=document.getElementById('tvmRptTableBody');
+  document.getElementById('tvmRptCount').textContent=tvmRptFiltered.length+' nəticə';
+  if(tvmRptFiltered.length===0){
+    body.innerHTML='<tr><td colspan="5"><div class="rpt-empty">Məlumat tapılmadı</div></td></tr>';
+    document.getElementById('tvmRptLoadMoreWrap').style.display='none';
+    return;
+  }
+  var visible=tvmRptFiltered.slice(0,tvmRptShownCount);
+  var html='';
+  visible.forEach(function(row){
+    var ticketId=row['Ticket ID']||'';
+    var safeId=ticketId.replace(/'/g,'');
+    var editable=canEditTvmTicket(row);
+    html+='<tr>'
+      +'<td class="rpt-td-id">'+ticketId+'</td>'
+      +'<td>'+(row['Tarix']||'')+'</td>'
+      +'<td class="rpt-td-plate">'+(row['TVM SN']||'')+'</td>'
+      +'<td class="col-carrier" title="'+(row['TVM Lokasiya']||'').replace(/"/g,'&quot;')+'">'+(row['TVM Lokasiya']||'')+'</td>'
+      +'<td class="col-act"><div class="rpt-row-actions">'
+      +'<button class="rpt-icon-btn" onclick="openTvmDetail(\''+safeId+'\')" aria-label="Baxış" title="Baxış"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>'
+      +(editable?'<button class="rpt-icon-btn rpt-edit-btn" onclick="openTvmServiceForEdit(\''+safeId+'\')" aria-label="Redaktə et" title="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>':'')
+      +'</div></td></tr>';
+  });
+  body.innerHTML=html;
+  var loadMoreWrap=document.getElementById('tvmRptLoadMoreWrap');
+  if(tvmRptFiltered.length>tvmRptShownCount){
+    document.getElementById('tvmRptLoadMoreBtn').textContent='Daha çox göstər ('+(tvmRptFiltered.length-tvmRptShownCount)+')';
+    loadMoreWrap.style.display='flex';
+  } else {
+    loadMoreWrap.style.display='none';
+  }
+}
+function tvmRptShowMore(){ tvmRptShownCount+=tvmRptPageSize; renderTvmTable(); }
+
+var TVM_DV_FIELD_MAP=[
+  {section:'Servis məlumatları',rows:[['Tarix','Tarix'],['Bildirilmə Saatı','Bildirilmə Saatı']]},
+  {section:'Validator məlumatları',rows:[['TVM SN','TVM SN'],['TVM Lokasiya','TVM Lokasiya'],['Servis Lokasiyası','Servis Lokasiyası']]},
+  {section:'Problem və həll',rows:[['Problem','Problem'],['Həll','Həll'],['Qeyd','Qeyd'],['Köhnə SN','Köhnə SN'],['Yeni SN','Yeni SN']]},
+  {section:'Vaxt məlumatları',rows:[['Başlanğıc','Başlanğıc'],['Bitiş','Bitiş']]},
+  {section:'Personal',rows:[['Texnik','Texnik'],['Qrup rəhbəri','Qrup rəhbəri']]}
+];
+function openTvmDetail(ticketId){
+  var row=tvmRptAllRows.find(function(r){ return r['Ticket ID']===ticketId; });
+  if(!row){ alert('Ticket tapılmadı'); return; }
+  document.getElementById('tvmDvTicketTitle').textContent=ticketId;
+  var html='';
+  TVM_DV_FIELD_MAP.forEach(function(sec){
+    var rowsHtml='';
+    sec.rows.forEach(function(pair){
+      var val=row[pair[1]];
+      if(!val) return;
+      rowsHtml+='<div class="dv-row"><span class="dv-label">'+pair[0]+'</span><span class="dv-value">'+val+'</span></div>';
+    });
+    if(rowsHtml) html+='<div class="dv-section"><div class="dv-section-title">'+sec.section+'</div>'+rowsHtml+'</div>';
+  });
+  document.getElementById('tvmDvBody').innerHTML=html;
+  document.getElementById('tvmReportView').style.display='none';
+  document.getElementById('tvmDetailView').style.display='flex';
+}
+function closeTvmDetail(){
+  document.getElementById('tvmDetailView').style.display='none';
+  document.getElementById('tvmReportView').style.display='flex';
+}
+function exportTvmToExcel(){
+  if(tvmRptFiltered.length===0){ alert('Export üçün məlumat yoxdur'); return; }
+  if(typeof XLSX==='undefined'){ alert('Excel kitabxanası yüklənməyib'); return; }
+  var cols=tvmRptColumns;
+  var wsData=[cols];
+  tvmRptFiltered.forEach(function(row){ wsData.push(cols.map(function(c){ return row[c]||''; })); });
+  var ws=XLSX.utils.aoa_to_sheet(wsData);
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'TVM Report');
+  var today=new Date();
+  XLSX.writeFile(wb, 'TVM_Report_'+String(today.getDate()).padStart(2,'0')+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+today.getFullYear()+'.xlsx');
 }
 
 // ═══════════════════════════════════════════════════
@@ -2140,6 +2299,7 @@ var tvmFormData = null;
 var tvmFormDataLoaded = false;
 var tvmSelectedSn = null; // reyestrdən seçilmiş {sn, fullSn, location}
 var tvmFormDirty = false;
+var tvmEditMode = false, tvmEditTicketId = null, tvmReturnTarget = 'dashboard';
 
 function openTvmService(){
   if(currentUser){
@@ -2148,6 +2308,8 @@ function openTvmService(){
       // Texniklər də TVM servisi doldura bilər — məhdudiyyət yalnız BUS Bulk üçündür
     }
   }
+  tvmEditMode = false; tvmEditTicketId = null; tvmReturnTarget = 'dashboard';
+  var btn = document.getElementById('tvmSubmitBtnText'); if(btn) btn.textContent = 'Göndər';
   document.getElementById('dashboardView').style.display = 'none';
   document.getElementById('tvmServiceView').style.display = 'block';
   resetTvmFormFields();
@@ -2161,7 +2323,9 @@ function closeTvmService(){
   closeAllDD();
   closeTvmSnDD();
   document.getElementById('tvmServiceView').style.display = 'none';
-  document.getElementById('dashboardView').style.display = 'block';
+  if(tvmReturnTarget === 'report'){ document.getElementById('tvmReportView').style.display = 'flex'; }
+  else { document.getElementById('dashboardView').style.display = 'block'; }
+  tvmEditMode = false; tvmEditTicketId = null; tvmReturnTarget = 'dashboard';
 }
 
 function attemptTvmHome(){
@@ -2192,20 +2356,67 @@ document.addEventListener('DOMContentLoaded', function(){
 
 function loadTvmFormData(){
   var badge = document.getElementById('tvmTicketBadge');
-  if(badge) badge.innerHTML = '<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
+  if(badge && !tvmEditMode) badge.innerHTML = '<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
   fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTvmFormData'})})
   .then(function(r){ return r.json(); })
   .then(function(d){
-    if(d.status !== 'OK') { if(badge) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>'; return; }
+    if(d.status !== 'OK') { if(badge && !tvmEditMode) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>'; return; }
     tvmFormData = d;
     tvmFormDataLoaded = true;
-    if(badge && d.nextTicketId){
+    if(badge && d.nextTicketId && !tvmEditMode){
       badge.innerHTML = '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">'+d.nextTicketId+'</span>';
     }
   })
   .catch(function(){
-    if(badge) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>';
+    if(badge && !tvmEditMode) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>';
   });
+}
+
+function openTvmServiceForEdit(ticketId){
+  var ov = document.getElementById('busOpenOverlay'); if(ov) ov.style.display = 'flex';
+  var ensureFormData = (tvmFormData && tvmFormData.tvmLeaders) ? Promise.resolve(tvmFormData) :
+    fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTvmFormData'})}).then(function(r){return r.json();}).then(function(d){ if(d.status==='OK') tvmFormData=d; return tvmFormData; });
+  ensureFormData.then(function(){
+    return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTvmServiceById',ticketId:ticketId})}).then(function(r){return r.json();});
+  }).then(function(d){
+    if(ov) ov.style.display = 'none';
+    if(d.status !== 'OK'){ alert(d.message||'Ticket yüklənə bilmədi'); return; }
+
+    tvmEditMode = true; tvmEditTicketId = ticketId; tvmReturnTarget = 'report';
+    resetTvmFormFields();
+    document.getElementById('dashboardView').style.display = 'none';
+    document.getElementById('tvmReportView').style.display = 'none';
+    document.getElementById('tvmServiceView').style.display = 'block';
+    document.getElementById('tvmServiceView').scrollTop = 0;
+
+    var badge = document.getElementById('tvmTicketBadge');
+    if(badge) badge.innerHTML = '<span style="display:inline-flex;align-items:center;background:#D97706;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">REDAKTƏ: '+d.ticketId+'</span>';
+    var btnText = document.getElementById('tvmSubmitBtnText'); if(btnText) btnText.textContent = 'Yadda saxla';
+
+    document.getElementById('tvm_date').value = d.report_date_raw || '';
+    document.getElementById('tvm_fault_time').value = d.fault_time || '';
+    document.getElementById('tvm_sn').value = d.tvm_sn || '';
+    document.getElementById('tvm_start_time').value = d.service_start_time || '';
+    document.getElementById('tvm_end_time').value = d.service_end_time || '';
+    document.getElementById('tvm_note').value = d.note || '';
+    document.getElementById('tvm_old_sn').value = d.old_sn || '';
+    document.getElementById('tvm_new_sn').value = d.new_sn || '';
+
+    tvmSelectedSn = { id: d.tvm_sn||'', location: d.location||'', serviceLocation: d.service_location||'' };
+    var locWrap = document.getElementById('tvm_location_wrap'), locDisp = document.getElementById('tvm_location_display');
+    if(d.location){ if(locDisp) locDisp.textContent = d.location; if(locWrap) locWrap.style.display = 'block'; }
+    var svcWrap = document.getElementById('tvm_service_location_wrap'), svcDisp = document.getElementById('tvm_service_location_display');
+    if(d.service_location){ if(svcDisp) svcDisp.textContent = d.service_location; if(svcWrap) svcWrap.style.display = 'block'; }
+
+    bsSelected.tvm_fault = Array.isArray(d.fault) ? d.fault.slice() : [];
+    bsSelected.tvm_solution = Array.isArray(d.solution) ? d.solution.slice() : [];
+    updateMultiLabel('tvm_fault'); updateTvmChips('fault');
+    updateMultiLabel('tvm_solution'); updateTvmChips('solution');
+    if(d.technician) setDDValue('tvm_tech', d.technician);
+    if(d.team_leader) setDDValue('tvm_leader', d.team_leader);
+
+    tvmFormDirty = false;
+  }).catch(function(){ if(ov) ov.style.display = 'none'; alert('Şəbəkə xətası: ticket yüklənə bilmədi'); });
 }
 
 function resetTvmFormFields(){
@@ -2352,12 +2563,16 @@ function submitTvmService(){
   sp.style.display = 'block';
   ic.style.display = 'none';
   ic.classList.remove('show');
-  tx.textContent = 'Göndərilir...';
+  tx.textContent = tvmEditMode ? 'Yadda saxlanılır...' : 'Göndərilir...';
+
+  var payload = tvmEditMode
+    ? { action:'updateTvmService', ticketId: tvmEditTicketId, data:data, userEmail: currentUser ? currentUser.email : '' }
+    : { action:'submitTvmService', data:data, userEmail: currentUser ? currentUser.email : '' };
 
   fetch(API_URL,{
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify({ action:'submitTvmService', data:data, userEmail: currentUser ? currentUser.email : '' })
+    body:JSON.stringify(payload)
   })
   .then(function(r){ return r.json(); })
   .then(function(result){
@@ -2365,7 +2580,7 @@ function submitTvmService(){
     ic.style.display = 'flex';
     ic.classList.add('show');
     if(result.status === 'OK'){
-      tx.textContent = '✅ Göndərildi! ' + result.ticketId;
+      tx.textContent = tvmEditMode ? ('✅ Yadda saxlanıldı! ' + result.ticketId) : ('✅ Göndərildi! ' + result.ticketId);
     } else {
       tx.textContent = '❌ Xəta: ' + (result.message || '');
     }
@@ -2373,7 +2588,11 @@ function submitTvmService(){
       ov.style.display = 'none';
       ic.classList.remove('show');
       ic.style.display = 'none';
-      if(result.status === 'OK'){ closeTvmService(); }
+      if(result.status === 'OK'){
+        var wasEdit = tvmEditMode;
+        closeTvmService();
+        if(wasEdit && typeof loadTvmReportData === 'function') loadTvmReportData();
+      }
     }, 1800);
   })
   .catch(function(e){
