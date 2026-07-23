@@ -299,6 +299,30 @@ function resetBusFormFields(){
 }
 function closeBusRegistryDD(){ var dd=document.getElementById('bs_registry_dd'); if(dd)dd.classList.remove('open'); }
 
+function loadFastTicketIds(){
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getNextTicketIds'})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status!=='OK') return;
+    if(d.bus){
+      bsNextTicketId=d.bus;
+      var bsView=document.getElementById('busServiceView');
+      if(!bsEditMode && bsView && bsView.style.display!=='none'){
+        document.getElementById('bsTicketBadge').innerHTML='<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">'+bsNextTicketId+'</span>';
+      }
+    }
+    if(d.tvm){
+      tvmNextTicketId=d.tvm;
+      var tvmView=document.getElementById('tvmServiceView');
+      if(!tvmEditMode && tvmView && tvmView.style.display!=='none'){
+        var badge=document.getElementById('tvmTicketBadge');
+        if(badge) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">'+tvmNextTicketId+'</span>';
+      }
+    }
+  })
+  .catch(function(){});
+}
+
 function openBusService(){
   bsEditMode=false; bsEditTicketId=null; bsReturnTarget='dashboard';
   var now=new Date();
@@ -322,8 +346,10 @@ function openBusService(){
     document.getElementById('bsTicketBadge').innerHTML='<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">'+bsNextTicketId+'</span>';
   } else {
     document.getElementById('bsTicketBadge').innerHTML='<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
-    loadBusFormData();
   }
+  // Ticket ID-ni həmişə sürətli (yüngül) sorğu ilə təzələ — böyük siyahıların yüklənməsini gözləmədən
+  loadFastTicketIds();
+  if(!bsFormData || !bsFormData.carriers){ loadBusFormData(); }
 }
 
 function loadBusFormData(){
@@ -332,8 +358,7 @@ function loadBusFormData(){
   .then(function(d){
     if(d.status!=='OK')return;
     bsFormData=d;
-    var tid=d.nextTicketId||'BUS-00001'; bsNextTicketId=tid;
-    if(!bsEditMode){ document.getElementById('bsTicketBadge').innerHTML='<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">'+tid+'</span>'; }
+    if(!bsNextTicketId) bsNextTicketId = d.nextTicketId||'BUS-00001';
   })
   .catch(function(){
     bsFormData={
@@ -347,7 +372,7 @@ function loadBusFormData(){
       technicians:['Tural Əmmədov','Amil İbrahimov','Rövşən Nurəhmədov','Sənan Nuriyev','Surxay Qasımov','Hikmət Musazadə'],
       leaders:['Mustafa Salmanov','Ramil İbrahimov','Elvin Şamilov','Vüsal Məmmədov','Toğrul Əliyev','Nazim Dinavasov']
     };
-    if(!bsEditMode){ document.getElementById('bsTicketBadge').innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>'; }
+    if(!bsEditMode && !bsNextTicketId){ document.getElementById('bsTicketBadge').innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>'; }
   });
 }
 
@@ -1661,7 +1686,30 @@ function isInsideServiceForm(){
   var ids=['busServiceView','busBulkView','tvmServiceView'];
   return ids.some(function(id){ var el=document.getElementById(id); return el && el.style.display!=='none'; });
 }
-function triggerPullRefresh(){ if(isUnsavedWorkPresent()||isInsideServiceForm()){ document.getElementById('bsRefreshConfirmOverlay').style.display='flex'; } else { location.reload(); } }
+// Hesabat/siyahı görünüşləri: burda itiriləcək məlumat yoxdur, ona görə sürüşdürəndə
+// tam səhifə yeniləməsi (reload) yox, sadəcə cədvəli təzələmək kifayətdir.
+function getOpenReportRefresher(){
+  var map={
+    busReportView: (typeof loadReportData==='function') ? loadReportData : null,
+    tvmReportView: (typeof loadTvmReportData==='function') ? loadTvmReportData : null
+  };
+  for(var id in map){
+    var el=document.getElementById(id);
+    if(el && el.style.display!=='none' && map[id]) return map[id];
+  }
+  return null;
+}
+function isInsideReadOnlyView(){
+  var ids=['busDetailView','tvmDetailView'];
+  return ids.some(function(id){ var el=document.getElementById(id); return el && el.style.display!=='none'; });
+}
+function triggerPullRefresh(){
+  var softRefresh = getOpenReportRefresher();
+  if(softRefresh){ softRefresh(); return; }
+  if(isInsideReadOnlyView()){ return; }
+  if(isUnsavedWorkPresent()||isInsideServiceForm()){ document.getElementById('bsRefreshConfirmOverlay').style.display='flex'; }
+  else { location.reload(); }
+}
 function cancelPullRefresh(){ document.getElementById('bsRefreshConfirmOverlay').style.display='none'; }
 function confirmPullRefresh(){ document.getElementById('bsRefreshConfirmOverlay').style.display='none'; clearBsDraft(); location.reload(); }
 window.addEventListener('beforeunload', function(e){ if(isUnsavedWorkPresent()){ e.preventDefault(); e.returnValue=''; } });
@@ -2296,6 +2344,7 @@ document.addEventListener('click',function(e){
 // ═══════════════════════════════════════════════════
 
 var tvmFormData = null;
+var tvmNextTicketId = '';
 var tvmFormDataLoaded = false;
 var tvmSelectedSn = null; // reyestrdən seçilmiş {sn, fullSn, location}
 var tvmFormDirty = false;
@@ -2316,7 +2365,16 @@ function openTvmService(){
   var bParts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Baku',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   var dateEl = document.getElementById('tvm_date');
   if(dateEl) dateEl.value = bParts;
-  loadTvmFormData();
+
+  var badge = document.getElementById('tvmTicketBadge');
+  if(badge){
+    badge.innerHTML = tvmNextTicketId
+      ? '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">'+tvmNextTicketId+'</span>'
+      : '<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
+  }
+  // Ticket ID-ni həmişə sürətli sorğu ilə təzələ, ağır siyahı yüklənməsini gözləmədən
+  loadFastTicketIds();
+  if(!tvmFormData || !tvmFormData.tvmLeaders){ loadTvmFormData(); }
 }
 
 function closeTvmService(){
@@ -2355,20 +2413,20 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 function loadTvmFormData(){
-  var badge = document.getElementById('tvmTicketBadge');
-  if(badge && !tvmEditMode) badge.innerHTML = '<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
   fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTvmFormData'})})
   .then(function(r){ return r.json(); })
   .then(function(d){
-    if(d.status !== 'OK') { if(badge && !tvmEditMode) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>'; return; }
+    if(d.status !== 'OK') {
+      var badge = document.getElementById('tvmTicketBadge');
+      if(badge && !tvmEditMode && !tvmNextTicketId) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>';
+      return;
+    }
     tvmFormData = d;
     tvmFormDataLoaded = true;
-    if(badge && d.nextTicketId && !tvmEditMode){
-      badge.innerHTML = '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">'+d.nextTicketId+'</span>';
-    }
   })
   .catch(function(){
-    if(badge && !tvmEditMode) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>';
+    var badge = document.getElementById('tvmTicketBadge');
+    if(badge && !tvmEditMode && !tvmNextTicketId) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>';
   });
 }
 
