@@ -1566,7 +1566,7 @@ function bkFillSel(id, arr, placeholder){
 
 function renderBkCal(){
   var labelEl = document.getElementById('bkCalLabel');
-  var daysEl = document.getElementById('bkCalDays');
+  var daysEl = document.getElementById('bkCalGrid');
   if(!labelEl || !daysEl) return;
   
   labelEl.textContent = BK_MONTHS[bkCalMonth] + ' ' + bkCalYear;
@@ -1608,29 +1608,14 @@ function renderBkCal(){
   updateSelectedDateDisplay();
 }
 
-  // Seçilən tarixi göstər
-  var lbl = document.getElementById('bkSelectedDateLabel');
-  if(lbl){
-    if(bkSelectedDate){
-      lbl.textContent = bkDateAz(bkSelectedDate);
-      lbl.style.display = 'flex';
-    } else {
-      lbl.style.display = 'none';
-    }
-  }
-
 function updateSelectedDateDisplay(){
-  var displayEl = document.getElementById('bkSelectedDateDisplay');
-  if(!displayEl) return;
+  var lbl = document.getElementById('bkSelectedDateLabel');
+  if(!lbl) return;
   if(bkSelectedDate){
-    var d = bkSelectedDate;
-    var day = String(d.getDate()).padStart(2, '0');
-    var month = String(d.getMonth() + 1).padStart(2, '0');
-    var year = d.getFullYear();
-    displayEl.textContent = '📅 ' + day + '.' + month + '.' + year;
-    displayEl.style.display = 'block';
+    lbl.textContent = '📅 ' + bkDateAz(bkSelectedDate);
+    lbl.style.display = 'flex';
   } else {
-    displayEl.style.display = 'none';
+    lbl.style.display = 'none';
   }
 }
 
@@ -1654,27 +1639,6 @@ function bkGetTime(id){
   var v = (document.getElementById(id) || {}).value || '';
   v = v.trim();
   return /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : '';
-}
-
-function bkOnCarrierChange(){
-  var carrier = document.getElementById('bk_carrier').value;
-  var wrap = document.getElementById('bkCarrierCountWrap');
-  bkUpdateImportCount();
-  
-  if(!carrier){
-    wrap.innerHTML = '';
-    return;
-  }
-  
-  var matches = (bsFormData && bsFormData.busRegistry ? bsFormData.busRegistry : []).filter(function(r){
-    return String(r.carrier || '').trim().toLowerCase() === carrier.trim().toLowerCase();
-  });
-  
-  if(matches.length === 0){
-    wrap.innerHTML = '<div class="bk-count-badge empty"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="bk-count-num">0</div><div class="bk-count-txt">Bu daşıyıcıya aid avtobus tapılmadı</div></div></div>';
-  } else {
-    wrap.innerHTML = '<div class="bk-count-badge"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div><div><div class="bk-count-num">' + matches.length + '</div><div class="bk-count-txt">avtobus tapıldı</div></div></div>';
-  }
 }
 
 function bkCollectData(){
@@ -1711,19 +1675,6 @@ function bkValidate(data){
   if(!data.team_leader) return 'Qrup rəhbəri seçilməyib';
   if(data.service_location && data.service_location.toLowerCase().indexOf('digər') !== -1 && !data.service_location_note) return 'Ünvan qeydi yazın';
   return null;
-}
-
-function bkUpdateImportCount(){
-  var carrier=(typeof bkSelectedCarrier!=='undefined'&&bkSelectedCarrier)
-    ?bkSelectedCarrier
-    :(document.getElementById('bk_carrier')?document.getElementById('bk_carrier').value:'');
-  var allMatches=(bsFormData&&bsFormData.busRegistry||[]).filter(function(r){
-    return String(r.carrier||'').trim().toLowerCase()===carrier.trim().toLowerCase();
-  });
-  var count=(!bkAllMode&&typeof bkSelectedDqns!=='undefined'&&bkSelectedDqns.length>0)
-    ?bkSelectedDqns.length:allMatches.length;
-  var btn=document.getElementById('bkDirectSubmitBtn');
-  if(btn) btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> İdxal et ('+count+')';
 }
 
 function bkSubmitDirect(){
@@ -1885,105 +1836,6 @@ function bkUpdateImportCount(){
   btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
     + ' İdxal et (' + count + ')';
 }
-// ── BK Selected Carrier ──
-var bkSelectedCarrier = '';
-
-function bkToggleCarrierDD(){
-  var dd = document.getElementById('bkCarrierDDList');
-  if(!dd) return;
-  if(dd.style.display==='none'||!dd.style.display){
-    var carriers = bsFormData&&bsFormData.carriers?bsFormData.carriers:[];
-    if(!carriers.length){ ensureBulkFormData(); setTimeout(bkToggleCarrierDD,800); return; }
-    dd.innerHTML = carriers.map(function(c){
-      return '<div class="bk-carrier-dd-item'+(c===bkSelectedCarrier?' selected':'')+'" onclick="bkSelectCarrier(\'' + c.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">' + escapeHtml(c) + '</div>';
-    }).join('');
-    dd.style.display='block';
-  } else { dd.style.display='none'; }
-}
-
-function bkSelectCarrier(carrier){
-  bkSelectedCarrier = carrier;
-  var btn = document.getElementById('bk_carrier_btn');
-  if(btn){ btn.querySelector('span').textContent=carrier; btn.setAttribute('data-value',carrier); }
-  document.getElementById('bkCarrierDDList').style.display='none';
-  var sel = document.getElementById('bk_carrier');
-  if(sel){
-    var found=false;
-    for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===carrier){ sel.selectedIndex=i; found=true; break; } }
-    if(!found){ var opt=document.createElement('option'); opt.value=carrier; opt.textContent=carrier; sel.appendChild(opt); sel.value=carrier; }
-  }
-  bkOnCarrierChange();
-}
-
-function bkOnCarrierChange(){
-  var carrier = bkSelectedCarrier || (document.getElementById('bk_carrier')?document.getElementById('bk_carrier').value:'');
-  bkPreviewData = null; bkSelectedDqns = []; bkAllMode = true;
-  var countWrap=document.getElementById('bkCarrierCountWrap');
-  var toggleWrap=document.getElementById('bkAllToggleWrap');
-  var searchWrap=document.getElementById('bkDqnSearchCompact');
-  var noticeEl=document.getElementById('bkDqnNotice');
-  if(!carrier){
-    if(countWrap) countWrap.style.display='none';
-    if(toggleWrap) toggleWrap.style.display='none';
-    if(searchWrap) searchWrap.style.display='none';
-    if(noticeEl) noticeEl.style.display='none';
-    bkUpdateImportCount(); return;
-  }
-  var matches=(bsFormData&&bsFormData.busRegistry||[]).filter(function(r){
-    return String(r.carrier||'').trim().toLowerCase()===carrier.trim().toLowerCase();
-  });
-  if(countWrap){ countWrap.style.display='flex'; var numEl=document.getElementById('bkCountNum'); if(numEl) numEl.textContent=matches.length; var badge=document.getElementById('bkCountBadge'); if(badge){ badge.classList.remove('active','empty'); badge.classList.add(matches.length===0?'empty':'active'); } }
-  if(toggleWrap) toggleWrap.style.display=matches.length>0?'flex':'none';
-  if(searchWrap){ searchWrap.style.display=matches.length>0?'block':'none'; searchWrap.style.opacity='0.4'; searchWrap.style.pointerEvents='none'; }
-  var toggle=document.getElementById('bkAllToggle'); if(toggle) toggle.classList.remove('off');
-  if(noticeEl) noticeEl.style.display=matches.length>0?'flex':'none';
-  var inp=document.getElementById('bkDqnInput'); if(inp) inp.value='';
-  var sugg=document.getElementById('bkDqnSuggestions'); if(sugg){ sugg.classList.remove('open'); sugg.innerHTML=''; }
-  bkRenderDqnChips(); bkUpdateDqnNotice(); bkUpdateImportCount();
-}
-
-function bkToggleAllMode(){
-  bkAllMode=!bkAllMode;
-  var toggle=document.getElementById('bkAllToggle');
-  var badge=document.getElementById('bkCountBadge');
-  var srch=document.getElementById('bkDqnSearchCompact');
-  if(bkAllMode){ if(toggle) toggle.classList.remove('off'); if(badge) badge.classList.add('active'); if(srch){ srch.style.opacity='0.4'; srch.style.pointerEvents='none'; } bkSelectedDqns=[]; bkRenderDqnChips(); }
-  else { if(toggle) toggle.classList.add('off'); if(badge) badge.classList.remove('active'); if(srch){ srch.style.opacity='1'; srch.style.pointerEvents='auto'; } }
-  bkUpdateDqnNotice(); bkUpdateImportCount();
-}
-
-function bkDqnInputHandler(el){
-  var raw=el.value.toUpperCase().replace(/[^0-9A-Z]/g,'');
-  var p1=raw.slice(0,2), rest=raw.slice(2), letters='', nums2='';
-  for(var ci=0;ci<rest.length;ci++){
-    if(/[A-Z]/.test(rest[ci])&&letters.length<2) letters+=rest[ci];
-    else if(/[0-9]/.test(rest[ci])&&letters.length===2&&nums2.length<3) nums2+=rest[ci];
-  }
-  var fmt=raw.length>0?(p1+(letters?'-'+letters:'')+(nums2?'-'+nums2:'')):'';
-  el.value=fmt;
-  var clr=document.getElementById('bkDqnClear'); if(clr) clr.style.display=fmt?'flex':'none';
-  var carrier=bkSelectedCarrier||(document.getElementById('bk_carrier')?document.getElementById('bk_carrier').value:'');
-  var sugg=document.getElementById('bkDqnSuggestions'); if(!sugg) return;
-  if(raw.length<2){ sugg.classList.remove('open'); return; }
-  var already=bkSelectedDqns.map(function(x){ return x.dqn.replace(/-/g,'').toUpperCase(); });
-  var reg=(bsFormData&&bsFormData.busRegistry||[]).filter(function(r){
-    if(String(r.carrier||'').trim().toLowerCase()!==carrier.trim().toLowerCase()) return false;
-    var dqn=String(r.dqn||'').toUpperCase().replace(/-/g,'');
-    return already.indexOf(dqn)===-1&&dqn.indexOf(raw)!==-1;
-  });
-  sugg.innerHTML='';
-  if(!reg.length){ sugg.innerHTML='<div class="bk-dqn-suggest-item"><span class="bk-dqn-suggest-dqn" style="color:#9AACC4;">Tapılmadı</span></div>'; }
-  else { reg.slice(0,10).forEach(function(r){ var div=document.createElement('div'); div.className='bk-dqn-suggest-item'; div.innerHTML='<span class="bk-dqn-suggest-dqn">'+escapeHtml(r.dqn)+'</span><span class="bk-dqn-suggest-meta">'+escapeHtml(r.id)+' · '+escapeHtml(r.model)+'</span>'; (function(m){ div.addEventListener('click',function(){ bkSelectDqn(m); el.value=''; if(clr) clr.style.display='none'; sugg.classList.remove('open'); el.focus(); }); })(r); sugg.appendChild(div); }); }
-  sugg.classList.add('open');
-}
-
-function bkClearDqnInput(){ var el=document.getElementById('bkDqnInput'); if(el) el.value=''; var clr=document.getElementById('bkDqnClear'); if(clr) clr.style.display='none'; var sugg=document.getElementById('bkDqnSuggestions'); if(sugg) sugg.classList.remove('open'); }
-
-document.addEventListener('click',function(e){
-  if(!e.target.closest('.bk-carrier-select-wrap')){ var dd=document.getElementById('bkCarrierDDList'); if(dd) dd.style.display='none'; }
-  if(!e.target.closest('#bkDqnSearchCompact')){ var sugg=document.getElementById('bkDqnSuggestions'); if(sugg) sugg.classList.remove('open'); }
-});
-
 // ── BK DQN Seçim + Chip-lər ──────────────────────────
 if(typeof bkSelectedDqns === 'undefined') var bkSelectedDqns = [];
 if(typeof bkAllMode     === 'undefined') var bkAllMode = true;
