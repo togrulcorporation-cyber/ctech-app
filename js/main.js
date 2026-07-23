@@ -85,6 +85,7 @@ function openAdminPanel(){
   }
   document.getElementById('dashboardView').style.display='none';
   document.getElementById('adminPanelView').style.display='flex';
+  loadAdminUsers();
 }
 function closeAdminPanel(){
   document.getElementById('adminPanelView').style.display='none';
@@ -96,8 +97,240 @@ function switchAdminSection(key, btn){
   document.querySelectorAll('.adm-section').forEach(function(el){ el.style.display='none'; });
   var target=document.getElementById('admSection-'+key);
   if(target) target.style.display='block';
+  if(key==='users' && typeof loadAdminUsers==='function') loadAdminUsers();
 }
 document.addEventListener('click',function(e){ var panel=document.getElementById('menuPanel'); if(!panel)return; if(!panel.contains(e.target)&&!e.target.closest('.icon-btn'))closeMenu(); });
+
+// ── USER MANAGEMENT ─────────────────────────────────
+var admUsersAllRows=[], admUsersLoaded=false, admUsrCurrentPage=1, admUsrPageSize=7, admUsrEditingId=null, admUsrDeletingId=null;
+var admUsersSearchDebounceTimer=null;
+function admUsersDebouncedRender(){ clearTimeout(admUsersSearchDebounceTimer); admUsersSearchDebounceTimer=setTimeout(function(){ admUsrCurrentPage=1; admRenderUsersTable(); },180); }
+
+function loadAdminUsers(){
+  var body=document.getElementById('admUsrTableBody');
+  if(body) body.innerHTML='<tr><td colspan="5"><div class="adm-empty">Yüklənir...</div></td></tr>';
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getUsersData', requesterEmail: currentUser?currentUser.email:''})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status!=='OK'){
+      if(body) body.innerHTML='<tr><td colspan="5"><div class="adm-empty">Xəta: '+escapeHtml(d.message||'')+'</div></td></tr>';
+      return;
+    }
+    admUsersAllRows=d.users||[];
+    admUsersLoaded=true;
+    var s=d.stats||{};
+    var elT=document.getElementById('admUsrStatTotal'); if(elT) elT.textContent=s.total!=null?s.total:'0';
+    var elA=document.getElementById('admUsrStatActive'); if(elA) elA.textContent=s.active!=null?s.active:'0';
+    var elI=document.getElementById('admUsrStatInactive'); if(elI) elI.textContent=s.inactive!=null?s.inactive:'0';
+    var elAd=document.getElementById('admUsrStatAdmins'); if(elAd) elAd.textContent=s.admins!=null?s.admins:'0';
+    var elTe=document.getElementById('admUsrStatTech'); if(elTe) elTe.textContent=s.technicians!=null?s.technicians:'0';
+    admUsrCurrentPage=1;
+    admRenderUsersTable();
+  })
+  .catch(function(e){
+    if(body) body.innerHTML='<tr><td colspan="5"><div class="adm-empty">Şəbəkə xətası: '+escapeHtml(e.message)+'</div></td></tr>';
+  });
+}
+
+function admRoleClass(role){
+  var r=(role||'').toLowerCase();
+  if(r.indexOf('admin')!==-1) return 'adm-pill-blue';
+  if(r.indexOf('leader')!==-1||r.indexOf('rəhbər')!==-1) return 'adm-pill-purple';
+  if(r.indexOf('technician')!==-1||r.indexOf('texnik')!==-1) return 'adm-pill-green';
+  return 'adm-pill-blue';
+}
+function admRoleCategory(role){
+  var r=(role||'').toLowerCase();
+  if(r.indexOf('admin')!==-1) return 'admin';
+  if(r.indexOf('leader')!==-1||r.indexOf('rəhbər')!==-1) return 'group leader';
+  if(r.indexOf('technician')!==-1||r.indexOf('texnik')!==-1) return 'technician';
+  return 'user';
+}
+function admInitials(name){
+  var parts=(name||'').trim().split(/\s+/).filter(Boolean);
+  if(parts.length===0) return '—';
+  if(parts.length===1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+}
+
+function admGetFilteredUsers(){
+  var q=(document.getElementById('admUsrSearch').value||'').toLowerCase().trim();
+  var roleF=document.getElementById('admUsrRoleFilter').value;
+  var statusF=document.getElementById('admUsrStatusFilter').value;
+  return admUsersAllRows.filter(function(u){
+    if(q && u.fullName.toLowerCase().indexOf(q)===-1 && u.email.toLowerCase().indexOf(q)===-1) return false;
+    if(roleF && admRoleCategory(u.role)!==roleF) return false;
+    if(statusF && (u.status||'').toLowerCase()!==statusF) return false;
+    return true;
+  });
+}
+
+function admRenderUsersTable(){
+  var filtered=admGetFilteredUsers();
+  var totalPages=Math.max(1, Math.ceil(filtered.length/admUsrPageSize));
+  if(admUsrCurrentPage>totalPages) admUsrCurrentPage=totalPages;
+  var startIdx=(admUsrCurrentPage-1)*admUsrPageSize;
+  var visible=filtered.slice(startIdx, startIdx+admUsrPageSize);
+
+  var body=document.getElementById('admUsrTableBody');
+  if(visible.length===0){
+    body.innerHTML='<tr><td colspan="5"><div class="adm-empty">İstifadəçi tapılmadı</div></td></tr>';
+  } else {
+    body.innerHTML=visible.map(function(u){
+      var isActive=(u.status||'').toLowerCase()==='active';
+      var safeId=u.userId.replace(/'/g,'');
+      return '<tr>'
+        +'<td><div class="adm-name-cell"><span class="adm-avatar">'+escapeHtml(admInitials(u.fullName))+'</span>'+escapeHtml(u.fullName)+'</div></td>'
+        +'<td>'+escapeHtml(u.email)+'</td>'
+        +'<td><span class="adm-pill '+admRoleClass(u.role)+'">'+escapeHtml(u.role||'—')+'</span></td>'
+        +'<td><span class="adm-status '+(isActive?'adm-status-active':'adm-status-inactive')+'">'+escapeHtml(u.status||'—')+'</span></td>'
+        +'<td class="adm-th-act">'
+        +'<button class="adm-icon-btn" onclick="openUserModal(\''+safeId+'\')" aria-label="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>'
+        +'<button class="adm-icon-btn adm-icon-btn-danger" onclick="openDeleteConfirm(\''+safeId+'\',\''+escapeHtml(u.fullName).replace(/'/g,'')+'\')" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
+        +'</td></tr>';
+    }).join('');
+  }
+
+  var infoEl=document.getElementById('admUsrPageInfo');
+  if(filtered.length===0){ infoEl.textContent='Showing 0 entries'; }
+  else { infoEl.textContent='Showing '+(startIdx+1)+' to '+Math.min(startIdx+admUsrPageSize,filtered.length)+' of '+filtered.length+' entries'; }
+
+  var btnsEl=document.getElementById('admUsrPageBtns');
+  var html='';
+  html+='<button class="adm-page-btn" '+(admUsrCurrentPage<=1?'disabled':'')+' onclick="admUsrGoPage('+(admUsrCurrentPage-1)+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>';
+  var startPage=Math.max(1, admUsrCurrentPage-1), endPage=Math.min(totalPages, startPage+3);
+  startPage=Math.max(1, endPage-3);
+  for(var p=startPage; p<=endPage; p++){
+    html+='<button class="adm-page-btn'+(p===admUsrCurrentPage?' adm-page-btn-active':'')+'" onclick="admUsrGoPage('+p+')">'+p+'</button>';
+  }
+  html+='<button class="adm-page-btn" '+(admUsrCurrentPage>=totalPages?'disabled':'')+' onclick="admUsrGoPage('+(admUsrCurrentPage+1)+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>';
+  btnsEl.innerHTML=html;
+}
+function admUsrGoPage(p){ if(p<1) return; admUsrCurrentPage=p; admRenderUsersTable(); }
+
+function openUserModal(userId){
+  admUsrEditingId=userId||null;
+  document.getElementById('admUsrFormError').style.display='none';
+  document.getElementById('admUsrFullName').value='';
+  document.getElementById('admUsrEmail').value='';
+  document.getElementById('admUsrPassword').value='';
+  document.getElementById('admUsrRole').value='Technician';
+  document.getElementById('admUsrStatus').value='Active';
+
+  if(userId){
+    var u=admUsersAllRows.find(function(x){ return x.userId===userId; });
+    document.getElementById('admUserModalTitle').textContent='Edit User';
+    document.getElementById('admUsrPasswordLabel').textContent='Password (dəyişmək istəmirsinizsə boş buraxın)';
+    document.getElementById('admUsrSaveBtn').textContent='Save Changes';
+    if(u){
+      document.getElementById('admUsrFullName').value=u.fullName;
+      document.getElementById('admUsrEmail').value=u.email;
+      document.getElementById('admUsrRole').value=admRoleExactMatch(u.role);
+      document.getElementById('admUsrStatus').value=(u.status||'').toLowerCase()==='active'?'Active':'Inactive';
+    }
+  } else {
+    document.getElementById('admUserModalTitle').textContent='Add User';
+    document.getElementById('admUsrPasswordLabel').textContent='Password *';
+    document.getElementById('admUsrSaveBtn').textContent='Save';
+  }
+  var ov=document.getElementById('admUserModal');
+  ov.style.display='flex'; ov.classList.add('open');
+}
+function admRoleExactMatch(role){
+  var opts=['Admin','Group Leader','Technician','User'];
+  var cat=admRoleCategory(role);
+  if(cat==='admin') return 'Admin';
+  if(cat==='group leader') return 'Group Leader';
+  if(cat==='technician') return 'Technician';
+  return 'User';
+}
+function closeUserModal(){
+  var ov=document.getElementById('admUserModal');
+  ov.classList.remove('open'); ov.style.display='none';
+  admUsrEditingId=null;
+}
+function submitUserModal(){
+  var fullName=document.getElementById('admUsrFullName').value.trim();
+  var email=document.getElementById('admUsrEmail').value.trim();
+  var password=document.getElementById('admUsrPassword').value.trim();
+  var role=document.getElementById('admUsrRole').value;
+  var status=document.getElementById('admUsrStatus').value;
+  var errEl=document.getElementById('admUsrFormError');
+  errEl.style.display='none';
+
+  if(!fullName || !email || (!admUsrEditingId && !password)){
+    errEl.textContent='Zəhmət olmasa bütün zəruri (*) sahələri doldurun.';
+    errEl.style.display='block';
+    return;
+  }
+  if(email.indexOf('@')===-1){
+    errEl.textContent='Düzgün email daxil edin.';
+    errEl.style.display='block';
+    return;
+  }
+
+  var btn=document.getElementById('admUsrSaveBtn');
+  btn.disabled=true; var origText=btn.textContent; btn.textContent='Yadda saxlanılır...';
+
+  var payload = admUsrEditingId
+    ? { action:'updateUser', userId:admUsrEditingId, data:{fullName:fullName, email:email, password:password, role:role, status:status}, requesterEmail: currentUser?currentUser.email:'' }
+    : { action:'addUser', data:{fullName:fullName, email:email, password:password, role:role, status:status}, requesterEmail: currentUser?currentUser.email:'' };
+
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    btn.disabled=false; btn.textContent=origText;
+    if(d.status!=='OK'){
+      errEl.textContent=d.message||'Xəta baş verdi';
+      errEl.style.display='block';
+      return;
+    }
+    closeUserModal();
+    loadAdminUsers();
+  })
+  .catch(function(e){
+    btn.disabled=false; btn.textContent=origText;
+    errEl.textContent='Şəbəkə xətası: '+e.message;
+    errEl.style.display='block';
+  });
+}
+
+function openDeleteConfirm(userId, name){
+  admUsrDeletingId=userId;
+  document.getElementById('admDeleteText').textContent='"'+name+'" istifadəçisini silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.';
+  var ov=document.getElementById('admDeleteConfirm');
+  ov.style.display='flex'; ov.classList.add('open');
+}
+function closeDeleteConfirm(){
+  var ov=document.getElementById('admDeleteConfirm');
+  ov.classList.remove('open'); ov.style.display='none';
+  admUsrDeletingId=null;
+}
+function confirmDeleteUser(){
+  if(!admUsrDeletingId) return;
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteUser', userId:admUsrDeletingId, requesterEmail: currentUser?currentUser.email:''})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    closeDeleteConfirm();
+    if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
+    loadAdminUsers();
+  })
+  .catch(function(e){ closeDeleteConfirm(); alert('Şəbəkə xətası: '+e.message); });
+}
+
+function admExportUsers(){
+  var filtered=admGetFilteredUsers();
+  if(filtered.length===0){ alert('Export üçün məlumat yoxdur'); return; }
+  if(typeof XLSX==='undefined'){ alert('Excel kitabxanası yüklənməyib'); return; }
+  var cols=['Full Name','Email','Role','Status'];
+  var wsData=[cols];
+  filtered.forEach(function(u){ wsData.push([u.fullName, u.email, u.role, u.status]); });
+  var ws=XLSX.utils.aoa_to_sheet(wsData);
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Users');
+  var today=new Date();
+  XLSX.writeFile(wb, 'Users_'+String(today.getDate()).padStart(2,'0')+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+today.getFullYear()+'.xlsx');
+}
 function showAbout(){ closeMenu(); document.getElementById('aboutModal').classList.add('open'); }
 function hideAbout(){ document.getElementById('aboutModal').classList.remove('open'); }
 function signOut(){ closeMenu(); clearSession(); currentUser=null; document.getElementById('email').value=''; document.getElementById('password').value=''; var btn=document.getElementById('loginBtn'); btn.disabled=false; btn.innerHTML='Daxil ol'; document.getElementById('dashboardView').style.display='none'; document.getElementById('busServiceView').style.display='none'; document.getElementById('loginView').style.display='flex'; }
