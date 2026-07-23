@@ -2551,3 +2551,60 @@ td.adm-th-act{ display:flex; justify-content:flex-end; gap:8px; }
 @media (max-width:1300px){
   .adm-stats-row{ grid-template-columns:repeat(3,1fr); }
 }
+
+/* ── Admin Panel: Add/Edit modal + Delete confirm ── */
+.adm-empty{ padding:40px 0; text-align:center; color:#9AACC4; font-size:13.5px; font-weight:600; }
+.adm-modal-overlay{
+  display:none; position:fixed; inset:0; z-index:80;
+  background:rgba(18,35,59,.5);
+  align-items:center; justify-content:center; padding:20px;
+}
+.adm-modal-overlay.open{ display:flex; }
+.adm-modal{
+  background:#FFFFFF; border-radius:18px; width:100%; max-width:440px;
+  box-shadow:0 30px 70px rgba(0,0,0,.25);
+  max-height:88vh; display:flex; flex-direction:column;
+}
+.adm-modal-sm{ max-width:380px; }
+.adm-modal-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 22px 0;
+}
+.adm-modal-title{ font-size:17px; font-weight:800; color:#12233B; }
+.adm-modal-close{
+  width:30px; height:30px; border-radius:9px; border:none; background:#F0F4FB; color:#5C7089;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.adm-modal-close:hover{ background:#E1EAF6; }
+.adm-modal-body{ padding:18px 22px; overflow-y:auto; }
+.adm-form-field{ margin-bottom:14px; }
+.adm-form-field label{ display:block; font-size:12.5px; font-weight:700; color:#5C7089; margin-bottom:6px; }
+.adm-form-field input, .adm-form-field select{
+  width:100%; padding:11px 13px; border:1.5px solid #DCE6F5; border-radius:10px;
+  font-size:14px; font-family:'Inter',sans-serif; color:#12233B; outline:none; box-sizing:border-box;
+  background:#F8FAFD;
+}
+.adm-form-field input:focus, .adm-form-field select:focus{ border-color:#2F6FED; background:#fff; }
+.adm-form-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.adm-form-error{
+  background:#FEF2F2; color:#DC2626; border:1px solid #F6C9C9;
+  border-radius:10px; padding:10px 13px; font-size:12.5px; font-weight:600;
+}
+.adm-modal-foot{
+  display:flex; gap:10px; padding:16px 22px 22px;
+}
+.adm-modal-cancel, .adm-modal-save{
+  flex:1; padding:11px 0; border-radius:11px; font-family:'Inter',sans-serif;
+  font-weight:700; font-size:13.5px; cursor:pointer; border:none;
+}
+.adm-modal-cancel{ background:#F0F4FB; color:#33445E; }
+.adm-modal-cancel:hover{ background:#E1EAF6; }
+.adm-modal-save{ background:#2F6FED; color:#fff; }
+.adm-modal-save:hover{ background:#2660D6; }
+.adm-modal-save-danger{ background:#DC2626; }
+.adm-modal-save-danger:hover{ background:#C31414; }
+.adm-delete-icon{
+  width:52px; height:52px; border-radius:50%; background:#FEF2F2; color:#DC2626;
+  display:flex; align-items:center; justify-content:center; margin:0 auto;
+}
+.adm-delete-text{ font-size:13px; color:#8CA0BC; margin-top:6px; font-weight:600; }
