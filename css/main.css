@@ -219,7 +219,8 @@ body.dark-mode .bs-home-btn { color:#E8EEF5 !important; }
 }
 .bs-date-time-row .bs-field { margin-bottom:0; }
 /* iOS date input fix */
-.bs-date-time-row input[type="date"] {
+.bs-date-time-row input[type="date"],
+input[type="date"].bs-input {
   -webkit-appearance:none;
   appearance:none;
   min-width:0 !important;
