@@ -800,28 +800,71 @@
       <!-- SECTION 2: Daşıyıcı -->
       <div class="bk-panel">
         <div class="bk-panel-title"><span class="bk-num">2</span> 🚌 Daşıyıcı</div>
-        <div class="bk-field">
-          <label class="bk-label">Daşıyıcı firma *</label>
-          <select class="bk-select" id="bk_carrier" onchange="bkOnCarrierChange()"><option value="">Seçin</option></select>
-        </div>
-        <div id="bkCarrierCountWrap"></div>
-        <div id="bkDqnFilterWrap" style="display:none;">
-          <div class="bk-dqn-notice" id="bkDqnNotice">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r=".6" fill="currentColor" stroke="none"/></svg>
-            <span id="bkDqnNoticeText">Bütün avtobuslar seçilidir.</span>
-          </div>
-          <div class="bk-dqn-search-wrap">
-            <div class="bk-dqn-search-box">
-              <svg class="bk-dqn-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input type="text" class="bk-dqn-search-input" id="bkDqnInput" placeholder="DQN axtar, məs: 99-JV-697" oninput="bkDqnInputHandler(this)" autocomplete="off">
-              <button class="bk-dqn-search-clear" id="bkDqnClear" onclick="bkClearDqnInput()" style="display:none;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+
+        <!-- Soldan sağa: Dropdown | Badge | Checkbox | Axtarış -->
+        <div class="bk-carrier-row">
+
+          <!-- 1: Daşıyıcı dropdown -->
+          <div class="bk-carrier-dd-wrap">
+            <label class="bk-label">Daşıyıcı firma *</label>
+            <div style="position:relative;">
+              <button class="bk-carrier-btn" id="bk_carrier_btn" onclick="bkToggleCarrierDD()">
+                <span id="bk_carrier_lbl">Seçin</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
               </button>
+              <div class="bk-carrier-dd-list" id="bkCarrierDDList" style="display:none;"></div>
             </div>
-            <div class="bk-dqn-suggestions" id="bkDqnSuggestions"></div>
           </div>
-          <div class="bk-dqn-chips" id="bkDqnChips"></div>
+
+          <!-- 2: Badge (seçim sonrası) + Checkbox üstündə -->
+          <div id="bkCarrierCountWrap" style="display:none;flex-direction:column;align-items:center;gap:6px;">
+            <button class="bk-all-toggle" id="bkAllToggle" onclick="bkToggleAllMode()" title="Hamısını seç / DQN seç">
+              <svg class="bk-toggle-tick" width="11" height="9" viewBox="0 0 11 9" fill="none">
+                <path d="M1 4l3 3.5L10 1" stroke="#3FCB78" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="bk-count-badge" id="bkCountBadge">
+              <div class="bk-count-ic">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 16V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M3 16h18"/><circle cx="7" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg>
+              </div>
+              <div>
+                <div class="bk-count-num" id="bkCountNum">0</div>
+                <div class="bk-count-txt">avtobus</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3: DQN Axtarış (checkbox söndükdə aktiv) -->
+          <div id="bkDqnSearchWrap" style="display:none;">
+            <label class="bk-label">DQN axtar</label>
+            <div style="position:relative;">
+              <div class="bk-dqn-search-box" id="bkDqnSearchBox">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5C7089" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" class="bk-dqn-search-input" id="bkDqnInput"
+                  placeholder="99-JV-697"
+                  oninput="bkDqnInputHandler(this)"
+                  autocomplete="off">
+                <button class="bk-dqn-clear-btn" id="bkDqnClear" onclick="bkClearDqnInput()" style="display:none;">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+              </div>
+              <div class="bk-dqn-suggestions" id="bkDqnSuggestions"></div>
+            </div>
+          </div>
+
         </div>
+
+        <!-- Bildiriş -->
+        <div class="bk-dqn-notice" id="bkDqnNotice" style="display:none;margin-top:12px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r=".6" fill="currentColor" stroke="none"/></svg>
+          <span id="bkDqnNoticeText">Bütün avtobuslar seçilidir.</span>
+        </div>
+
+        <!-- Seçilmiş DQN chip-ləri -->
+        <div class="bk-dqn-chips" id="bkDqnChips" style="margin-top:10px;"></div>
+
+        <!-- Hidden select (JS uyğunluğu üçün) -->
+        <select id="bk_carrier" style="display:none;" onchange="bkOnCarrierChange()"><option value="">Seçin</option></select>
       </div>
 
       <!-- SECTION 3: Şablon Mətnlər -->
@@ -866,7 +909,7 @@
   </div>
 
   <!-- FOOTER -->
-  <div class="bk-footer">
+  <div class="bk-footer" style="display:flex;justify-content:flex-end;padding:16px 24px;background:#fff;border-top:1px solid #E1EAF6;">
     <button class="bk-submit-btn" onclick="bkSubmitDirect()" id="bkDirectSubmitBtn" style="background:linear-gradient(135deg,#4E93FA,#2F6FED);color:#fff;border:none;padding:13px 28px;border-radius:14px;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 8px 20px rgba(47,111,237,.3);display:flex;align-items:center;gap:8px;min-width:200px;justify-content:center;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       İdxal et
