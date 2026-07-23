@@ -97,7 +97,7 @@ var bsFormData = {};
 var bsFormDirty = false;
 var bsNextTicketId = '';
 var bsRegistryLocked = false;
-var bsSelected = { carrier:'', brand:'', problem:'', solution:[], equipment:'', location:'', tech1:'', tech2:'', leader:'' };
+var bsSelected = { carrier:'', brand:'', problem:'', solution:[], equipment:'', location:'', tech1:'', tech2:'', leader:'', tvm_fault:[], tvm_solution:[], tvm_tech:'', tvm_leader:'' };
 var activeDDKey = null;
 
 var ddMeta = {
@@ -110,7 +110,11 @@ var ddMeta = {
   location:  { lbl:'bs_location_lbl',  list:'dd_location_list',  multi:false, onSelect:onLocationSelect },
   tech1:     { lbl:'bs_tech1_lbl',     list:'dd_tech1_list',     multi:false, onSelect:null },
   tech2:     { lbl:'bs_tech2_lbl',     list:'dd_tech2_list',     multi:false, onSelect:null },
-  leader:    { lbl:'bs_leader_lbl',    list:'dd_leader_list',    multi:false, onSelect:null }
+  leader:    { lbl:'bs_leader_lbl',    list:'dd_leader_list',    multi:false, onSelect:null },
+  tvm_fault:    { lbl:'bs_tvm_fault_lbl',    list:'dd_tvm_fault_list',    multi:true,  onSelect:onTvmFaultSelect },
+  tvm_solution: { lbl:'bs_tvm_solution_lbl', list:'dd_tvm_solution_list', multi:true,  onSelect:onTvmSolutionSelect },
+  tvm_tech:     { lbl:'bs_tvm_tech_lbl',     list:'dd_tvm_tech_list',     multi:false, onSelect:null },
+  tvm_leader:   { lbl:'bs_tvm_leader_lbl',   list:'dd_tvm_leader_list',   multi:false, onSelect:null }
 };
 
 function toggleDD(key){
@@ -170,14 +174,18 @@ function getListForKey(key){
     location:bsFormData.locations||[],
     tech1:bsFormData.technicians||[],
     tech2:bsFormData.technicians||[],
-    leader:bsFormData.leaders||[]
+    leader:bsFormData.leaders||[],
+    tvm_fault:    (tvmFormData&&tvmFormData.tvmFaults)||[],
+    tvm_solution: (tvmFormData&&tvmFormData.tvmSolutions)||[],
+    tvm_tech:     (tvmFormData&&tvmFormData.technicians)||[],
+    tvm_leader:   (tvmFormData&&tvmFormData.tvmLeaders)||[]
   };
   return map[key]||[];
 }
 
 function selectDDItem(key,item){
   var meta=ddMeta[key];
-  bsFormDirty=true; scheduleBsDraftSave();
+  if(key.indexOf('tvm_')===0){ tvmFormDirty=true; } else { bsFormDirty=true; scheduleBsDraftSave(); }
   if(meta.multi){
     var arr=bsSelected[key]; var idx=arr.indexOf(item);
     if(idx!==-1)arr.splice(idx,1);else arr.push(item);
@@ -214,6 +222,20 @@ function onLocationSelect(item){
 function updateSolutionChips(){
   var arr=bsSelected.solution;
   var chips=document.getElementById('bs_solution_chips');
+  chips.innerHTML='';
+  arr.forEach(function(a){
+    var c=document.createElement('span'); c.className='bs-chip';
+    c.textContent=a.length>32?a.slice(0,32)+'…':a;
+    chips.appendChild(c);
+  });
+}
+
+function onTvmFaultSelect(item){ updateTvmChips('fault'); }
+function onTvmSolutionSelect(item){ updateTvmChips('solution'); }
+function updateTvmChips(which){
+  var arr=bsSelected['tvm_'+which];
+  var chips=document.getElementById('tvm_'+which+'_chips');
+  if(!chips) return;
   chips.innerHTML='';
   arr.forEach(function(a){
     var c=document.createElement('span'); c.className='bs-chip';
@@ -426,7 +448,7 @@ function submitBusService(){
   };
   var ov=document.getElementById('bsLoadingOverlay'); var sp=document.getElementById('bsSpinner');
   var tx=document.getElementById('bsLoadingText'); var ic=document.getElementById('bsSuccessIcon');
-  ov.classList.add('open'); sp.style.display='block'; ic.style.display='none';
+  ov.style.display='flex'; ov.classList.add('open'); sp.style.display='block'; ic.style.display='none';
   tx.textContent=bsEditMode?'Yadda saxlanılır...':'Göndərilir...';
   var payload=bsEditMode?{action:'updateBusService',ticketId:bsEditTicketId,data:data,userEmail:currentUser?currentUser.email:''}:{action:'submitBusService',data:data,userEmail:currentUser?currentUser.email:''};
   fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
@@ -435,19 +457,19 @@ function submitBusService(){
     sp.style.display='none'; ic.style.display='flex';
     if(result.status==='OK'){ tx.textContent=bsEditMode?('Yadda saxlanıldı! '+result.ticketId):('Göndərildi! '+result.ticketId); }
     else { tx.textContent='Xəta baş verdi'; }
-    setTimeout(function(){ ov.classList.remove('open'); if(result.status==='OK'){ bsFormDirty=false; if(!bsEditMode)clearBsDraft(); var wasEdit=bsEditMode; bsGoBack(); if(wasEdit)loadReportData(); } },1800);
-  }).catch(function(){ sp.style.display='none'; tx.textContent='Şəbəkə xətası'; setTimeout(function(){ov.classList.remove('open');},1500); });
+    setTimeout(function(){ ov.classList.remove('open'); ov.style.display='none'; if(result.status==='OK'){ bsFormDirty=false; if(!bsEditMode)clearBsDraft(); var wasEdit=bsEditMode; bsGoBack(); if(wasEdit)loadReportData(); } },1800);
+  }).catch(function(){ sp.style.display='none'; tx.textContent='Şəbəkə xətası'; setTimeout(function(){ov.classList.remove('open');ov.style.display='none';},1500); });
 }
 
-function attemptBusHome(){ if(bsFormDirty){document.getElementById('bsConfirmOverlay').classList.add('open');}else{bsGoBack();} }
-function closeConfirm(){ document.getElementById('bsConfirmOverlay').classList.remove('open'); }
+function attemptBusHome(){ if(bsFormDirty){var co=document.getElementById('bsConfirmOverlay'); co.style.display='flex'; co.classList.add('open');}else{bsGoBack();} }
+function closeConfirm(){ var co=document.getElementById('bsConfirmOverlay'); co.classList.remove('open'); co.style.display='none'; }
 function confirmExit(){
-  document.getElementById('bsConfirmOverlay').classList.remove('open');
+  var co=document.getElementById('bsConfirmOverlay'); co.classList.remove('open'); co.style.display='none';
   if(!bsEditMode)clearBsDraft();
   var ov=document.getElementById('bsLoadingOverlay'); var sp=document.getElementById('bsSpinner');
   var tx=document.getElementById('bsLoadingText'); var ic=document.getElementById('bsSuccessIcon');
-  ov.classList.add('open'); sp.style.display='block'; ic.style.display='none'; tx.textContent='Gözləyin...';
-  setTimeout(function(){ov.classList.remove('open');bsGoBack();},900);
+  ov.style.display='flex'; ov.classList.add('open'); sp.style.display='block'; ic.style.display='none'; tx.textContent='Gözləyin...';
+  setTimeout(function(){ov.classList.remove('open');ov.style.display='none';bsGoBack();},900);
 }
 function bsGoBack(){
   closeAllDD(); document.getElementById('busServiceView').style.display='none';
@@ -1466,7 +1488,13 @@ function declineBsDraft(){ document.getElementById('bsDraftConfirmOverlay').styl
 // PULL-TO-REFRESH
 // ═══════════════════════════════════════════════════
 var ptrStartY=0, ptrTracking=false, PTR_THRESHOLD=80;
-function isUnsavedWorkPresent(){ var bsView=document.getElementById('busServiceView'); return bsFormDirty&&bsView&&bsView.style.display!=='none'; }
+function isUnsavedWorkPresent(){
+  var bsView=document.getElementById('busServiceView');
+  var bsDirty = bsFormDirty&&bsView&&bsView.style.display!=='none';
+  var tvmView=document.getElementById('tvmServiceView');
+  var tvmDirty = (typeof tvmFormDirty!=='undefined') && tvmFormDirty && tvmView && tvmView.style.display!=='none';
+  return bsDirty || tvmDirty;
+}
 document.addEventListener('touchstart', function(e){ ptrTracking=(window.scrollY===0&&document.documentElement.scrollTop===0); ptrStartY=e.touches[0].clientY; }, {passive:true});
 document.addEventListener('touchmove', function(e){ if(!ptrTracking) return; if(e.touches[0].clientY-ptrStartY>PTR_THRESHOLD){ ptrTracking=false; triggerPullRefresh(); } }, {passive:true});
 document.addEventListener('touchend', function(){ ptrTracking=false; });
@@ -2099,3 +2127,242 @@ document.addEventListener('click',function(e){
     var sugg=document.getElementById('bkDqnSuggestions'); if(sugg) sugg.classList.remove('open');
   }
 });
+
+// ═══════════════════════════════════════════════════
+// TVM SERVICE — TAM MODUL
+// ═══════════════════════════════════════════════════
+
+var tvmFormData = null;
+var tvmFormDataLoaded = false;
+var tvmSelectedSn = null; // reyestrdən seçilmiş {sn, fullSn, location}
+var tvmFormDirty = false;
+
+function openTvmService(){
+  if(currentUser){
+    var lvl = getAccessLevel(currentUser.role);
+    if(lvl === 'technician'){
+      // Texniklər də TVM servisi doldura bilər — məhdudiyyət yalnız BUS Bulk üçündür
+    }
+  }
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('tvmServiceView').style.display = 'block';
+  resetTvmFormFields();
+  var bParts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Baku',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  var dateEl = document.getElementById('tvm_date');
+  if(dateEl) dateEl.value = bParts;
+  loadTvmFormData();
+}
+
+function closeTvmService(){
+  closeAllDD();
+  closeTvmSnDD();
+  document.getElementById('tvmServiceView').style.display = 'none';
+  document.getElementById('dashboardView').style.display = 'block';
+}
+
+function attemptTvmHome(){
+  if(tvmFormDirty){
+    var co = document.getElementById('tvmConfirmOverlay');
+    co.style.display = 'flex'; co.classList.add('open');
+  } else {
+    closeTvmService();
+  }
+}
+function closeTvmConfirm(){
+  var co = document.getElementById('tvmConfirmOverlay');
+  co.classList.remove('open'); co.style.display = 'none';
+}
+function confirmTvmExit(){
+  var co = document.getElementById('tvmConfirmOverlay');
+  co.classList.remove('open'); co.style.display = 'none';
+  closeTvmService();
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var inputs = document.querySelectorAll('#tvmServiceView input, #tvmServiceView select, #tvmServiceView textarea');
+  inputs.forEach(function(el){
+    el.addEventListener('input', function(){ tvmFormDirty = true; });
+    el.addEventListener('change', function(){ tvmFormDirty = true; });
+  });
+});
+
+function loadTvmFormData(){
+  var badge = document.getElementById('tvmTicketBadge');
+  if(badge) badge.innerHTML = '<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTvmFormData'})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status !== 'OK') { if(badge) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>'; return; }
+    tvmFormData = d;
+    tvmFormDataLoaded = true;
+    if(badge && d.nextTicketId){
+      badge.innerHTML = '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">'+d.nextTicketId+'</span>';
+    }
+  })
+  .catch(function(){
+    if(badge) badge.innerHTML='<span style="display:inline-flex;align-items:center;background:#6B7280;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">OFFLINE</span>';
+  });
+}
+
+function resetTvmFormFields(){
+  tvmFormDirty = false;
+  tvmSelectedSn = null;
+  ['tvm_fault_time','tvm_sn','tvm_start_time','tvm_end_time','tvm_note'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  var dateEl = document.getElementById('tvm_date'); if(dateEl) dateEl.value = '';
+
+  bsSelected.tvm_fault = []; bsSelected.tvm_solution = []; bsSelected.tvm_tech = ''; bsSelected.tvm_leader = '';
+  ['tvm_fault','tvm_solution','tvm_tech','tvm_leader'].forEach(function(k){
+    var m = ddMeta[k]; var el = document.getElementById(m.lbl);
+    if(el){
+      el.textContent = (k==='tvm_fault'||k==='tvm_solution') ? 'Seçin (çoxlu seçim)' : 'Seçin';
+      el.style.color = '#9AACC4'; el.style.fontSize=''; el.style.fontWeight=''; el.classList.remove('filled');
+    }
+    closeDD(k);
+  });
+  updateTvmChips('fault'); updateTvmChips('solution');
+
+  var locWrap = document.getElementById('tvm_location_wrap'); if(locWrap) locWrap.style.display = 'none';
+  closeTvmSnDD();
+}
+
+function tvmFormatTime(el){ formatTimeInput(el); tvmFormDirty = true; }
+
+// ── TVM İD axtarışı (TVM_SN_AND_LOC sheeti üzrə) ──
+function tvmSnInputHandler(el){
+  var digits = el.value.replace(/[^0-9]/g,'');
+  el.value = digits;
+  tvmFormDirty = true;
+
+  // Əvvəlki seçim İD dəyişdirildikdə etibarsızdır
+  if(tvmSelectedSn && tvmSelectedSn.id.replace(/[^0-9]/g,'') !== digits){
+    tvmSelectedSn = null;
+    var locWrap = document.getElementById('tvm_location_wrap'); if(locWrap) locWrap.style.display = 'none';
+  }
+
+  if(digits.length < 1){ closeTvmSnDD(); return; }
+
+  var reg = (tvmFormData && tvmFormData.tvmRegistry) || [];
+  var matches = reg.filter(function(r){
+    var idDigits = String(r.id||'').replace(/[^0-9]/g,'');
+    return idDigits.indexOf(digits) !== -1;
+  });
+  renderTvmSnDropdown(matches);
+}
+
+function renderTvmSnDropdown(matches){
+  var dd = document.getElementById('tvm_sn_dd');
+  if(!dd) return;
+  if(!matches || matches.length === 0){
+    dd.innerHTML = '<div class="bs-registry-empty">Uyğun TVM İD tapılmadı</div>';
+  } else {
+    dd.innerHTML = matches.slice(0,8).map(function(m){
+      return '<div class="bs-registry-item" data-id="'+escapeHtml(m.id||'')+'">'
+        + '<span class="reg-id">'+escapeHtml(m.id||'—')+'</span>'
+        + '<span class="reg-meta">'+escapeHtml(m.location||'—')+'</span>'
+        + '</div>';
+    }).join('');
+    Array.from(dd.querySelectorAll('.bs-registry-item')).forEach(function(itemEl){
+      itemEl.addEventListener('click', function(e){
+        e.stopPropagation();
+        var id = itemEl.getAttribute('data-id');
+        var match = matches.find(function(m){ return m.id === id; });
+        if(match) selectTvmSnMatch(match);
+      });
+    });
+  }
+  dd.style.display = 'block';
+}
+
+function selectTvmSnMatch(match){
+  tvmSelectedSn = match;
+  var snEl = document.getElementById('tvm_sn'); if(snEl) snEl.value = match.id || '';
+
+  var locWrap = document.getElementById('tvm_location_wrap');
+  var locDisp = document.getElementById('tvm_location_display');
+  if(match.location){
+    if(locDisp) locDisp.textContent = match.location;
+    if(locWrap) locWrap.style.display = 'block';
+  } else if(locWrap){ locWrap.style.display = 'none'; }
+
+  closeTvmSnDD();
+  tvmFormDirty = true;
+}
+
+function closeTvmSnDD(){
+  var dd = document.getElementById('tvm_sn_dd');
+  if(dd) dd.style.display = 'none';
+}
+
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#tvm_sn') && !e.target.closest('#tvm_sn_dd')){ closeTvmSnDD(); }
+});
+
+// ── TVM Göndər ──
+function submitTvmService(){
+  if(!document.getElementById('tvm_date').value){ alert('Tarix daxil edin'); return; }
+  if(!document.getElementById('tvm_fault_time').value.trim()){ alert('Nasazlığın yaranma vaxtını daxil edin'); return; }
+  if(!document.getElementById('tvm_sn').value.trim()){ alert('TVM SN daxil edin'); return; }
+  var startVal = document.getElementById('tvm_start_time').value.trim();
+  var endVal = document.getElementById('tvm_end_time').value.trim();
+  if(!startVal){ alert('Servis başlama saatını daxil edin'); return; }
+  if(!endVal){ alert('Servis bitmə saatını daxil edin'); return; }
+  if(bsSelected.tvm_fault.length === 0){ alert('Nasazlığı seçin'); return; }
+  if(bsSelected.tvm_solution.length === 0){ alert('Görülən işi seçin'); return; }
+  if(!bsSelected.tvm_tech){ alert('Texniki seçin'); return; }
+  if(!bsSelected.tvm_leader){ alert('Qrup rəhbərini seçin'); return; }
+
+  var data = {
+    report_date: document.getElementById('tvm_date').value,
+    fault_time: document.getElementById('tvm_fault_time').value.trim(),
+    tvm_sn: document.getElementById('tvm_sn').value.trim(),
+    location: tvmSelectedSn ? (tvmSelectedSn.location || '') : '',
+    fault: bsSelected.tvm_fault,
+    solution: bsSelected.tvm_solution,
+    service_start_time: startVal,
+    service_end_time: endVal,
+    technician: bsSelected.tvm_tech,
+    team_leader: bsSelected.tvm_leader,
+    note: document.getElementById('tvm_note').value.trim()
+  };
+
+  var ov = document.getElementById('tvmLoadingOverlay');
+  var sp = document.getElementById('tvmSpinner');
+  var ic = document.getElementById('tvmSuccessIcon');
+  var tx = document.getElementById('tvmLoadingText');
+
+  ov.style.display = 'flex';
+  sp.style.display = 'block';
+  ic.style.display = 'none';
+  ic.classList.remove('show');
+  tx.textContent = 'Göndərilir...';
+
+  fetch(API_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({ action:'submitTvmService', data:data, userEmail: currentUser ? currentUser.email : '' })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(result){
+    sp.style.display = 'none';
+    ic.style.display = 'flex';
+    ic.classList.add('show');
+    if(result.status === 'OK'){
+      tx.textContent = '✅ Göndərildi! ' + result.ticketId;
+    } else {
+      tx.textContent = '❌ Xəta: ' + (result.message || '');
+    }
+    setTimeout(function(){
+      ov.style.display = 'none';
+      ic.classList.remove('show');
+      ic.style.display = 'none';
+      if(result.status === 'OK'){ closeTvmService(); }
+    }, 1800);
+  })
+  .catch(function(e){
+    sp.style.display = 'none';
+    tx.textContent = '❌ Şəbəkə xətası: ' + e.message;
+    setTimeout(function(){ ov.style.display = 'none'; }, 1800);
+  });
+}
