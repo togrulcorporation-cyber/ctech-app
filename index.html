@@ -248,67 +248,64 @@
             <div class="adm-breadcrumb">Admin Panel <span>›</span> User Management</div>
             <div class="adm-title">User Management</div>
           </div>
-          <button class="adm-add-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add User</button>
+          <button class="adm-add-btn" onclick="openUserModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add User</button>
         </div>
 
         <div class="adm-stats-row">
           <div class="adm-stat-card">
             <div class="adm-stat-icon adm-c-blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-            <div><div class="adm-stat-label">Total Users</div><div class="adm-stat-value">28</div><div class="adm-stat-sub">Bütün istifadəçilər</div></div>
+            <div><div class="adm-stat-label">Total Users</div><div class="adm-stat-value" id="admUsrStatTotal">—</div><div class="adm-stat-sub">Bütün istifadəçilər</div></div>
           </div>
           <div class="adm-stat-card">
             <div class="adm-stat-icon adm-c-green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg></div>
-            <div><div class="adm-stat-label">Active Users</div><div class="adm-stat-value">24</div><div class="adm-stat-sub">Aktiv</div></div>
+            <div><div class="adm-stat-label">Active Users</div><div class="adm-stat-value" id="admUsrStatActive">—</div><div class="adm-stat-sub">Aktiv</div></div>
           </div>
           <div class="adm-stat-card">
             <div class="adm-stat-icon adm-c-orange"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg></div>
-            <div><div class="adm-stat-label">Inactive Users</div><div class="adm-stat-value">4</div><div class="adm-stat-sub">Passiv</div></div>
+            <div><div class="adm-stat-label">Inactive Users</div><div class="adm-stat-value" id="admUsrStatInactive">—</div><div class="adm-stat-sub">Passiv</div></div>
           </div>
           <div class="adm-stat-card">
             <div class="adm-stat-icon adm-c-purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-            <div><div class="adm-stat-label">Admins</div><div class="adm-stat-value">5</div><div class="adm-stat-sub">Administratorlar</div></div>
+            <div><div class="adm-stat-label">Admins</div><div class="adm-stat-value" id="admUsrStatAdmins">—</div><div class="adm-stat-sub">Administratorlar</div></div>
           </div>
           <div class="adm-stat-card">
             <div class="adm-stat-icon adm-c-teal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-            <div><div class="adm-stat-label">Technicians</div><div class="adm-stat-value">17</div><div class="adm-stat-sub">Texniklər</div></div>
+            <div><div class="adm-stat-label">Technicians</div><div class="adm-stat-value" id="admUsrStatTech">—</div><div class="adm-stat-sub">Texniklər</div></div>
           </div>
         </div>
 
         <div class="adm-toolbar">
           <div class="adm-search-wrap">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            <input type="text" placeholder="Search user...">
+            <input type="text" id="admUsrSearch" placeholder="Search user..." oninput="admUsersDebouncedRender()">
           </div>
-          <select class="adm-filter-select"><option>All Roles</option><option>Admin</option><option>Group Leader</option><option>Technician</option><option>User</option></select>
-          <select class="adm-filter-select"><option>All Status</option><option>Active</option><option>Inactive</option></select>
-          <button class="adm-export-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+          <select class="adm-filter-select" id="admUsrRoleFilter" onchange="admRenderUsersTable()">
+            <option value="">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="group leader">Group Leader</option>
+            <option value="technician">Technician</option>
+            <option value="user">User</option>
+          </select>
+          <select class="adm-filter-select" id="admUsrStatusFilter" onchange="admRenderUsersTable()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <button class="adm-export-btn" onclick="admExportUsers()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
         </div>
 
         <div class="adm-table-wrap">
           <table class="adm-table">
-            <thead><tr><th>Full Name</th><th>Username</th><th>Role</th><th>Department</th><th>Status</th><th>Last Login</th><th class="adm-th-act">Actions</th></tr></thead>
-            <tbody>
-              <tr><td><div class="adm-name-cell"><span class="adm-avatar">TA</span>Toğrul Əliyev</div></td><td>togrul.eliyev</td><td><span class="adm-pill adm-pill-blue">Admin</span></td><td>IT Department</td><td><span class="adm-status adm-status-active">Active</span></td><td>23.07.2026 16:12</td><td class="adm-th-act"><button class="adm-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="adm-icon-btn adm-icon-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>
-              <tr><td><div class="adm-name-cell"><span class="adm-avatar">RA</span>Ramil Abbasov</div></td><td>ramil.abbasov</td><td><span class="adm-pill adm-pill-purple">Group Leader</span></td><td>Operations</td><td><span class="adm-status adm-status-active">Active</span></td><td>23.07.2026 15:48</td><td class="adm-th-act"><button class="adm-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="adm-icon-btn adm-icon-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>
-              <tr><td><div class="adm-name-cell"><span class="adm-avatar">AY</span>Aysel Yusifova</div></td><td>aysel.yusifova</td><td><span class="adm-pill adm-pill-green">Technician</span></td><td>Technical Support</td><td><span class="adm-status adm-status-active">Active</span></td><td>23.07.2026 14:35</td><td class="adm-th-act"><button class="adm-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="adm-icon-btn adm-icon-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>
-              <tr><td><div class="adm-name-cell"><span class="adm-avatar">EM</span>Elnur Mammadov</div></td><td>elnur.mammadov</td><td><span class="adm-pill adm-pill-green">Technician</span></td><td>Technical Support</td><td><span class="adm-status adm-status-inactive">Inactive</span></td><td>22.07.2026 11:20</td><td class="adm-th-act"><button class="adm-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="adm-icon-btn adm-icon-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>
-              <tr><td><div class="adm-name-cell"><span class="adm-avatar">NƏ</span>Nigar Əliyeva</div></td><td>nigar.eliyeva</td><td><span class="adm-pill adm-pill-purple">Group Leader</span></td><td>Operations</td><td><span class="adm-status adm-status-active">Active</span></td><td>23.07.2026 13:05</td><td class="adm-th-act"><button class="adm-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="adm-icon-btn adm-icon-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>
-              <tr><td><div class="adm-name-cell"><span class="adm-avatar">JB</span>Javid Babayev</div></td><td>javid.babayev</td><td><span class="adm-pill adm-pill-green">Technician</span></td><td>Technical Support</td><td><span class="adm-status adm-status-active">Active</span></td><td>23.07.2026 12:50</td><td class="adm-th-act"><button class="adm-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="adm-icon-btn adm-icon-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>
-              <tr><td><div class="adm-name-cell"><span class="adm-avatar">SM</span>Samir Melikov</div></td><td>samir.melikov</td><td><span class="adm-pill adm-pill-blue">User</span></td><td>Finance</td><td><span class="adm-status adm-status-inactive">Inactive</span></td><td>21.07.2026 09:15</td><td class="adm-th-act"><button class="adm-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="adm-icon-btn adm-icon-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>
+            <thead><tr><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th class="adm-th-act">Actions</th></tr></thead>
+            <tbody id="admUsrTableBody">
+              <tr><td colspan="5"><div class="adm-empty">Yüklənir...</div></td></tr>
             </tbody>
           </table>
         </div>
 
         <div class="adm-pagination">
-          <div class="adm-page-info">Showing 1 to 7 of 28 entries</div>
-          <div class="adm-page-btns">
-            <button class="adm-page-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
-            <button class="adm-page-btn adm-page-btn-active">1</button>
-            <button class="adm-page-btn">2</button>
-            <button class="adm-page-btn">3</button>
-            <button class="adm-page-btn">4</button>
-            <button class="adm-page-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
-          </div>
+          <div class="adm-page-info" id="admUsrPageInfo">—</div>
+          <div class="adm-page-btns" id="admUsrPageBtns"></div>
         </div>
       </div>
 
@@ -574,6 +571,69 @@
 
     </div>
   </div>
+
+  <!-- Add/Edit User modal -->
+  <div class="adm-modal-overlay" id="admUserModal" style="display:none;">
+    <div class="adm-modal">
+      <div class="adm-modal-head">
+        <div class="adm-modal-title" id="admUserModalTitle">Add User</div>
+        <button class="adm-modal-close" onclick="closeUserModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-form-field">
+          <label>Full Name *</label>
+          <input type="text" id="admUsrFullName" placeholder="Məs: Toğrul Əliyev">
+        </div>
+        <div class="adm-form-field">
+          <label>Email *</label>
+          <input type="email" id="admUsrEmail" placeholder="Məs: togrul.eliyev@ctech.az">
+        </div>
+        <div class="adm-form-field">
+          <label id="admUsrPasswordLabel">Password *</label>
+          <input type="text" id="admUsrPassword" placeholder="Şifrə">
+        </div>
+        <div class="adm-form-row">
+          <div class="adm-form-field">
+            <label>Role *</label>
+            <select id="admUsrRole">
+              <option value="Admin">Admin</option>
+              <option value="Group Leader">Group Leader</option>
+              <option value="Technician" selected>Technician</option>
+              <option value="User">User</option>
+            </select>
+          </div>
+          <div class="adm-form-field">
+            <label>Status *</label>
+            <select id="admUsrStatus">
+              <option value="Active" selected>Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="adm-form-error" id="admUsrFormError" style="display:none;"></div>
+      </div>
+      <div class="adm-modal-foot">
+        <button class="adm-modal-cancel" onclick="closeUserModal()">Cancel</button>
+        <button class="adm-modal-save" id="admUsrSaveBtn" onclick="submitUserModal()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirm -->
+  <div class="adm-modal-overlay" id="admDeleteConfirm" style="display:none;">
+    <div class="adm-modal adm-modal-sm">
+      <div class="adm-modal-body" style="text-align:center;padding-top:28px;">
+        <div class="adm-delete-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
+        <div class="adm-modal-title" style="margin-top:12px;">İstifadəçini sil?</div>
+        <div class="adm-delete-text" id="admDeleteText">Bu əməliyyat geri qaytarıla bilməz.</div>
+      </div>
+      <div class="adm-modal-foot">
+        <button class="adm-modal-cancel" onclick="closeDeleteConfirm()">Cancel</button>
+        <button class="adm-modal-save adm-modal-save-danger" onclick="confirmDeleteUser()">Delete</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- BUS Service açılış overlay -->
