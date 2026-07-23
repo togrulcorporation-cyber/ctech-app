@@ -1677,8 +1677,19 @@ function declineBsDraft(){ document.getElementById('bsDraftConfirmOverlay').styl
 // ═══════════════════════════════════════════════════
 // PULL-TO-REFRESH
 // ═══════════════════════════════════════════════════
-var ptrStartY=0, ptrTracking=false, PTR_THRESHOLD=110;
-function ptrScrollTop(){ return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0; }
+var ptrStartY=0, ptrTracking=false, PTR_THRESHOLD=110, ptrScrollEl=null;
+function ptrFindScrollParent(el){
+  while(el && el!==document.body && el!==document.documentElement){
+    var cs=window.getComputedStyle(el);
+    if((cs.overflowY==='auto'||cs.overflowY==='scroll') && el.scrollHeight>el.clientHeight+1){ return el; }
+    el=el.parentElement;
+  }
+  return null; // null = əsas səhifə (window) özü sürüşür
+}
+function ptrScrollTop(el){
+  if(el) return el.scrollTop;
+  return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+}
 function isUnsavedWorkPresent(){
   var bsView=document.getElementById('busServiceView');
   var bsDirty = bsFormDirty&&bsView&&bsView.style.display!=='none';
@@ -1686,14 +1697,18 @@ function isUnsavedWorkPresent(){
   var tvmDirty = (typeof tvmFormDirty!=='undefined') && tvmFormDirty && tvmView && tvmView.style.display!=='none';
   return bsDirty || tvmDirty;
 }
-document.addEventListener('touchstart', function(e){ ptrTracking=(ptrScrollTop()<=0); ptrStartY=e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchstart', function(e){
+  ptrScrollEl=ptrFindScrollParent(e.target);
+  ptrTracking=(ptrScrollTop(ptrScrollEl)<=0);
+  ptrStartY=e.touches[0].clientY;
+}, {passive:true});
 document.addEventListener('touchmove', function(e){
   if(!ptrTracking) return;
-  // Hərəkət zamanı səhifə artıq aşağı düşübsə (adi scroll baş verir) — izləməni ləğv et
-  if(ptrScrollTop()>0){ ptrTracking=false; return; }
+  // Hərəkət zamanı konteyner artıq aşağı düşübsə (adi scroll baş verir) — izləməni ləğv et
+  if(ptrScrollTop(ptrScrollEl)>0){ ptrTracking=false; return; }
   if(e.touches[0].clientY-ptrStartY>PTR_THRESHOLD){ ptrTracking=false; triggerPullRefresh(); }
 }, {passive:true});
-document.addEventListener('touchend', function(){ ptrTracking=false; });
+document.addEventListener('touchend', function(){ ptrTracking=false; ptrScrollEl=null; });
 function isInsideServiceForm(){
   var ids=['busServiceView','busBulkView','tvmServiceView'];
   return ids.some(function(id){ var el=document.getElementById(id); return el && el.style.display!=='none'; });
