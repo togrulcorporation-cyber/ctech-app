@@ -230,7 +230,7 @@
   <div class="rpt-toolbar">
     <div class="rpt-search-wrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" class="rpt-search" id="rptGlobalSearch" placeholder="Ticket ID, Tarix, D.Q.N., BUS ID və ya Daşıyıcı üzrə axtar..." oninput="applyFilters()">
+      <input type="text" class="rpt-search" id="rptGlobalSearch" placeholder="Ticket ID, Tarix, D.Q.N., BUS ID və ya Daşıyıcı üzrə axtar..." oninput="applyFiltersDebounced()">
     </div>
     <div class="rpt-date-box">
       <div class="status-dot"></div>
@@ -312,7 +312,7 @@
   <div class="rpt-toolbar">
     <div class="rpt-search-wrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" class="rpt-search" id="tvmRptGlobalSearch" placeholder="Ticket ID, Tarix, TVM SN və ya Lokasiya üzrə axtar..." oninput="applyTvmFilters()">
+      <input type="text" class="rpt-search" id="tvmRptGlobalSearch" placeholder="Ticket ID, Tarix, TVM SN və ya Lokasiya üzrə axtar..." oninput="applyTvmFiltersDebounced()">
     </div>
     <div class="rpt-date-box">
       <div class="status-dot"></div>
