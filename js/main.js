@@ -1677,7 +1677,8 @@ function declineBsDraft(){ document.getElementById('bsDraftConfirmOverlay').styl
 // ═══════════════════════════════════════════════════
 // PULL-TO-REFRESH
 // ═══════════════════════════════════════════════════
-var ptrStartY=0, ptrTracking=false, PTR_THRESHOLD=80;
+var ptrStartY=0, ptrTracking=false, PTR_THRESHOLD=110;
+function ptrScrollTop(){ return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0; }
 function isUnsavedWorkPresent(){
   var bsView=document.getElementById('busServiceView');
   var bsDirty = bsFormDirty&&bsView&&bsView.style.display!=='none';
@@ -1685,8 +1686,13 @@ function isUnsavedWorkPresent(){
   var tvmDirty = (typeof tvmFormDirty!=='undefined') && tvmFormDirty && tvmView && tvmView.style.display!=='none';
   return bsDirty || tvmDirty;
 }
-document.addEventListener('touchstart', function(e){ ptrTracking=(window.scrollY===0&&document.documentElement.scrollTop===0); ptrStartY=e.touches[0].clientY; }, {passive:true});
-document.addEventListener('touchmove', function(e){ if(!ptrTracking) return; if(e.touches[0].clientY-ptrStartY>PTR_THRESHOLD){ ptrTracking=false; triggerPullRefresh(); } }, {passive:true});
+document.addEventListener('touchstart', function(e){ ptrTracking=(ptrScrollTop()<=0); ptrStartY=e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchmove', function(e){
+  if(!ptrTracking) return;
+  // Hərəkət zamanı səhifə artıq aşağı düşübsə (adi scroll baş verir) — izləməni ləğv et
+  if(ptrScrollTop()>0){ ptrTracking=false; return; }
+  if(e.touches[0].clientY-ptrStartY>PTR_THRESHOLD){ ptrTracking=false; triggerPullRefresh(); }
+}, {passive:true});
 document.addEventListener('touchend', function(){ ptrTracking=false; });
 function isInsideServiceForm(){
   var ids=['busServiceView','busBulkView','tvmServiceView'];
