@@ -383,63 +383,77 @@
             <div class="adm-breadcrumb">Admin Panel <span>›</span> TVM Management</div>
             <div class="adm-title">TVM Management</div>
           </div>
-          <button class="adm-add-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add TVM</button>
         </div>
 
-        <div class="adm-stats-row">
-          <div class="adm-stat-card">
-            <div class="adm-stat-icon adm-c-orange"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="6" x2="15" y2="6"/><circle cx="12" cy="16" r="2"/></svg></div>
-            <div><div class="adm-stat-label">Total TVMs</div><div class="adm-stat-value">250</div><div class="adm-stat-sub">Bütün cihazlar</div></div>
+        <div class="adm-subtabs">
+          <button class="adm-subtab active" data-sub="registry" onclick="switchTvmSubtab('registry',this)">TVM Reyestri</button>
+          <button class="adm-subtab" data-sub="problems" onclick="switchTvmSubtab('problems',this)">Nasazlıqlar</button>
+          <button class="adm-subtab" data-sub="solutions" onclick="switchTvmSubtab('solutions',this)">Həllər</button>
+          <button class="adm-subtab" data-sub="leaders" onclick="switchTvmSubtab('leaders',this)">Qrup Rəhbərləri</button>
+        </div>
+
+        <!-- ── Alt-bölmə: TVM Reyestri ── -->
+        <div class="adm-tvm-sub" id="admTvmSub-registry">
+          <div class="adm-stats-row adm-stats-row-3">
+            <div class="adm-stat-card">
+              <div class="adm-stat-icon adm-c-orange"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="6" x2="15" y2="6"/><circle cx="12" cy="16" r="2"/></svg></div>
+              <div><div class="adm-stat-label">Total TVMs</div><div class="adm-stat-value" id="admTvmStatTotal">—</div><div class="adm-stat-sub">Bütün cihazlar</div></div>
+            </div>
+            <div class="adm-stat-card">
+              <div class="adm-stat-icon adm-c-blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div>
+              <div><div class="adm-stat-label">Metro</div><div class="adm-stat-value" id="admTvmStatMetro">—</div><div class="adm-stat-sub">Metro stansiyaları</div></div>
+            </div>
+            <div class="adm-stat-card">
+              <div class="adm-stat-icon adm-c-teal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6v6M16 6v6M2 12h19.6M18 18h3v-6.6a2 2 0 0 0-.6-1.4l-3-3A2 2 0 0 0 16 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></div>
+              <div><div class="adm-stat-label">Digər Lokasiyalar</div><div class="adm-stat-value" id="admTvmStatStops">—</div><div class="adm-stat-sub">Avtobus dayanacağı və s.</div></div>
+            </div>
           </div>
-          <div class="adm-stat-card">
-            <div class="adm-stat-icon adm-c-green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><div class="adm-stat-label">Active</div><div class="adm-stat-value">238</div><div class="adm-stat-sub">İşlək</div></div>
+
+          <div class="adm-toolbar">
+            <div class="adm-search-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="text" id="admTvmRegSearch" placeholder="TVM İD və ya lokasiya axtar..." oninput="admTvmRegDebouncedRender()">
+            </div>
+            <button class="adm-export-btn" onclick="admExportTvmRegistry()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+            <button class="adm-add-btn" onclick="openTvmRegistryModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add TVM</button>
           </div>
-          <div class="adm-stat-card">
-            <div class="adm-stat-icon adm-c-red"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-            <div><div class="adm-stat-label">Servisdə</div><div class="adm-stat-value">12</div><div class="adm-stat-sub">Nasaz</div></div>
+
+          <div class="adm-table-wrap">
+            <table class="adm-table">
+              <thead><tr><th>TVM İD</th><th>Lokasiya</th><th>Servis Lokasiyası</th><th class="adm-th-act">Actions</th></tr></thead>
+              <tbody id="admTvmRegTableBody"><tr><td colspan="4"><div class="adm-empty">Yüklənir...</div></td></tr></tbody>
+            </table>
           </div>
-          <div class="adm-stat-card">
-            <div class="adm-stat-icon adm-c-blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div>
-            <div><div class="adm-stat-label">Metro</div><div class="adm-stat-value">198</div><div class="adm-stat-sub">Metro stansiyaları</div></div>
-          </div>
-          <div class="adm-stat-card">
-            <div class="adm-stat-icon adm-c-teal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6v6M16 6v6M2 12h19.6M18 18h3v-6.6a2 2 0 0 0-.6-1.4l-3-3A2 2 0 0 0 16 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></div>
-            <div><div class="adm-stat-label">Avtobus dayan.</div><div class="adm-stat-value">52</div><div class="adm-stat-sub">Digər lokasiyalar</div></div>
+
+          <div class="adm-pagination">
+            <div class="adm-page-info" id="admTvmRegPageInfo">—</div>
+            <div class="adm-page-btns" id="admTvmRegPageBtns"></div>
           </div>
         </div>
 
-        <div class="adm-toolbar">
-          <div class="adm-search-wrap">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            <input type="text" placeholder="Search TVM ID or location...">
+        <!-- ── Alt-bölmə: Nasazlıqlar / Həllər / Qrup Rəhbərləri (sadə, sıralana bilən siyahılar) ── -->
+        <div class="adm-tvm-sub" id="admTvmSub-problems" style="display:none;">
+          <div class="adm-list-head">
+            <div class="adm-list-count" id="admTvmProblemsCount">— element</div>
+            <button class="adm-add-btn" onclick="openTvmListModal('TVM_PROBLEMS')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add Problem</button>
           </div>
-          <select class="adm-filter-select"><option>All Locations</option><option>Metro</option><option>Avtobus dayanacağı</option></select>
-          <select class="adm-filter-select"><option>All Status</option><option>Active</option><option>Nasaz</option></select>
-          <button class="adm-export-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+          <div class="adm-reorder-list" id="admTvmProblemsList"><div class="adm-empty">Yüklənir...</div></div>
         </div>
 
-        <div class="adm-table-wrap">
-          <table class="adm-table">
-            <thead><tr><th>TVM İD</th><th>Lokasiya</th><th>Servis Lokasiyası</th><th>Status</th><th class="adm-th-act">Actions</th></tr></thead>
-            <tbody>
-              <tr><td class="adm-mono">IKB15110080</td><td>H.Aslanov-1</td><td>Metro</td><td><span class="adm-status adm-status-active">Active</span></td><td class="adm-th-act"><button class="adm-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="adm-icon-btn adm-icon-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>
-              <tr><td class="adm-mono">IKB15110041</td><td>H.Aslanov-1</td><td>Metro</td><td><span class="adm-status adm-status-active">Active</span></td><td class="adm-th-act"><button class="adm-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="adm-icon-btn adm-icon-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>
-              <tr><td class="adm-mono">IKB15110169</td><td>Neftçi MTK (Lokbatan)</td><td>Avtobus dayanacağı</td><td><span class="adm-status adm-status-inactive">Nasaz</span></td><td class="adm-th-act"><button class="adm-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="adm-icon-btn adm-icon-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>
-            </tbody>
-          </table>
+        <div class="adm-tvm-sub" id="admTvmSub-solutions" style="display:none;">
+          <div class="adm-list-head">
+            <div class="adm-list-count" id="admTvmSolutionsCount">— element</div>
+            <button class="adm-add-btn" onclick="openTvmListModal('TVM_SOLUTIONS')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add Solution</button>
+          </div>
+          <div class="adm-reorder-list" id="admTvmSolutionsList"><div class="adm-empty">Yüklənir...</div></div>
         </div>
 
-        <div class="adm-pagination">
-          <div class="adm-page-info">Showing 1 to 3 of 250 entries</div>
-          <div class="adm-page-btns">
-            <button class="adm-page-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
-            <button class="adm-page-btn adm-page-btn-active">1</button>
-            <button class="adm-page-btn">2</button>
-            <button class="adm-page-btn">3</button>
-            <button class="adm-page-btn">4</button>
-            <button class="adm-page-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="adm-tvm-sub" id="admTvmSub-leaders" style="display:none;">
+          <div class="adm-list-head">
+            <div class="adm-list-count" id="admTvmLeadersCount">— element</div>
+            <button class="adm-add-btn" onclick="openTvmListModal('TVM_TeamLeaders')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add Leader</button>
           </div>
+          <div class="adm-reorder-list" id="admTvmLeadersList"><div class="adm-empty">Yüklənir...</div></div>
         </div>
       </div>
 
@@ -619,6 +633,56 @@
     </div>
   </div>
 
+  <!-- TVM Registry Add/Edit modal -->
+  <div class="adm-modal-overlay" id="admTvmRegModal" style="display:none;">
+    <div class="adm-modal">
+      <div class="adm-modal-head">
+        <div class="adm-modal-title" id="admTvmRegModalTitle">Add TVM</div>
+        <button class="adm-modal-close" onclick="closeTvmRegistryModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-form-field">
+          <label>TVM İD *</label>
+          <input type="text" id="admTvmRegId" placeholder="Məs: IKB15110041">
+        </div>
+        <div class="adm-form-field">
+          <label>Lokasiya</label>
+          <input type="text" id="admTvmRegLocation" placeholder="Məs: H.Aslanov-1">
+        </div>
+        <div class="adm-form-field">
+          <label>Servis Lokasiyası</label>
+          <input type="text" id="admTvmRegServiceLocation" placeholder="Məs: Metro">
+        </div>
+        <div class="adm-form-error" id="admTvmRegFormError" style="display:none;"></div>
+      </div>
+      <div class="adm-modal-foot">
+        <button class="adm-modal-cancel" onclick="closeTvmRegistryModal()">Cancel</button>
+        <button class="adm-modal-save" id="admTvmRegSaveBtn" onclick="submitTvmRegistryModal()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TVM sadə siyahı (Problem/Solution/Leader) Add/Edit modal -->
+  <div class="adm-modal-overlay" id="admTvmListModal" style="display:none;">
+    <div class="adm-modal">
+      <div class="adm-modal-head">
+        <div class="adm-modal-title" id="admTvmListModalTitle">Add</div>
+        <button class="adm-modal-close" onclick="closeTvmListModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-form-field">
+          <label id="admTvmListFieldLabel">Dəyər *</label>
+          <input type="text" id="admTvmListValue" placeholder="">
+        </div>
+        <div class="adm-form-error" id="admTvmListFormError" style="display:none;"></div>
+      </div>
+      <div class="adm-modal-foot">
+        <button class="adm-modal-cancel" onclick="closeTvmListModal()">Cancel</button>
+        <button class="adm-modal-save" id="admTvmListSaveBtn" onclick="submitTvmListModal()">Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Delete confirm -->
   <div class="adm-modal-overlay" id="admDeleteConfirm" style="display:none;">
     <div class="adm-modal adm-modal-sm">
@@ -629,7 +693,7 @@
       </div>
       <div class="adm-modal-foot">
         <button class="adm-modal-cancel" onclick="closeDeleteConfirm()">Cancel</button>
-        <button class="adm-modal-save adm-modal-save-danger" onclick="confirmDeleteUser()">Delete</button>
+        <button class="adm-modal-save adm-modal-save-danger" onclick="admConfirmDelete()">Delete</button>
       </div>
     </div>
   </div>
