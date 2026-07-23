@@ -498,6 +498,17 @@ body.dark-mode .bs-locked { background:#1C2A3D !important; color:#8CA0BC !import
   padding:24px;
 }
 #bsConfirmOverlay.open { display:flex; }
+#tvmConfirmOverlay {
+  display:none;
+  position:fixed;
+  top:0; left:0; width:100%; height:100%;
+  background:rgba(18,35,59,.5);
+  z-index:90;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+#tvmConfirmOverlay.open { display:flex; }
 .bs-confirm-box {
   background:#FFFFFF;
   border-radius:18px;
