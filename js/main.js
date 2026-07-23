@@ -1503,6 +1503,7 @@ function openBusBulk(){
     bkSelectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   }
   renderBkCal();
+  bkUpdateSnFieldsState();
   bkUpdateImportCount();
 }
 
@@ -1657,6 +1658,8 @@ function bkCollectData(){
     request_template: document.getElementById('bk_request_tmpl').value.trim(),
     note: document.getElementById('bk_note').value.trim(),
     solution_template: document.getElementById('bk_solution_tmpl').value.trim(),
+    old_sn: document.getElementById('bk_old_sn') ? document.getElementById('bk_old_sn').value.trim() : '',
+    new_sn: document.getElementById('bk_new_sn') ? document.getElementById('bk_new_sn').value.trim() : '',
     technician_1: document.getElementById('bk_tech1').value,
     technician_2: document.getElementById('bk_tech2').value,
     team_leader: document.getElementById('bk_leader').value
@@ -1798,12 +1801,41 @@ function resetBulkForm(){
     var el = document.getElementById(id);
     if(el) el.value = '';
   });
-  ['bk_location_note','bk_request_tmpl','bk_note','bk_solution_tmpl','bk_start_time','bk_end_time'].forEach(function(id){
+  ['bk_location_note','bk_request_tmpl','bk_note','bk_solution_tmpl','bk_start_time','bk_end_time','bk_old_sn','bk_new_sn'].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.value = '';
   });
   document.getElementById('bk_location_note_wrap').style.display = 'none';
+
+  // ── Daşıyıcı seçimini tam sıfırla ──
+  bkSelectedCarrier = '';
+  var carrierLbl = document.getElementById('bk_carrier_lbl');
+  if(carrierLbl) carrierLbl.textContent = 'Seçin';
+  var carrierDD = document.getElementById('bkCarrierDDList');
+  if(carrierDD) carrierDD.style.display = 'none';
   document.getElementById('bkCarrierCountWrap').innerHTML = '';
+  document.getElementById('bkCarrierCountWrap').style.display = 'none';
+
+  // ── DQN seçimini tam sıfırla ──
+  bkSelectedDqns = [];
+  bkAllMode = true;
+  var toggle = document.getElementById('bkAllToggle');
+  if(toggle) toggle.classList.remove('checked');
+  var searchWrap = document.getElementById('bkDqnSearchWrap');
+  if(searchWrap) searchWrap.style.display = 'none';
+  var searchBox = document.getElementById('bkDqnSearchBox');
+  if(searchBox) searchBox.classList.remove('active');
+  var dqnInput = document.getElementById('bkDqnInput');
+  if(dqnInput) dqnInput.value = '';
+  var dqnClear = document.getElementById('bkDqnClear');
+  if(dqnClear) dqnClear.style.display = 'none';
+  var dqnSugg = document.getElementById('bkDqnSuggestions');
+  if(dqnSugg){ dqnSugg.classList.remove('open'); dqnSugg.innerHTML = ''; }
+  var noticeEl = document.getElementById('bkDqnNotice');
+  if(noticeEl) noticeEl.style.display = 'none';
+  bkRenderDqnChips();
+  bkUpdateSnFieldsState();
+
   var now = bakuNowDate();
   bkCalYear = now.getFullYear();
   bkCalMonth = now.getMonth();
@@ -1938,6 +1970,7 @@ function bkOnCarrierChange(){
     if(countWrap) countWrap.style.display = 'none';
     if(searchWrap) searchWrap.style.display = 'none';
     if(noticeEl) noticeEl.style.display = 'none';
+    bkUpdateSnFieldsState();
     bkUpdateImportCount(); return;
   }
 
@@ -1970,7 +2003,22 @@ function bkOnCarrierChange(){
   var sugg = document.getElementById('bkDqnSuggestions'); if(sugg){ sugg.classList.remove('open'); sugg.innerHTML=''; }
   if(typeof bkRenderDqnChips==='function') bkRenderDqnChips();
   if(typeof bkUpdateDqnNotice==='function') bkUpdateDqnNotice();
+  bkUpdateSnFieldsState();
   bkUpdateImportCount();
+}
+
+function bkUpdateSnFieldsState(){
+  var oldSn = document.getElementById('bk_old_sn');
+  var newSn = document.getElementById('bk_new_sn');
+  var active = (typeof bkAllMode !== 'undefined') && !bkAllMode; // yalnız spesifik DQN seçimi aktivdirsə
+  [oldSn, newSn].forEach(function(el){
+    if(!el) return;
+    el.disabled = !active;
+    if(!active) el.value = '';
+    el.style.opacity = active ? '1' : '.5';
+    el.style.cursor = active ? 'text' : 'not-allowed';
+    el.placeholder = active ? 'SN daxil edin (istəyə bağlı)' : 'Yalnız DQN seçimi aktiv olduqda';
+  });
 }
 
 function bkToggleAllMode(){
@@ -1994,6 +2042,7 @@ function bkToggleAllMode(){
     if(searchBox) searchBox.classList.add('active');
   }
   if(typeof bkUpdateDqnNotice==='function') bkUpdateDqnNotice();
+  bkUpdateSnFieldsState();
   bkUpdateImportCount();
 }
 
