@@ -941,16 +941,25 @@
 <div id="tvmServiceView" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#EEF4FC;z-index:41;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
   <div class="bs-header">
-    <button class="bs-home-btn" onclick="closeTvmService()" aria-label="Geri">
+    <button class="bs-home-btn" onclick="attemptTvmHome()" aria-label="Geri">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
     </button>
     <div class="bs-header-center">
       <div class="bs-logo">C<span>TECH</span></div>
-      <div class="bs-logo-sub">TVM Servis Raportu</div>
     </div>
-    <button class="icon-btn" onclick="toggleTheme()" aria-label="Tema">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="tvmThemeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
+    <div></div>
+  </div>
+
+  <!-- Çıxış təsdiqi (yarımçıq məlumat varsa) -->
+  <div id="tvmConfirmOverlay" style="display:none;">
+    <div class="bs-confirm-box">
+      <div class="bs-confirm-title">Çıxmaq istəyirsiniz?</div>
+      <div class="bs-confirm-text">Daxil etdiyiniz məlumatlar silinəcək.</div>
+      <div class="bs-confirm-btns">
+        <button class="bs-confirm-no" onclick="closeTvmConfirm()">Xeyr</button>
+        <button class="bs-confirm-yes" onclick="confirmTvmExit()">Bəli</button>
+      </div>
+    </div>
   </div>
 
   <!-- Ticket badge -->
@@ -978,23 +987,19 @@
       </div>
     </div>
 
-    <!-- 2. TVM SN -->
+    <!-- 2. TVM İD -->
     <div class="bs-section">
       <div class="bs-section-title">Validator məlumatları</div>
       <div class="bs-field">
-        <label class="bs-label">TVM SN *</label>
+        <label class="bs-label">TVM İD *</label>
         <div style="position:relative;">
-          <input type="text" class="bs-input" id="tvm_sn" placeholder="Məs: 099" inputmode="numeric" maxlength="3" oninput="tvmSnInputHandler(this)" autocomplete="off" style="font-family:'IBM Plex Mono',monospace;font-size:22px;letter-spacing:4px;text-align:center;">
+          <input type="text" class="bs-input" id="tvm_sn" placeholder="Məs: 041 (son rəqəmlər)" inputmode="numeric" maxlength="12" oninput="tvmSnInputHandler(this)" autocomplete="off" style="font-family:'IBM Plex Mono',monospace;font-size:20px;letter-spacing:2px;text-align:center;">
           <div class="bs-registry-dd" id="tvm_sn_dd" style="display:none;"></div>
         </div>
       </div>
       <div class="bs-field" id="tvm_location_wrap" style="display:none;">
-        <label class="bs-label">Lokasiya</label>
+        <label class="bs-label">TVM Lokasiya</label>
         <div class="bs-input" id="tvm_location_display" style="background:#EAF8F0;border-color:#B7EBC9;color:#0C6B34;font-weight:600;"></div>
-      </div>
-      <div class="bs-field" id="tvm_sn_full_wrap" style="display:none;">
-        <label class="bs-label">Tam SN</label>
-        <div class="bs-input" id="tvm_sn_full_display" style="background:#F0F5FC;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#5C7089;"></div>
       </div>
     </div>
 
