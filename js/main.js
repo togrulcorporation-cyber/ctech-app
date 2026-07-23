@@ -70,6 +70,33 @@ function updateClock(){
 function goHome(){ document.getElementById('loginView').style.display='none'; document.getElementById('busServiceView').style.display='none'; document.getElementById('dashboardView').style.display='block'; closeMenu(); }
 function toggleMenu(){ document.getElementById('menuPanel').classList.toggle('open'); }
 function closeMenu(){ document.getElementById('menuPanel').classList.remove('open'); }
+
+// ═══════════════════════════════════════════════════
+// ADMIN PANEL (yalnız veb versiya — vizual qat, arxa plan yoxdur)
+// ═══════════════════════════════════════════════════
+function openAdminPanel(){
+  closeMenu();
+  if(window.innerWidth < 901){ return; } // mobil versiyada açılmır
+  var nameEl=document.getElementById('admProfileName');
+  var roleEl=document.getElementById('admProfileRole');
+  if(currentUser){
+    if(nameEl) nameEl.textContent=currentUser.name||'—';
+    if(roleEl) roleEl.textContent=currentUser.role||'—';
+  }
+  document.getElementById('dashboardView').style.display='none';
+  document.getElementById('adminPanelView').style.display='flex';
+}
+function closeAdminPanel(){
+  document.getElementById('adminPanelView').style.display='none';
+  document.getElementById('dashboardView').style.display='block';
+}
+function switchAdminSection(key, btn){
+  document.querySelectorAll('.adm-nav-item').forEach(function(el){ el.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.adm-section').forEach(function(el){ el.style.display='none'; });
+  var target=document.getElementById('admSection-'+key);
+  if(target) target.style.display='block';
+}
 document.addEventListener('click',function(e){ var panel=document.getElementById('menuPanel'); if(!panel)return; if(!panel.contains(e.target)&&!e.target.closest('.icon-btn'))closeMenu(); });
 function showAbout(){ closeMenu(); document.getElementById('aboutModal').classList.add('open'); }
 function hideAbout(){ document.getElementById('aboutModal').classList.remove('open'); }
