@@ -44,8 +44,8 @@ function showDashboard(){
   document.getElementById('busServiceView').style.display='none';
   document.getElementById('dashboardView').style.display='block';
   document.getElementById('welcomeName').innerHTML='Xoş gəlmisiniz';
-  document.getElementById('profileName').innerHTML=currentUser.name;
-  document.getElementById('profileRole').innerHTML=currentUser.role;
+  document.getElementById('profileName').textContent=currentUser.name;
+  document.getElementById('profileRole').textContent=currentUser.role;
   applyAccessLevel();
   if(!clockStarted){ clockStarted=true; updateClock(); setInterval(updateClock,1000); }
 }
@@ -556,11 +556,6 @@ function renderBusRegistryDropdown(matches){
   dd.classList.add('open');
 }
 
-function closeBusRegistryDD(){
-  var dd = document.getElementById('bs_registry_dd');
-  if(dd) dd.classList.remove('open');
-}
-
 function selectBusRegistryMatch(match){
   console.log('🔍 selectBusRegistryMatch çağırıldı:', match);
   
@@ -926,6 +921,8 @@ function loadReportData(){
     document.getElementById('rptTableBody').innerHTML='<tr><td colspan="6"><div class="rpt-empty">Şəbəkə xətası: '+e.message+'</div></td></tr>';
   });
 }
+var rptSearchDebounceTimer=null;
+function applyFiltersDebounced(){ clearTimeout(rptSearchDebounceTimer); rptSearchDebounceTimer=setTimeout(applyFilters,180); }
 function applyFilters(){
   var q=(document.getElementById('rptGlobalSearch').value||'').toLowerCase().trim();
   rptShownCount=rptPageSize;
@@ -956,15 +953,15 @@ function renderTable(){
   var visible=rptFiltered.slice(0,rptShownCount);
   var html='';
   visible.forEach(function(row){
-    var ticketId=row['Ticket ID']||'';
-    var safeId=ticketId.replace(/'/g,'');
+    var ticketId=escapeHtml(row['Ticket ID']||'');
+    var safeId=(row['Ticket ID']||'').replace(/'/g,'');
     var editable=canEditTicket(row);
     html+='<tr>'
       +'<td class="rpt-td-id">'+ticketId+'</td>'
-      +'<td>'+(row['Tarix']||'')+'</td>'
-      +'<td class="rpt-td-plate">'+(row['D.Q.N.']||'')+'</td>'
-      +'<td>'+(row['BUS ID']||'')+'</td>'
-      +'<td class="col-carrier" title="'+(row['Daşıyıcı']||'').replace(/"/g,'&quot;')+'">'+(row['Daşıyıcı']||'')+'</td>'
+      +'<td>'+escapeHtml(row['Tarix']||'')+'</td>'
+      +'<td class="rpt-td-plate">'+escapeHtml(row['D.Q.N.']||'')+'</td>'
+      +'<td>'+escapeHtml(row['BUS ID']||'')+'</td>'
+      +'<td class="col-carrier" title="'+escapeHtml(row['Daşıyıcı']||'')+'">'+escapeHtml(row['Daşıyıcı']||'')+'</td>'
       +'<td class="col-act"><div class="rpt-row-actions">'
       +'<button class="rpt-icon-btn" onclick="openBusDetail(\''+safeId+'\')" aria-label="Baxış" title="Baxış"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>'
       +(editable?'<button class="rpt-icon-btn rpt-edit-btn" onclick="openBusServiceForEdit(\''+safeId+'\')" aria-label="Redaktə et" title="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>':'')
@@ -999,11 +996,11 @@ function openBusDetail(ticketId){
     sec.rows.forEach(function(pair){
       var val=row[pair[1]];
       if(!val) return;
-      rowsHtml+='<div class="dv-row"><span class="dv-label">'+pair[0]+'</span><span class="dv-value">'+val+'</span></div>';
+      rowsHtml+='<div class="dv-row"><span class="dv-label">'+escapeHtml(pair[0])+'</span><span class="dv-value">'+escapeHtml(val)+'</span></div>';
     });
-    if(rowsHtml) html+='<div class="dv-section"><div class="dv-section-title">'+sec.section+'</div>'+rowsHtml+'</div>';
+    if(rowsHtml) html+='<div class="dv-section"><div class="dv-section-title">'+escapeHtml(sec.section)+'</div>'+rowsHtml+'</div>';
   });
-  html+='<div class="dv-section"><div class="dv-section-title">Status</div><div class="dv-row"><span class="dv-label">Vəziyyət</span><span class="dv-value"><span class="dv-status-chip">'+(row['Status']||'')+'</span></span></div></div>';
+  html+='<div class="dv-section"><div class="dv-section-title">Status</div><div class="dv-row"><span class="dv-label">Vəziyyət</span><span class="dv-value"><span class="dv-status-chip">'+escapeHtml(row['Status']||'')+'</span></span></div></div>';
   document.getElementById('dvBody').innerHTML=html;
   document.getElementById('busReportView').style.display='none';
   document.getElementById('busDetailView').style.display='flex';
@@ -1076,6 +1073,8 @@ function loadTvmReportData(){
     document.getElementById('tvmRptTableBody').innerHTML='<tr><td colspan="5"><div class="rpt-empty">Şəbəkə xətası: '+e.message+'</div></td></tr>';
   });
 }
+var tvmRptSearchDebounceTimer=null;
+function applyTvmFiltersDebounced(){ clearTimeout(tvmRptSearchDebounceTimer); tvmRptSearchDebounceTimer=setTimeout(applyTvmFilters,180); }
 function applyTvmFilters(){
   var q=(document.getElementById('tvmRptGlobalSearch').value||'').toLowerCase().trim();
   tvmRptShownCount=tvmRptPageSize;
@@ -1106,14 +1105,14 @@ function renderTvmTable(){
   var visible=tvmRptFiltered.slice(0,tvmRptShownCount);
   var html='';
   visible.forEach(function(row){
-    var ticketId=row['Ticket ID']||'';
-    var safeId=ticketId.replace(/'/g,'');
+    var ticketId=escapeHtml(row['Ticket ID']||'');
+    var safeId=(row['Ticket ID']||'').replace(/'/g,'');
     var editable=canEditTvmTicket(row);
     html+='<tr>'
       +'<td class="rpt-td-id">'+ticketId+'</td>'
-      +'<td>'+(row['Tarix']||'')+'</td>'
-      +'<td class="rpt-td-plate">'+(row['TVM SN']||'')+'</td>'
-      +'<td class="col-carrier" title="'+(row['TVM Lokasiya']||'').replace(/"/g,'&quot;')+'">'+(row['TVM Lokasiya']||'')+'</td>'
+      +'<td>'+escapeHtml(row['Tarix']||'')+'</td>'
+      +'<td class="rpt-td-plate">'+escapeHtml(row['TVM SN']||'')+'</td>'
+      +'<td class="col-carrier" title="'+escapeHtml(row['TVM Lokasiya']||'')+'">'+escapeHtml(row['TVM Lokasiya']||'')+'</td>'
       +'<td class="col-act"><div class="rpt-row-actions">'
       +'<button class="rpt-icon-btn" onclick="openTvmDetail(\''+safeId+'\')" aria-label="Baxış" title="Baxış"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>'
       +(editable?'<button class="rpt-icon-btn rpt-edit-btn" onclick="openTvmServiceForEdit(\''+safeId+'\')" aria-label="Redaktə et" title="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>':'')
@@ -1147,9 +1146,9 @@ function openTvmDetail(ticketId){
     sec.rows.forEach(function(pair){
       var val=row[pair[1]];
       if(!val) return;
-      rowsHtml+='<div class="dv-row"><span class="dv-label">'+pair[0]+'</span><span class="dv-value">'+val+'</span></div>';
+      rowsHtml+='<div class="dv-row"><span class="dv-label">'+escapeHtml(pair[0])+'</span><span class="dv-value">'+escapeHtml(val)+'</span></div>';
     });
-    if(rowsHtml) html+='<div class="dv-section"><div class="dv-section-title">'+sec.section+'</div>'+rowsHtml+'</div>';
+    if(rowsHtml) html+='<div class="dv-section"><div class="dv-section-title">'+escapeHtml(sec.section)+'</div>'+rowsHtml+'</div>';
   });
   document.getElementById('tvmDvBody').innerHTML=html;
   document.getElementById('tvmReportView').style.display='none';
@@ -1531,6 +1530,13 @@ function resetDashFilters(){
   document.getElementById('dashModalResults').classList.remove('open');
   document.getElementById('dashModalTitle').textContent='Tarix aralığı və filtrlər';
   document.getElementById('dashSearchWarn').style.display='none';
+
+  // Faktiki tətbiq olunmuş filtri də sıfırla və dashboard-u dərhal yenilə —
+  // əks halda "Sıfırla" yalnız pəncərəni təmizləyir, arxadakı nəticələr köhnə qalır.
+  dashCustomRange=null;
+  dashPeriod='24h';
+  updateDashTabsUI();
+  dashComputeAndRender();
 }
 var dcalYear, dcalMonth, dcalRangeStart=null, dcalRangeEnd=null;
 var DCAL_DOWS=['B.e','Ç.a','Ç','C.a','C','Ş','B'];
@@ -1691,7 +1697,8 @@ function isInsideServiceForm(){
 function getOpenReportRefresher(){
   var map={
     busReportView: (typeof loadReportData==='function') ? loadReportData : null,
-    tvmReportView: (typeof loadTvmReportData==='function') ? loadTvmReportData : null
+    tvmReportView: (typeof loadTvmReportData==='function') ? loadTvmReportData : null,
+    busDashboardView: (typeof loadDashData==='function') ? loadDashData : null
   };
   for(var id in map){
     var el=document.getElementById(id);
