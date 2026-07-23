@@ -1678,8 +1678,13 @@ function bkOnCarrierChange(){
 }
 
 function bkCollectData(){
+  var _carrier = (typeof bkSelectedCarrier!=='undefined'&&bkSelectedCarrier)
+    ? bkSelectedCarrier
+    : (document.getElementById('bk_carrier')?document.getElementById('bk_carrier').value:'');
   return {
-    carrier: document.getElementById('bk_carrier').value,
+    carrier: _carrier,
+    selectedDqns: (!bkAllMode&&typeof bkSelectedDqns!=='undefined'&&bkSelectedDqns.length>0)
+      ? bkSelectedDqns.map(function(x){return x.dqn;}) : [],
     report_date: bkSelectedDate ? bkDateIso(bkSelectedDate) : '',
     service_start_time: bkGetTime('bk_start_time'),
     service_end_time: bkGetTime('bk_end_time'),
@@ -1709,15 +1714,16 @@ function bkValidate(data){
 }
 
 function bkUpdateImportCount(){
-  var carrier = document.getElementById('bk_carrier') ? document.getElementById('bk_carrier').value : '';
-  var count = 0;
-  if(carrier && bsFormData && bsFormData.busRegistry){
-    count = (bsFormData.busRegistry || []).filter(function(r){
-      return String(r.carrier || '').trim().toLowerCase() === carrier.trim().toLowerCase();
-    }).length;
-  }
-  var el = document.getElementById('bkImportCount');
-  if(el) el.textContent = count;
+  var carrier=(typeof bkSelectedCarrier!=='undefined'&&bkSelectedCarrier)
+    ?bkSelectedCarrier
+    :(document.getElementById('bk_carrier')?document.getElementById('bk_carrier').value:'');
+  var allMatches=(bsFormData&&bsFormData.busRegistry||[]).filter(function(r){
+    return String(r.carrier||'').trim().toLowerCase()===carrier.trim().toLowerCase();
+  });
+  var count=(!bkAllMode&&typeof bkSelectedDqns!=='undefined'&&bkSelectedDqns.length>0)
+    ?bkSelectedDqns.length:allMatches.length;
+  var btn=document.getElementById('bkDirectSubmitBtn');
+  if(btn) btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> İdxal et ('+count+')';
 }
 
 function bkSubmitDirect(){
@@ -2025,3 +2031,166 @@ function bkUpdateDqnNotice(){
     noticeEl.textContent = bkSelectedDqns.length + ' DQN seçildi. İdxal yalnız bunlar üçün olacaq.';
   }
 }
+
+// ── BK Carrier (yeni) ──────────────────────────────
+var bkSelectedCarrier = '';
+
+function bkToggleCarrierDD(){
+  var dd = document.getElementById('bkCarrierDDList');
+  if(!dd) return;
+  if(dd.style.display === 'none' || !dd.style.display){
+    var carriers = bsFormData && bsFormData.carriers ? bsFormData.carriers : [];
+    if(!carriers.length){ ensureBulkFormData(); setTimeout(bkToggleCarrierDD, 700); return; }
+    dd.innerHTML = carriers.map(function(c){
+      var safe = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      return '<div class="bk-carrier-dd-item'+(c===bkSelectedCarrier?' selected':'')+'" onclick="bkSelectCarrier(\'' + safe + '\')">' + escapeHtml(c) + '</div>';
+    }).join('');
+    dd.style.display = 'block';
+  } else {
+    dd.style.display = 'none';
+  }
+}
+
+function bkSelectCarrier(carrier){
+  bkSelectedCarrier = carrier;
+  var lbl = document.getElementById('bk_carrier_lbl');
+  if(lbl) lbl.textContent = carrier;
+  var dd = document.getElementById('bkCarrierDDList');
+  if(dd) dd.style.display = 'none';
+  // hidden select sinxron
+  var sel = document.getElementById('bk_carrier');
+  if(sel){
+    var found = false;
+    for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===carrier){ sel.selectedIndex=i; found=true; break; } }
+    if(!found){ var opt=document.createElement('option'); opt.value=carrier; opt.textContent=carrier; sel.appendChild(opt); sel.value=carrier; }
+  }
+  bkOnCarrierChange();
+}
+
+function bkOnCarrierChange(){
+  var carrier = bkSelectedCarrier || (document.getElementById('bk_carrier')?document.getElementById('bk_carrier').value:'');
+  if(typeof bkSelectedDqns !== 'undefined') bkSelectedDqns = [];
+  if(typeof bkAllMode !== 'undefined') bkAllMode = true;
+  bkPreviewData = null;
+
+  var countWrap = document.getElementById('bkCarrierCountWrap');
+  var searchWrap = document.getElementById('bkDqnSearchWrap');
+  var noticeEl = document.getElementById('bkDqnNotice');
+  var toggle = document.getElementById('bkAllToggle');
+
+  if(!carrier){
+    if(countWrap) countWrap.style.display = 'none';
+    if(searchWrap) searchWrap.style.display = 'none';
+    if(noticeEl) noticeEl.style.display = 'none';
+    bkUpdateImportCount(); return;
+  }
+
+  var matches = (bsFormData&&bsFormData.busRegistry||[]).filter(function(r){
+    return String(r.carrier||'').trim().toLowerCase() === carrier.trim().toLowerCase();
+  });
+
+  // Badge göstər
+  if(countWrap){
+    countWrap.style.display = 'flex';
+    var numEl = document.getElementById('bkCountNum');
+    if(numEl) numEl.textContent = matches.length;
+    var badge = document.getElementById('bkCountBadge');
+    if(badge){ badge.classList.remove('active','empty'); badge.classList.add(matches.length===0?'empty':'active'); }
+  }
+
+  // Toggle - başlanğıcda checked (hamısı seçili)
+  if(toggle){ toggle.classList.add('checked'); }
+
+  // Search - başlanğıcda solğun
+  if(searchWrap) searchWrap.style.display = matches.length>0?'block':'none';
+  var searchBox = document.getElementById('bkDqnSearchBox');
+  if(searchBox){ searchBox.classList.remove('active'); }
+
+  // Notice
+  if(noticeEl) noticeEl.style.display = matches.length>0?'flex':'none';
+
+  // DQN input sıfırla
+  var inp = document.getElementById('bkDqnInput'); if(inp) inp.value='';
+  var sugg = document.getElementById('bkDqnSuggestions'); if(sugg){ sugg.classList.remove('open'); sugg.innerHTML=''; }
+  if(typeof bkRenderDqnChips==='function') bkRenderDqnChips();
+  if(typeof bkUpdateDqnNotice==='function') bkUpdateDqnNotice();
+  bkUpdateImportCount();
+}
+
+function bkToggleAllMode(){
+  if(typeof bkAllMode === 'undefined') bkAllMode = true;
+  bkAllMode = !bkAllMode;
+  var toggle = document.getElementById('bkAllToggle');
+  var badge  = document.getElementById('bkCountBadge');
+  var searchBox = document.getElementById('bkDqnSearchBox');
+
+  if(bkAllMode){
+    // Checked - hamısı
+    if(toggle) toggle.classList.add('checked');
+    if(badge) badge.classList.add('active');
+    if(searchBox) searchBox.classList.remove('active');
+    if(typeof bkSelectedDqns!=='undefined') bkSelectedDqns=[];
+    if(typeof bkRenderDqnChips==='function') bkRenderDqnChips();
+  } else {
+    // Unchecked - DQN seçim rejimi
+    if(toggle) toggle.classList.remove('checked');
+    if(badge) badge.classList.remove('active');
+    if(searchBox) searchBox.classList.add('active');
+  }
+  if(typeof bkUpdateDqnNotice==='function') bkUpdateDqnNotice();
+  bkUpdateImportCount();
+}
+
+function bkDqnInputHandler(el){
+  var raw = el.value.toUpperCase().replace(/[^0-9A-Z]/g,'');
+  var p1=raw.slice(0,2), rest=raw.slice(2), letters='', nums='';
+  for(var i=0;i<rest.length;i++){
+    if(/[A-Z]/.test(rest[i])&&letters.length<2) letters+=rest[i];
+    else if(/[0-9]/.test(rest[i])&&letters.length===2&&nums.length<3) nums+=rest[i];
+  }
+  var fmt = raw.length>0 ? (p1+(letters?'-'+letters:'')+(nums?'-'+nums:'')) : '';
+  el.value = fmt;
+  var clr=document.getElementById('bkDqnClear'); if(clr) clr.style.display=fmt?'flex':'none';
+
+  var carrier = bkSelectedCarrier||(document.getElementById('bk_carrier')?document.getElementById('bk_carrier').value:'');
+  var sugg = document.getElementById('bkDqnSuggestions');
+  if(!sugg) return;
+  if(raw.length<2){ sugg.classList.remove('open'); return; }
+
+  var already = (typeof bkSelectedDqns!=='undefined') ? bkSelectedDqns.map(function(x){ return x.dqn.replace(/-/g,'').toUpperCase(); }) : [];
+  var reg = (bsFormData&&bsFormData.busRegistry||[]).filter(function(r){
+    if(String(r.carrier||'').trim().toLowerCase()!==carrier.trim().toLowerCase()) return false;
+    var dqn = String(r.dqn||'').toUpperCase().replace(/-/g,'');
+    return already.indexOf(dqn)===-1 && dqn.indexOf(raw)!==-1;
+  });
+
+  sugg.innerHTML='';
+  if(!reg.length){
+    sugg.innerHTML='<div class="bk-dqn-suggest-item"><span class="bk-dqn-suggest-dqn" style="color:#9AACC4;">Tapılmadı</span></div>';
+  } else {
+    reg.slice(0,10).forEach(function(r){
+      var div=document.createElement('div'); div.className='bk-dqn-suggest-item';
+      div.innerHTML='<span class="bk-dqn-suggest-dqn">'+escapeHtml(r.dqn)+'</span><span class="bk-dqn-suggest-meta">'+escapeHtml(r.id)+' · '+escapeHtml(r.model)+'</span>';
+      (function(m){ div.addEventListener('click',function(){
+        bkSelectDqn(m); el.value=''; if(clr) clr.style.display='none'; sugg.classList.remove('open'); el.focus();
+      }); })(r);
+      sugg.appendChild(div);
+    });
+  }
+  sugg.classList.add('open');
+}
+
+function bkClearDqnInput(){
+  var el=document.getElementById('bkDqnInput'); if(el) el.value='';
+  var clr=document.getElementById('bkDqnClear'); if(clr) clr.style.display='none';
+  var sugg=document.getElementById('bkDqnSuggestions'); if(sugg) sugg.classList.remove('open');
+}
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.bk-carrier-dd-wrap')){
+    var dd=document.getElementById('bkCarrierDDList'); if(dd) dd.style.display='none';
+  }
+  if(!e.target.closest('#bkDqnSearchWrap')){
+    var sugg=document.getElementById('bkDqnSuggestions'); if(sugg) sugg.classList.remove('open');
+  }
+});
