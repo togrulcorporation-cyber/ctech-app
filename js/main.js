@@ -3589,6 +3589,9 @@ function openCollectives() {
 }
 
 function renderCollectives(employees, groupOrder, groupIcons) {
+  employees = employees || [];
+  groupOrder = groupOrder || [];
+  groupIcons = groupIcons || {};
   var directorBox = document.getElementById('collectivesDirector');
   var container = document.getElementById('collectivesGrid');
   directorBox.innerHTML = '';
@@ -3714,11 +3717,23 @@ function closeCollectives() {
 
 var admCollectivesAll = [];
 var admCollectivesEditingName = null;
-var admCollectivesSearchDebounceTimer = null;
+var admClCurrentPage = 1, admClPageSize = 7;
+var admClSearchDebounceTimer = null;
+var ADM_CL_GROUP_ORDER = [
+  "Direktor",
+  "Texniki dəstək üzrə qrup rəhbərləri",
+  "Texniki heyət",
+  "Kiçik texniki heyət",
+  "Sürücülər",
+  "Təmir şöbəsi",
+  "Monitorinq şöbəsi",
+  "Anbar",
+  "Xadimə"
+];
 
 function loadAdminCollectives() {
-  var listEl = document.getElementById('admCollectivesList');
-  if (listEl) listEl.innerHTML = '<div class="adm-empty">Yüklənir...</div>';
+  var body = document.getElementById('admClTableBody');
+  if (body) body.innerHTML = '<tr><td colspan="4"><div class="adm-empty">Yüklənir...</div></td></tr>';
 
   fetch(API_URL, {
     method: 'POST',
@@ -3728,65 +3743,96 @@ function loadAdminCollectives() {
   .then(function(r) { return r.json(); })
   .then(function(d) {
     if (d.status !== 'OK') {
-      if (listEl) listEl.innerHTML = '<div class="adm-empty">Xəta: ' + escapeHtml(d.message || '') + '</div>';
+      if (body) body.innerHTML = '<tr><td colspan="4"><div class="adm-empty">Xəta: ' + escapeHtml(d.message || '') + '</div></td></tr>';
       return;
     }
     admCollectivesAll = d.employees || [];
-    renderAdminCollectives();
+
+    // Statistika — heç bir sərt uyğunlaşdırmaya bağlı deyil, ona görə həmişə düzgün göstərir
+    var elT = document.getElementById('admClStatTotal'); if (elT) elT.textContent = admCollectivesAll.length;
+    var groupCounts = {};
+    admCollectivesAll.forEach(function(emp) {
+      var g = (emp.group || 'Digər').trim();
+      groupCounts[g] = (groupCounts[g] || 0) + 1;
+    });
+    var elC = document.getElementById('admClStatCategories'); if (elC) elC.textContent = Object.keys(groupCounts).length;
+    var largestName = '—', largestCount = 0;
+    Object.keys(groupCounts).forEach(function(g) { if (groupCounts[g] > largestCount) { largestCount = groupCounts[g]; largestName = g; } });
+    var elL = document.getElementById('admClStatLargest'); if (elL) elL.textContent = largestCount || '0';
+    var elLN = document.getElementById('admClStatLargestName'); if (elLN) elLN.textContent = largestName;
+
+    admClCurrentPage = 1;
+    admRenderCollectivesTable();
   })
   .catch(function(e) {
-    if (listEl) listEl.innerHTML = '<div class="adm-empty">Şəbəkə xətası: ' + escapeHtml(e.message) + '</div>';
+    if (body) body.innerHTML = '<tr><td colspan="4"><div class="adm-empty">Şəbəkə xətası: ' + escapeHtml(e.message) + '</div></td></tr>';
   });
 }
 
-function renderAdminCollectives() {
-  var listEl = document.getElementById('admCollectivesList');
-  if (!listEl) return;
+function admClDebouncedRender(){ clearTimeout(admClSearchDebounceTimer); admClSearchDebounceTimer=setTimeout(function(){ admClCurrentPage=1; admRenderCollectivesTable(); },180); }
 
-  // Qruplara görə sırala
-  var GROUP_ORDER = [
-    "Direktor",
-    "Texniki dəstək üzrə qrup rəhbərləri",
-    "Texniki heyət",
-    "Kiçik texniki heyət",
-    "Sürücülər",
-    "Təmir şöbəsi",
-    "Monitorinq şöbəsi",
-    "Anbar",
-    "Xadimə"
-  ];
-
-  var groups = {};
-  admCollectivesAll.forEach(function(emp) {
-    var g = emp.group || 'Digər';
-    if (!groups[g]) groups[g] = [];
-    groups[g].push(emp);
+function admGetFilteredCollectives(){
+  var q=(document.getElementById('admClSearch').value||'').toLowerCase().trim();
+  var groupF=document.getElementById('admClGroupFilter').value;
+  return admCollectivesAll.filter(function(emp){
+    if(q && emp.name.toLowerCase().indexOf(q)===-1 && (emp.title||'').toLowerCase().indexOf(q)===-1) return false;
+    if(groupF && (emp.group||'').trim().toLowerCase()!==groupF.trim().toLowerCase()) return false;
+    return true;
   });
+}
 
-  var html = '';
-  GROUP_ORDER.forEach(function(groupName) {
-    var members = groups[groupName] || [];
-    if (members.length === 0) return;
+function admRenderCollectivesTable(){
+  var filtered=admGetFilteredCollectives();
+  var totalPages=Math.max(1, Math.ceil(filtered.length/admClPageSize));
+  if(admClCurrentPage>totalPages) admClCurrentPage=totalPages;
+  var startIdx=(admClCurrentPage-1)*admClPageSize;
+  var visible=filtered.slice(startIdx, startIdx+admClPageSize);
 
-    html += '<div style="margin-bottom:16px;">';
-    html += '<div style="font-size:13px;font-weight:700;color:#5C7089;margin-bottom:8px;">' + escapeHtml(groupName) + ' (' + members.length + ')</div>';
+  var body=document.getElementById('admClTableBody');
+  if(visible.length===0){
+    body.innerHTML='<tr><td colspan="4"><div class="adm-empty">Əməkdaş tapılmadı</div></td></tr>';
+  } else {
+    body.innerHTML=visible.map(function(emp){
+      var safeName=emp.name.replace(/'/g,'');
+      return '<tr>'
+        +'<td><div class="adm-name-cell"><span class="adm-avatar">'+escapeHtml(admInitials(emp.name))+'</span>'+escapeHtml(emp.name)+'</div></td>'
+        +'<td>'+escapeHtml(emp.title||'—')+'</td>'
+        +'<td>'+escapeHtml(emp.group||'—')+'</td>'
+        +'<td class="adm-th-act">'
+        +'<button class="adm-icon-btn" onclick="openCollectiveEditModal(\''+safeName+'\')" aria-label="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>'
+        +'<button class="adm-icon-btn adm-icon-btn-danger" onclick="admDeleteCollectiveMember(\''+safeName+'\')" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
+        +'</td></tr>';
+    }).join('');
+  }
 
-    members.forEach(function(emp) {
-      var safeName = emp.name.replace(/'/g, "\\'");
-      html += '<div class="adm-reorder-row">'
-        + '<span class="adm-reorder-num"></span>'
-        + '<span class="adm-reorder-text">' + escapeHtml(emp.name) + ' — ' + escapeHtml(emp.title) + '</span>'
-        + '<div style="display:flex;gap:6px;">'
-        + '<button class="adm-icon-btn" onclick="openCollectiveEditModal(\'' + safeName + '\')" aria-label="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>'
-        + '<button class="adm-icon-btn adm-icon-btn-danger" onclick="admDeleteCollectiveMember(\'' + safeName + '\')" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
-        + '</div></div>';
-    });
+  var infoEl=document.getElementById('admClPageInfo');
+  if(filtered.length===0){ infoEl.textContent='Showing 0 entries'; }
+  else { infoEl.textContent='Showing '+(startIdx+1)+' to '+Math.min(startIdx+admClPageSize,filtered.length)+' of '+filtered.length+' entries'; }
 
-    html += '</div>';
-  });
+  var btnsEl=document.getElementById('admClPageBtns');
+  var html='';
+  html+='<button class="adm-page-btn" '+(admClCurrentPage<=1?'disabled':'')+' onclick="admClGoPage('+(admClCurrentPage-1)+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>';
+  var startPage=Math.max(1, admClCurrentPage-1), endPage=Math.min(totalPages, startPage+3);
+  startPage=Math.max(1, endPage-3);
+  for(var p=startPage; p<=endPage; p++){
+    html+='<button class="adm-page-btn'+(p===admClCurrentPage?' adm-page-btn-active':'')+'" onclick="admClGoPage('+p+')">'+p+'</button>';
+  }
+  html+='<button class="adm-page-btn" '+(admClCurrentPage>=totalPages?'disabled':'')+' onclick="admClGoPage('+(admClCurrentPage+1)+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>';
+  btnsEl.innerHTML=html;
+}
+function admClGoPage(p){ if(p<1) return; admClCurrentPage=p; admRenderCollectivesTable(); }
 
-  listEl.innerHTML = html || '<div class="adm-empty">Əməkdaş tapılmadı</div>';
-  document.getElementById('admCollectivesCount').textContent = admCollectivesAll.length + ' əməkdaş';
+function admExportCollectives(){
+  var filtered=admGetFilteredCollectives();
+  if(filtered.length===0){ alert('Export üçün məlumat yoxdur'); return; }
+  if(typeof XLSX==='undefined'){ alert('Excel kitabxanası yüklənməyib'); return; }
+  var wsData=[['Full Name','Vəzifə','Qrup']];
+  filtered.forEach(function(emp){ wsData.push([emp.name, emp.title, emp.group]); });
+  var ws=XLSX.utils.aoa_to_sheet(wsData);
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Collectives');
+  var today=new Date();
+  XLSX.writeFile(wb, 'Collectives_'+String(today.getDate()).padStart(2,'0')+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+today.getFullYear()+'.xlsx');
 }
 
 function openCollectiveAddModal() {
