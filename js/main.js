@@ -1,3 +1,4 @@
+
 var API_URL = "https://script.google.com/macros/s/AKfycbytFqFdrsHqKrD2YnurKsXATyjAMLbFAtV3gEcLxmPF_DjfGk2A9yyBrhs7XgoM-uYcbw/exec";
 var currentUser = null;
 var SESSION_KEY = "ctech_session";
@@ -2331,7 +2332,7 @@ function getOpenReportRefresher(){
   return null;
 }
 function isInsideReadOnlyView(){
-  var ids=['busDetailView','tvmDetailView'];
+  var ids=['busDetailView','tvmDetailView','dashboardView'];
   return ids.some(function(id){ var el=document.getElementById(id); return el && el.style.display!=='none'; });
 }
 function triggerPullRefresh(){
