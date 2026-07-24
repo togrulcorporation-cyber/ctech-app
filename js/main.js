@@ -3597,16 +3597,18 @@ function renderCollectives(employees, groupOrder, groupIcons) {
   directorBox.innerHTML = '';
   container.innerHTML = '';
 
-  // Hər qrup üçün işçiləri qruplaşdır
+  // Hər qrup üçün işçiləri qruplaşdır — boşluq/böyük-kiçik hərfə həssas olmayan açıqla
+  // (sheet-də kiçik fərqlər olsa belə əməkdaş "itməsin")
+  function normGroup(s){ return (s||'').trim().toLowerCase(); }
   var groups = {};
   employees.forEach(function(emp) {
-    var g = emp.group || 'Digər';
+    var g = normGroup(emp.group) || 'digər';
     if (!groups[g]) groups[g] = [];
     groups[g].push(emp);
   });
 
   // ── Direktor ayrıca, xüsusi kart kimi yuxarıda ──
-  var directors = groups['Direktor'] || [];
+  var directors = groups[normGroup('Direktor')] || [];
   if (directors.length) {
     var dInfo = groupIcons['Direktor'] || { icon: '', color: '#2F6FED' };
     var dCard = document.createElement('div');
@@ -3636,10 +3638,11 @@ function renderCollectives(employees, groupOrder, groupIcons) {
   // ── Qalan qruplar 4 sütunlu grid-də ──
   groupOrder.forEach(function(groupName) {
     if (groupName === 'Direktor') return;
-    var members = groups[groupName] || [];
+    var members = groups[normGroup(groupName)] || [];
     var iconInfo = groupIcons[groupName] || { icon: 'M12 2a6 6 0 0 0-6 6c0 2.2 1.2 4.1 3 5.1-3.8 1-6 4.4-6 8 0 1.1 1 2 2 2h14c1.1 0 2-.9 2-2 0-3.6-2.2-7-6-8 1.8-1 3-2.9 3-5.1a6 6 0 0 0-6-6z', color: '#2F6FED' };
     var color = iconInfo.color || '#2F6FED';
     var icon = iconInfo.icon || 'M12 2a6 6 0 0 0-6 6c0 2.2 1.2 4.1 3 5.1-3.8 1-6 4.4-6 8 0 1.1 1 2 2 2h14c1.1 0 2-.9 2-2 0-3.6-2.2-7-6-8 1.8-1 3-2.9 3-5.1a6 6 0 0 0-6-6z';
+    var displayLabel = iconInfo.label || groupName;
 
     var card = document.createElement('div');
     card.className = 'cl-card';
@@ -3657,7 +3660,7 @@ function renderCollectives(employees, groupOrder, groupIcons) {
 
     var titleDiv = document.createElement('div');
     titleDiv.className = 'cl-title';
-    titleDiv.textContent = groupName;
+    titleDiv.textContent = displayLabel;
 
     var badge = document.createElement('div');
     badge.className = 'cl-badge';
@@ -3719,17 +3722,6 @@ var admCollectivesAll = [];
 var admCollectivesEditingName = null;
 var admClCurrentPage = 1, admClPageSize = 7;
 var admClSearchDebounceTimer = null;
-var ADM_CL_GROUP_ORDER = [
-  "Direktor",
-  "Texniki dəstək üzrə qrup rəhbərləri",
-  "Texniki heyət",
-  "Kiçik texniki heyət",
-  "Sürücülər",
-  "Təmir şöbəsi",
-  "Monitorinq şöbəsi",
-  "Anbar",
-  "Xadimə"
-];
 
 function loadAdminCollectives() {
   var body = document.getElementById('admClTableBody');
