@@ -689,7 +689,7 @@ var bsFormData = {};
 var bsFormDirty = false;
 var bsNextTicketId = '';
 var bsRegistryLocked = false;
-var bsSelected = { carrier:'', brand:'', problem:'', solution:[], equipment:'', location:'', tech1:'', tech2:'', leader:'', tvm_fault:[], tvm_solution:[], tvm_tech:'', tvm_leader:'' };
+var bsSelected = { carrier:'', brand:'', problem:'', solution:[], equipment:'', location:'', tech1:'', tech2:'', leader:'', tvm_fault:[], tvm_solution:[], tvm_tech:'', tvm_leader:'', oldSn:[], newSn:[] };
 var activeDDKey = null;
 
 var ddMeta = {
@@ -877,14 +877,18 @@ function preloadBusData(callback){
 function resetBusFormFields(){
   ['bs_time_lbl','bs_start_lbl','bs_end_lbl'].forEach(function(id){ var el=document.getElementById(id); if(el)el.value=''; });
   bsFormDirty=false;
-  bsSelected={carrier:'',brand:'',problem:'',solution:[],equipment:'',location:'',tech1:'',tech2:'',leader:''};
+  bsSelected={carrier:'',brand:'',problem:'',solution:[],equipment:'',location:'',tech1:'',tech2:'',leader:'',oldSn:[],newSn:[]};
   Object.keys(ddMeta).forEach(function(k){
     var m=ddMeta[k]; var el=document.getElementById(m.lbl);
     if(el){ el.textContent=(k==='tech2'||k==='tech1')?'Seçin (könüllü)':(k==='solution'?'Seçin (çoxlu seçim)':'Seçin'); el.style.color='#9AACC4'; el.style.fontSize=''; el.style.fontWeight=''; el.classList.remove('filled'); }
     closeDD(k);
   });
-  ['bs_requester','bs_phone','bs_route','bs_busid','bs_plate','bs_old_sn','bs_new_sn','bs_note','bs_location_note'].forEach(function(id){ var el=document.getElementById(id); if(el)el.value=''; });
+  ['bs_requester','bs_phone','bs_route','bs_busid','bs_plate','bs_note','bs_location_note'].forEach(function(id){ var el=document.getElementById(id); if(el)el.value=''; });
   document.getElementById('bs_solution_chips').innerHTML='';
+  var oldSnInput=document.getElementById('bs_old_sn'); if(oldSnInput) oldSnInput.value='';
+  var newSnInput=document.getElementById('bs_new_sn'); if(newSnInput) newSnInput.value='';
+  if(typeof busSnRenderChips==='function'){ busSnRenderChips('old'); busSnRenderChips('new'); }
+  var snConflictErr=document.getElementById('bs_sn_conflict_err'); if(snConflictErr) snConflictErr.style.display='none';
   document.getElementById('bs_location_note_wrap').style.display='none';
   if(typeof unlockRegistryFields==='function')unlockRegistryFields();
   closeBusRegistryDD();
@@ -999,8 +1003,9 @@ function openBusServiceForEdit(ticketId){
     document.getElementById('bs_route').value=d.route_number||'';
     document.getElementById('bs_busid').value=d.bus_id||'';
     document.getElementById('bs_plate').value=d.license_plate||'';
-    document.getElementById('bs_old_sn').value=d.old_sn||'';
-    document.getElementById('bs_new_sn').value=d.new_sn||'';
+    bsSelected.oldSn = d.old_sn ? String(d.old_sn).split(' | ').map(function(s){return s.trim();}).filter(Boolean) : [];
+    bsSelected.newSn = d.new_sn ? String(d.new_sn).split(' | ').map(function(s){return s.trim();}).filter(Boolean) : [];
+    if(typeof busSnRenderChips==='function'){ busSnRenderChips('old'); busSnRenderChips('new'); }
     document.getElementById('bs_note').value=d.note||'';
     document.getElementById('bs_location_note').value=d.service_location_note||'';
     setTimeLabel('main',d.report_time); setTimeLabel('start',d.service_start_time); setTimeLabel('end',d.service_end_time);
@@ -1049,8 +1054,8 @@ function submitBusService(){
     request:bsSelected.problem,
     solution:bsSelected.solution,
     changed_device_type:bsSelected.equipment||'',
-    old_sn:document.getElementById('bs_old_sn').value,
-    new_sn:document.getElementById('bs_new_sn').value,
+    old_sn:bsSelected.oldSn.join(' | '),
+    new_sn:bsSelected.newSn.join(' | '),
     service_start_time:startVal,
     service_end_time:endVal,
     service_location:bsSelected.location,
@@ -1374,8 +1379,6 @@ function saveBsDraft(){
       route: (document.getElementById('bs_route') || {}).value || '',
       busid: (document.getElementById('bs_busid') || {}).value || '',
       plate: (document.getElementById('bs_plate') || {}).value || '',
-      oldsn: (document.getElementById('bs_old_sn') || {}).value || '',
-      newsn: (document.getElementById('bs_new_sn') || {}).value || '',
       start: (document.getElementById('bs_start_lbl') || {}).value || '',
       end: (document.getElementById('bs_end_lbl') || {}).value || '',
       note: (document.getElementById('bs_note') || {}).value || '',
@@ -1394,7 +1397,7 @@ function loadBsDraft(){
     var raw = localStorage.getItem(bsDraftKey());
     if(!raw) return null;
     var d = JSON.parse(raw);
-    var hasContent = d.requester || d.phone || d.route || d.busid || d.plate || d.note || (d.selected && (d.selected.carrier || d.selected.brand || d.selected.problem || (d.selected.solution && d.selected.solution.length)));
+    var hasContent = d.requester || d.phone || d.route || d.busid || d.plate || d.note || (d.selected && (d.selected.carrier || d.selected.brand || d.selected.problem || (d.selected.solution && d.selected.solution.length) || (d.selected.oldSn && d.selected.oldSn.length) || (d.selected.newSn && d.selected.newSn.length)));
     return hasContent ? d : null;
   } catch(e){ return null; }
 }
@@ -1406,13 +1409,14 @@ function restoreBsDraft(draft){
   document.getElementById('bs_route').value = draft.route || '';
   document.getElementById('bs_busid').value = draft.busid || '';
   document.getElementById('bs_plate').value = draft.plate || '';
-  document.getElementById('bs_old_sn').value = draft.oldsn || '';
-  document.getElementById('bs_new_sn').value = draft.newsn || '';
   setTimeInputValue('bs_start_lbl', draft.start);
   setTimeInputValue('bs_end_lbl', draft.end);
   document.getElementById('bs_note').value = draft.note || '';
   document.getElementById('bs_location_note').value = draft.locationNote || '';
   bsSelected = draft.selected || bsSelected;
+  if(!bsSelected.oldSn) bsSelected.oldSn=[];
+  if(!bsSelected.newSn) bsSelected.newSn=[];
+  if(typeof busSnRenderChips==='function'){ busSnRenderChips('old'); busSnRenderChips('new'); }
   Object.keys(ddMeta).forEach(function(k){
     if(k === 'solution'){
       updateMultiLabel('solution');
@@ -3108,12 +3112,16 @@ function resetTvmFormFields(){
 function tvmFormatTime(el){ formatTimeInput(el); tvmFormDirty = true; }
 
 // ═══════════════════════════════════════════════════════════════
-// BUS VALIDATOR SN — reyestrlə uyğunlaşdırma (Köhnə/Yeni cihaz SN)
-// Sayt açılanda BİR DƏFƏ yüklənir, sonra hər yazışda backendə
-// getmədən, birbaşa yaddaşdan (brauzerdə) axtarılır.
+// BUS SN ÇİPLƏRİ — Validator SN + SAM Card SN reyestrləri ilə
+// uyğunlaşdırma (Köhnə/Yeni cihaz SN). Hər ikisi sayt açılanda BİR
+// DƏFƏ yüklənir, sonra hər yazışda backendə getmədən, birbaşa
+// yaddaşdan axtarılır. Çox-seçimli (çip) formadır — bir ticket-də
+// həm Validator, həm SAM Card dəyişdirilibsə, hər ikisi eyni xanaya
+// ayrı-ayrı çiplər kimi əlavə oluna bilər.
 // ═══════════════════════════════════════════════════════════════
 var busValidatorSNList = [];
-var busValidatorSNSet = null; // Set — O(1) tam-uyğunluq yoxlaması üçün
+var busSamCardSNList = [];
+var busCombinedSNSet = null; // Set — O(1) tam-uyğunluq yoxlaması üçün (hər iki baza birlikdə)
 var busValidatorSNLoaded = false;
 var busValidatorSNLoading = false;
 
@@ -3121,39 +3129,41 @@ function preloadValidatorSNList(force){
   if(busValidatorSNLoading) return;
   if(busValidatorSNLoaded && !force) return;
   busValidatorSNLoading = true;
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getValidatorSNList', requesterEmail: currentUser?currentUser.email:''})})
-  .then(function(r){ return r.json(); })
-  .then(function(d){
+  Promise.all([
+    fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getValidatorSNList', requesterEmail: currentUser?currentUser.email:''})}).then(function(r){return r.json();}),
+    fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getSamCardSNList', requesterEmail: currentUser?currentUser.email:''})}).then(function(r){return r.json();})
+  ]).then(function(results){
     busValidatorSNLoading = false;
-    if(d.status!=='OK') return;
-    busValidatorSNList = d.list || [];
-    busValidatorSNSet = new Set(busValidatorSNList.map(function(s){ return s.toUpperCase(); }));
+    if(results[0] && results[0].status==='OK') busValidatorSNList = results[0].list || [];
+    if(results[1] && results[1].status==='OK') busSamCardSNList = results[1].list || [];
+    var combined = busValidatorSNList.concat(busSamCardSNList);
+    busCombinedSNSet = new Set(combined.map(function(s){ return s.toUpperCase(); }));
     busValidatorSNLoaded = true;
-  })
-  .catch(function(){ busValidatorSNLoading = false; });
+  }).catch(function(){ busValidatorSNLoading = false; });
 }
 
 function busSnExists(sn){
-  if(!busValidatorSNSet) return true; // hələ yüklənməyibsə, xəbərdarlıq göstərmə (yalançı-mənfi olmasın)
-  return busValidatorSNSet.has(String(sn||'').trim().toUpperCase());
+  if(!busCombinedSNSet) return true; // hələ yüklənməyibsə, xəbərdarlıq göstərmə (yalançı-mənfi olmasın)
+  return busCombinedSNSet.has(String(sn||'').trim().toUpperCase());
 }
 
 function busSnSearchMatches(query){
   var q = String(query||'').trim().toUpperCase();
   if(!q) return [];
-  return busValidatorSNList.filter(function(s){ return s.toUpperCase().indexOf(q) !== -1; }).slice(0,8);
+  var combined = busValidatorSNList.concat(busSamCardSNList);
+  return combined.filter(function(s){ return s.toUpperCase().indexOf(q) !== -1; }).slice(0,8);
 }
 
 function busSnInputHandler(el, ddId, warnId){
   var dd = document.getElementById(ddId);
   var q = el.value.trim();
   bsFormDirty = true;
-  busSnCheckOldNewConflict();
-  if(!q){ if(dd) dd.style.display='none'; busSnUpdateWarning(el, warnId); return; }
+  if(!q){ if(dd) dd.style.display='none'; return; }
+  var type = ddId.indexOf('old')!==-1 ? 'old' : 'new';
   var matches = busSnSearchMatches(q);
   if(dd){
     if(matches.length===0){
-      dd.innerHTML = '<div class="bs-registry-empty">Uyğun SN tapılmadı</div>';
+      dd.innerHTML = '<div class="bs-registry-empty">Uyğun SN tapılmadı — Enter ilə yenə də əlavə edə bilərsiniz</div>';
     } else {
       dd.innerHTML = matches.map(function(sn){
         return '<div class="bs-registry-item" data-sn="'+escapeHtml(sn)+'"><span class="reg-id">'+escapeHtml(sn)+'</span></div>';
@@ -3161,39 +3171,68 @@ function busSnInputHandler(el, ddId, warnId){
       Array.from(dd.querySelectorAll('.bs-registry-item')).forEach(function(itemEl){
         itemEl.addEventListener('click', function(e){
           e.stopPropagation();
-          el.value = itemEl.getAttribute('data-sn');
+          busSnAddChip(type, itemEl.getAttribute('data-sn'));
+          el.value = '';
           dd.style.display = 'none';
-          busSnUpdateWarning(el, warnId);
-          busSnCheckOldNewConflict();
         });
       });
     }
     dd.style.display = 'block';
   }
-  busSnUpdateWarning(el, warnId);
 }
 
-function busSnUpdateWarning(el, warnId){
-  var warnEl = document.getElementById(warnId);
-  if(!warnEl) return;
-  var q = el.value.trim();
-  if(q && busValidatorSNLoaded && !busSnExists(q)){
-    warnEl.textContent = '⚠ Bu SN bazada tapılmadı — diqqətlə yoxlayın';
-    warnEl.style.display = 'block';
-  } else {
-    warnEl.style.display = 'none';
+function busSnInputKeydown(e, el, type){
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    var v = el.value.trim();
+    if(v){
+      busSnAddChip(type, v);
+      el.value = '';
+      closeBusSnDD('bs_'+type+'_sn_dd');
+    }
   }
 }
 
-// Köhnə SN = Yeni SN ola bilməz (məcburi qayda, xəbərdarlıq deyil)
+function busSnAddChip(type, sn){
+  sn = String(sn||'').trim();
+  if(!sn) return;
+  var arr = type==='old' ? bsSelected.oldSn : bsSelected.newSn;
+  var already = arr.some(function(x){ return x.toUpperCase()===sn.toUpperCase(); });
+  if(!already) arr.push(sn);
+  bsFormDirty = true;
+  busSnRenderChips(type);
+  busSnCheckOldNewConflict();
+}
+
+function busSnRemoveChip(type, sn){
+  var arr = type==='old' ? bsSelected.oldSn : bsSelected.newSn;
+  var idx = arr.findIndex(function(x){ return x.toUpperCase()===sn.toUpperCase(); });
+  if(idx!==-1) arr.splice(idx,1);
+  bsFormDirty = true;
+  busSnRenderChips(type);
+  busSnCheckOldNewConflict();
+}
+
+function busSnRenderChips(type){
+  var arr = type==='old' ? bsSelected.oldSn : bsSelected.newSn;
+  var box = document.getElementById('bs_'+type+'_sn_chips');
+  if(!box) return;
+  box.innerHTML = arr.map(function(sn){
+    var unknown = busValidatorSNLoaded && !busSnExists(sn);
+    var safeSn = sn.replace(/'/g,'');
+    return '<span class="bs-chip'+(unknown?' bs-chip-warn':'')+'"'+(unknown?' title="Bu SN bazada tapılmadı — diqqətlə yoxlayın">⚠ ':'>')
+      + escapeHtml(sn)
+      + '<button type="button" class="bs-chip-x" onclick="busSnRemoveChip(\''+type+'\',\''+safeSn+'\')">✕</button></span>';
+  }).join('');
+}
+
+// Eyni SN həm Köhnə, həm Yeni xanada ola bilməz (məcburi qayda, xəbərdarlıq deyil)
 function busSnCheckOldNewConflict(){
-  var oldEl = document.getElementById('bs_old_sn');
-  var newEl = document.getElementById('bs_new_sn');
   var errEl = document.getElementById('bs_sn_conflict_err');
-  if(!oldEl || !newEl || !errEl) return false;
-  var oldV = oldEl.value.trim().toUpperCase();
-  var newV = newEl.value.trim().toUpperCase();
-  var conflict = oldV && newV && oldV === newV;
+  if(!errEl) return false;
+  var oldSet = bsSelected.oldSn.map(function(s){ return s.toUpperCase(); });
+  var newSet = bsSelected.newSn.map(function(s){ return s.toUpperCase(); });
+  var conflict = newSet.some(function(s){ return oldSet.indexOf(s)!==-1; });
   errEl.style.display = conflict ? 'block' : 'none';
   return conflict;
 }
@@ -3382,6 +3421,12 @@ function switchBusSubtab(key, btn){
     document.getElementById('admValSnSearch').value='';
     document.getElementById('admValSnResults').innerHTML='<div class="adm-empty">Axtarış edin (məs: SN-in son rəqəmləri) — nəticələr aşağıda görünəcək</div>';
     preloadValidatorSNList(true); // admin panelində həmişə təzə siyahı ilə işlə
+  }
+  if(key==='samcardsn'){
+    admSamSnClearSelection();
+    document.getElementById('admSamSnSearch').value='';
+    document.getElementById('admSamSnResults').innerHTML='<div class="adm-empty">Axtarış edin (məs: SN-in son rəqəmləri) — nəticələr aşağıda görünəcək</div>';
+    preloadValidatorSNList(true); // admin panelində həmişə təzə siyahı ilə işlə (hər iki reyestri də yeniləyir)
   }
 }
 
@@ -3659,6 +3704,129 @@ function submitValidatorSNModal(){
     closeValidatorSNModal();
     preloadValidatorSNList(true);
     setTimeout(admRenderValSnResults, 400);
+  })
+  .catch(function(e){
+    btn.disabled=false; btn.textContent=origText;
+    errEl.textContent='Şəbəkə xətası: '+e.message; errEl.style.display='block';
+  });
+}
+
+// ── ADMIN: SAM CARD SN (axtarış-əsaslı, çox-seçimli idarəetmə) ──
+var admSamSnSearchDebounceTimer = null;
+var admSamSnSelected = {};
+var admSamSnEditingOld = null;
+
+function admSamSnDebouncedSearch(){ clearTimeout(admSamSnSearchDebounceTimer); admSamSnSearchDebounceTimer=setTimeout(admRenderSamSnResults,180); }
+
+function admRenderSamSnResults(){
+  var q = document.getElementById('admSamSnSearch').value.trim();
+  var resultsEl = document.getElementById('admSamSnResults');
+  if(!q){
+    resultsEl.innerHTML = '<div class="adm-empty">Axtarış edin (məs: SN-in son rəqəmləri) — nəticələr aşağıda görünəcək</div>';
+    return;
+  }
+  if(!busValidatorSNLoaded){
+    resultsEl.innerHTML = '<div class="adm-empty">Siyahı yüklənir, bir az gözləyin...</div>';
+    return;
+  }
+  var qUpper = q.toUpperCase();
+  var matches = busSamCardSNList.filter(function(sn){ return sn.toUpperCase().indexOf(qUpper) !== -1; }).slice(0,50);
+
+  if(matches.length===0){
+    resultsEl.innerHTML = '<div class="adm-empty">Uyğun SN tapılmadı</div>';
+    return;
+  }
+  resultsEl.innerHTML = matches.map(function(sn){
+    var safeSn = sn.replace(/'/g,'');
+    var checked = admSamSnSelected[sn] ? 'checked' : '';
+    return '<div class="adm-reorder-row">'
+      + '<input type="checkbox" class="adm-valsn-checkbox" '+checked+' onchange="admSamSnToggleSelect(\''+safeSn+'\',this)">'
+      + '<span class="adm-valsn-sn">'+escapeHtml(sn)+'</span>'
+      + '<button class="adm-icon-btn" onclick="openSamCardSNModal(\''+safeSn+'\')" aria-label="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>'
+      + '<button class="adm-icon-btn adm-icon-btn-danger" onclick="admDeleteSamCardSN(\''+safeSn+'\')" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
+      + '</div>';
+  }).join('') + (busSamCardSNList.filter(function(sn){ return sn.toUpperCase().indexOf(qUpper)!==-1; }).length > 50 ? '<div class="adm-empty">İlk 50 nəticə göstərilir, axtarışı dəqiqləşdirin...</div>' : '');
+}
+
+function admSamSnToggleSelect(sn, checkboxEl){
+  if(checkboxEl.checked) admSamSnSelected[sn]=true; else delete admSamSnSelected[sn];
+  admSamSnUpdateBulkBar();
+}
+function admSamSnUpdateBulkBar(){
+  var count = Object.keys(admSamSnSelected).length;
+  var bar = document.getElementById('admSamSnBulkBar');
+  document.getElementById('admSamSnSelectedCount').textContent = count + ' seçildi';
+  bar.style.display = count > 0 ? 'flex' : 'none';
+}
+function admSamSnClearSelection(){
+  admSamSnSelected = {};
+  admSamSnUpdateBulkBar();
+}
+
+function admBulkDeleteSamCardSN(){
+  var snList = Object.keys(admSamSnSelected);
+  if(snList.length===0) return;
+  admOpenDeleteConfirm(snList.length+' SAM Card SN silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.', function(){
+    return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'bulkDeleteSamCardSN', snList:snList, requesterEmail: currentUser?currentUser.email:''})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
+      admSamSnClearSelection();
+      preloadValidatorSNList(true);
+      setTimeout(admRenderSamSnResults, 400);
+    });
+  });
+}
+
+function admDeleteSamCardSN(sn){
+  admOpenDeleteConfirm('"'+sn+'" SN-ni silmək istədiyinizə əminsiniz?', function(){
+    return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteSamCardSN', sn:sn, requesterEmail: currentUser?currentUser.email:''})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
+      delete admSamSnSelected[sn];
+      admSamSnUpdateBulkBar();
+      preloadValidatorSNList(true);
+      setTimeout(admRenderSamSnResults, 400);
+    });
+  });
+}
+
+function openSamCardSNModal(oldSn){
+  admSamSnEditingOld = oldSn || null;
+  document.getElementById('admSamSnFormError').style.display='none';
+  document.getElementById('admSamSnValue').value = oldSn || '';
+  document.getElementById('admSamSnModalTitle').textContent = oldSn ? 'Edit SAM Card SN' : 'Add SAM Card SN';
+  document.getElementById('admSamSnSaveBtn').textContent = oldSn ? 'Save Changes' : 'Save';
+  var ov=document.getElementById('admSamSnModal');
+  ov.style.display='flex'; ov.classList.add('open');
+}
+function closeSamCardSNModal(){
+  var ov=document.getElementById('admSamSnModal');
+  ov.classList.remove('open'); ov.style.display='none';
+  admSamSnEditingOld = null;
+}
+function submitSamCardSNModal(){
+  var val = document.getElementById('admSamSnValue').value.trim();
+  var errEl = document.getElementById('admSamSnFormError');
+  errEl.style.display='none';
+  if(!val){ errEl.textContent='SN daxil edin.'; errEl.style.display='block'; return; }
+
+  var btn = document.getElementById('admSamSnSaveBtn');
+  btn.disabled=true; var origText=btn.textContent; btn.textContent='Yadda saxlanılır...';
+
+  var payload = admSamSnEditingOld
+    ? { action:'updateSamCardSN', oldSn:admSamSnEditingOld, newSn:val, requesterEmail: currentUser?currentUser.email:'' }
+    : { action:'addSamCardSN', sn:val, requesterEmail: currentUser?currentUser.email:'' };
+
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    btn.disabled=false; btn.textContent=origText;
+    if(d.status!=='OK'){ errEl.textContent=d.message||'Xəta baş verdi'; errEl.style.display='block'; return; }
+    closeSamCardSNModal();
+    preloadValidatorSNList(true);
+    setTimeout(admRenderSamSnResults, 400);
   })
   .catch(function(e){
     btn.disabled=false; btn.textContent=origText;
