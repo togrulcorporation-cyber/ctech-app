@@ -1,4 +1,3 @@
-
 var API_URL = "https://script.google.com/macros/s/AKfycbytFqFdrsHqKrD2YnurKsXATyjAMLbFAtV3gEcLxmPF_DjfGk2A9yyBrhs7XgoM-uYcbw/exec";
 var currentUser = null;
 var SESSION_KEY = "ctech_session";
@@ -77,7 +76,7 @@ function closeMenu(){ document.getElementById('menuPanel').classList.remove('ope
 // ═══════════════════════════════════════════════════
 function openAdminPanel(){
   closeMenu();
-  if(window.innerWidth < 901){ return; } // mobil versiyada açılmır
+  if(window.innerWidth < 901){ return; }
   var nameEl=document.getElementById('admProfileName');
   var roleEl=document.getElementById('admProfileRole');
   if(currentUser){
@@ -86,23 +85,33 @@ function openAdminPanel(){
   }
   document.getElementById('dashboardView').style.display='none';
   document.getElementById('adminPanelView').style.display='flex';
+  
+  // BUS Management məlumatlarını da yüklə
   loadAdminUsers();
+  loadBusManagementData();
 }
+
 function closeAdminPanel(){
   document.getElementById('adminPanelView').style.display='none';
   document.getElementById('dashboardView').style.display='block';
 }
+
 function switchAdminSection(key, btn){
   document.querySelectorAll('.adm-nav-item').forEach(function(el){ el.classList.remove('active'); });
   if(btn) btn.classList.add('active');
   document.querySelectorAll('.adm-section').forEach(function(el){ el.style.display='none'; });
   var target=document.getElementById('admSection-'+key);
   if(target) target.style.display='block';
+  
   if(key==='users' && typeof loadAdminUsers==='function') loadAdminUsers();
   if(key==='tvm' && typeof loadTvmManagementData==='function') loadTvmManagementData();
   if(key==='tech' && typeof loadAdminTechnicians==='function') loadAdminTechnicians();
   if(key==='leaders' && typeof loadAdminLeaders==='function') loadAdminLeaders();
+  
+  // BUS Management
+  if(key==='bus' && typeof loadBusManagementData==='function') loadBusManagementData();
 }
+
 document.addEventListener('click',function(e){ var panel=document.getElementById('menuPanel'); if(!panel)return; if(!panel.contains(e.target)&&!e.target.closest('.icon-btn'))closeMenu(); });
 
 // ── USER MANAGEMENT ─────────────────────────────────
@@ -897,10 +906,7 @@ function openBusService(){
   var now=new Date();
   var bParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Baku',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
   resetBusFormFields();
-  
-  // ✅ BURAYA ƏLAVƏ EDİN - Form açılanda dropdown-lar aktiv olsun
   unlockRegistryFields();
-  
   document.getElementById('bs_date').value=bParts;
   document.getElementById('dashboardView').style.display='none';
   document.getElementById('busReportView').style.display='none';
@@ -916,7 +922,6 @@ function openBusService(){
   } else {
     document.getElementById('bsTicketBadge').innerHTML='<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
   }
-  // Ticket ID-ni həmişə sürətli (yüngül) sorğu ilə təzələ — böyük siyahıların yüklənməsini gözləmədən
   loadFastTicketIds();
   if(!bsFormData || !bsFormData.carriers){ loadBusFormData(); }
 }
@@ -1100,7 +1105,6 @@ function renderBusRegistryDropdown(matches){
     dd.innerHTML = '<div class="bs-registry-empty">Uyğun D.Q.N. tapılmadı — məlumatları əl ilə daxil edin</div>';
   } else {
     dd.innerHTML = matches.slice(0, 8).map(function(m){
-      // ✅ carrier-ı düzgün ötür (dırnaqları təmizləmədən, olduğu kimi)
       var carrierAttr = m.carrier || '';
       return '<div class="bs-registry-item" data-dqn="' + (m.dqn || '') + '" data-id="' + (m.id || '') + '" data-carrier="' + carrierAttr + '" data-model="' + (m.model || '') + '">' +
         '<span class="reg-id">' + (m.dqn || '—') + '</span>' +
@@ -1114,10 +1118,10 @@ function renderBusRegistryDropdown(matches){
         var match = {
           dqn: el.getAttribute('data-dqn'),
           id: el.getAttribute('data-id'),
-          carrier: el.getAttribute('data-carrier'),  // ✅ Burada carrier gəlir
+          carrier: el.getAttribute('data-carrier'),
           model: el.getAttribute('data-model')
         };
-        console.log('🔍 Seçilən match:', match); // Debug üçün
+        console.log('🔍 Seçilən match:', match);
         if(match.dqn) selectBusRegistryMatch(match);
       });
     });
@@ -1128,23 +1132,19 @@ function renderBusRegistryDropdown(matches){
 function selectBusRegistryMatch(match){
   console.log('🔍 selectBusRegistryMatch çağırıldı:', match);
   
-  // 1. DQN və BUS ID doldur
   var plateEl = document.getElementById('bs_plate');
   var busidEl = document.getElementById('bs_busid');
   if(plateEl) plateEl.value = match.dqn || '';
   if(busidEl) busidEl.value = match.id || '';
   
-  // 2. KİLİDİ AÇ (dropdown-ları aktiv et)
   unlockRegistryFields();
   
-  // 3. DAŞIYICI - Dırnaqları təmizlə
   if(match.carrier){
     var cleanCarrier = match.carrier.replace(/^"|"$/g, '').trim();
     console.log('✅ Təmizlənmiş daşıyıcı:', cleanCarrier);
     
     bsSelected.carrier = cleanCarrier;
     
-    // Label-a yaz
     var cLbl = document.getElementById('bs_carrier_lbl');
     if(cLbl){
       cLbl.textContent = cleanCarrier;
@@ -1152,7 +1152,6 @@ function selectBusRegistryMatch(match){
       cLbl.classList.add('filled');
     }
     
-    // Button-a yaz
     var cBtn = document.getElementById('bs_carrier_btn');
     if(cBtn){
       var span = cBtn.querySelector('span');
@@ -1165,7 +1164,6 @@ function selectBusRegistryMatch(match){
     }
   }
   
-  // 4. MODEL
   if(match.model){
     console.log('✅ Model təyin edilir:', match.model);
     bsSelected.brand = match.model;
@@ -1189,7 +1187,6 @@ function selectBusRegistryMatch(match){
     }
   }
   
-  // 5. KİLİDLƏ
   closeBusRegistryDD();
   lockRegistryFields();
   bsFormDirty = true;
@@ -1264,7 +1261,6 @@ document.addEventListener('click', function(e){
   }
 });
 
-// ── D.Q.N. xanası — avtomatik format + reyestr axtarışı ──
 document.addEventListener('DOMContentLoaded', function(){
   var plateEl = document.getElementById('bs_plate');
   if(!plateEl) return;
@@ -1272,7 +1268,6 @@ document.addEventListener('DOMContentLoaded', function(){
   plateEl.addEventListener('input', function(e){
     if(bsRegistryLocked) unlockRegistryFields();
     
-    // Avtomatik format
     var raw = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '');
     if(raw.length > 8) raw = raw.slice(0, 8);
     var res = '';
@@ -1297,7 +1292,6 @@ document.addEventListener('DOMContentLoaded', function(){
     bsFormDirty = true;
     scheduleBsDraftSave();
 
-    // Reyestr axtarışı — ən azı 2 simvol yazılanda
     if(res.replace(/[^0-9A-Z]/g, '').length >= 2){
       renderBusRegistryDropdown(filterBusRegistry(res));
     } else {
@@ -1317,7 +1311,6 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 
-// ── BUS ID: yalnız rəqəm (əl ilə yazılanda) ──────────
 document.addEventListener('DOMContentLoaded', function(){
   var busidEl = document.getElementById('bs_busid');
   if(busidEl){
@@ -1329,7 +1322,6 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 
-// ── Marşrut: böyük hərf ──────────────────────────────
 document.addEventListener('DOMContentLoaded', function(){
   var routeEl = document.getElementById('bs_route');
   if(routeEl){
@@ -1342,7 +1334,6 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 
-// ── Enter → Tab (yalnız BUS Service formasında) ─────
 document.addEventListener('keydown', function(e){
   if(e.key !== 'Enter') return;
   var view = document.getElementById('busServiceView');
@@ -1356,7 +1347,6 @@ document.addEventListener('keydown', function(e){
   if(idx !== -1 && idx < focusable.length - 1) focusable[idx + 1].focus();
 });
 
-// ── Draft ─────────────────────────────────────────
 function bsDraftKey(){ return 'ctech_bs_draft'; }
 function saveBsDraft(){
   if(bsEditMode) return;
@@ -2135,8 +2125,6 @@ function resetDashFilters(){
   document.getElementById('dashModalTitle').textContent='Tarix aralığı və filtrlər';
   document.getElementById('dashSearchWarn').style.display='none';
 
-  // Faktiki tətbiq olunmuş filtri də sıfırla və dashboard-u dərhal yenilə —
-  // əks halda "Sıfırla" yalnız pəncərəni təmizləyir, arxadakı nəticələr köhnə qalır.
   dashCustomRange=null;
   dashPeriod='24h';
   updateDashTabsUI();
@@ -2288,7 +2276,7 @@ function ptrFindScrollParent(el){
     if((cs.overflowY==='auto'||cs.overflowY==='scroll') && el.scrollHeight>el.clientHeight+1){ return el; }
     el=el.parentElement;
   }
-  return null; // null = əsas səhifə (window) özü sürüşür
+  return null;
 }
 function ptrScrollTop(el){
   if(el) return el.scrollTop;
@@ -2308,7 +2296,6 @@ document.addEventListener('touchstart', function(e){
 }, {passive:true});
 document.addEventListener('touchmove', function(e){
   if(!ptrTracking) return;
-  // Hərəkət zamanı konteyner artıq aşağı düşübsə (adi scroll baş verir) — izləməni ləğv et
   if(ptrScrollTop(ptrScrollEl)>0){ ptrTracking=false; return; }
   if(e.touches[0].clientY-ptrStartY>PTR_THRESHOLD){ ptrTracking=false; triggerPullRefresh(); }
 }, {passive:true});
@@ -2317,8 +2304,6 @@ function isInsideServiceForm(){
   var ids=['busServiceView','busBulkView','tvmServiceView'];
   return ids.some(function(id){ var el=document.getElementById(id); return el && el.style.display!=='none'; });
 }
-// Hesabat/siyahı görünüşləri: burda itiriləcək məlumat yoxdur, ona görə sürüşdürəndə
-// tam səhifə yeniləməsi (reload) yox, sadəcə cədvəli təzələmək kifayətdir.
 function getOpenReportRefresher(){
   var map={
     busReportView: (typeof loadReportData==='function') ? loadReportData : null,
@@ -2355,7 +2340,6 @@ var BK_MONTHS=['Yanvar','Fevral','Mart','Aprel','May','İyun','İyul','Avqust','
 var bkPreviewData=null, bkFormDataLoaded=false;
 
 function openBusBulk(){
-  // Yalnız Admin və Team Leader üçün
   if(currentUser){
     var level = getAccessLevel(currentUser.role);
     if(level === 'technician'){
@@ -2381,7 +2365,6 @@ function openBusBulk(){
 function closeBusBulk(){
   document.getElementById('busBulkView').style.display = 'none';
   document.getElementById('busServiceView').style.display = 'block';
-  // Bulk view-i tam təmizlə
   resetBulkForm();
 }
 
@@ -2402,8 +2385,6 @@ function ensureBulkFormData(){
   });
 }
 
-// bkFillSelects() funksiyasını TAPIN və bu şəkildə DƏYİŞDİRİN:
-
 function bkFillSelects(){
   var d = bsFormData || {};
   bkFillSel('bk_carrier', d.carriers, 'Seçin');
@@ -2413,10 +2394,7 @@ function bkFillSelects(){
   bkFillSel('bk_tech2', d.technicians, 'Seçin');
   bkFillSel('bk_leader', d.leaders, 'Seçin');
   
-  // ✅ YENİ: Tələb şablonu üçün dropdown - BUS_PROBLEMS
   bkFillSel('bk_request_tmpl', d.busProblems, 'Seçin');
-  
-  // ✅ YENİ: Həll şablonu üçün dropdown - SOLUTIONS
   bkFillSel('bk_solution_tmpl', d.solutions, 'Seçin');
   
   var locEl = document.getElementById('bk_location');
@@ -2427,7 +2405,6 @@ function bkFillSelects(){
     };
   }
 }
-
 
 function bkFillSel(id, arr, placeholder){
   var el = document.getElementById(id);
@@ -2449,7 +2426,6 @@ function renderBkCal(){
   var daysInPrev = new Date(bkCalYear, bkCalMonth, 0).getDate();
   var today = bakuNowDate();
   
-  // Öncəki ayın günləri (boş xanalar)
   for(var i = 0; i < startOffset; i++){
     var el = document.createElement('div');
     el.className = 'bk-cal-day muted';
@@ -2457,7 +2433,6 @@ function renderBkCal(){
     daysEl.appendChild(el);
   }
   
-  // Cari ayın günləri
   for(var d = 1; d <= daysInMonth; d++){
     (function(day){
       var el = document.createElement('div');
@@ -2590,7 +2565,6 @@ function bkSubmitDirect(){
       setTimeout(function(){ ov.classList.remove('open'); ov.style.display='none'; }, 2000);
       return;
     }
-    // ✅ CONFIRM SİLİNDİ - BİRBAŞA İDXAL
     bkRunImport(data, d.count);
   })
   .catch(function(e){
@@ -2644,12 +2618,11 @@ function bkRunImport(data, count){
       ic.classList.remove('show');
       ic.style.display = 'none';
       
-      // ✅ Hər halda BUS Service-ə qayıt
       resetBulkForm();
-      closeBusBulk(); // Bu funksiya busServiceView-i göstərir
+      closeBusBulk();
       if(typeof loadReportData === 'function') loadReportData();
       
-    }, 2000); // 2 saniyə gözlə və qayıt
+    }, 2000);
   })
   .catch(function(e){
     sp.style.display = 'none';
@@ -2657,13 +2630,11 @@ function bkRunImport(data, count){
     setTimeout(function(){ 
       ov.classList.remove('open');
       ov.style.display = 'none';
-      // Xəta olsa da BUS Service-ə qayıt
       resetBulkForm();
       closeBusBulk();
     }, 2000);
   });
 }
-
 
 function resetBulkForm(){
   bkClosePreview();
@@ -2678,7 +2649,6 @@ function resetBulkForm(){
   });
   document.getElementById('bk_location_note_wrap').style.display = 'none';
 
-  // ── Daşıyıcı seçimini tam sıfırla ──
   bkSelectedCarrier = '';
   var carrierLbl = document.getElementById('bk_carrier_lbl');
   if(carrierLbl) carrierLbl.textContent = 'Seçin';
@@ -2687,7 +2657,6 @@ function resetBulkForm(){
   document.getElementById('bkCarrierCountWrap').innerHTML = '';
   document.getElementById('bkCarrierCountWrap').style.display = 'none';
 
-  // ── DQN seçimini tam sıfırla ──
   bkSelectedDqns = [];
   bkAllMode = true;
   var toggle = document.getElementById('bkAllToggle');
@@ -2715,7 +2684,6 @@ function resetBulkForm(){
   bkUpdateImportCount();
 }
 
-// Köhnə funksiyalar (uyğunluq üçün saxlanılır)
 function bkOpenPreview(){ /* Ön baxış funksiyası artıq istifadə olunmur */ }
 function bkClosePreview(){ /* Ön baxış funksiyası artıq istifadə olunmur */ }
 function bkDateChanged(val){
@@ -2743,7 +2711,7 @@ function bkUpdateImportCount(){
   btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
     + ' İdxal et (' + count + ')';
 }
-// ── BK DQN Seçim + Chip-lər ──────────────────────────
+
 if(typeof bkSelectedDqns === 'undefined') var bkSelectedDqns = [];
 if(typeof bkAllMode     === 'undefined') var bkAllMode = true;
 
@@ -2791,7 +2759,6 @@ function bkUpdateDqnNotice(){
   }
 }
 
-// ── BK Carrier (yeni) ──────────────────────────────
 var bkSelectedCarrier = '';
 
 function bkToggleCarrierDD(){
@@ -2816,7 +2783,6 @@ function bkSelectCarrier(carrier){
   if(lbl) lbl.textContent = carrier;
   var dd = document.getElementById('bkCarrierDDList');
   if(dd) dd.style.display = 'none';
-  // hidden select sinxron
   var sel = document.getElementById('bk_carrier');
   if(sel){
     var found = false;
@@ -2849,7 +2815,6 @@ function bkOnCarrierChange(){
     return String(r.carrier||'').trim().toLowerCase() === carrier.trim().toLowerCase();
   });
 
-  // Badge göstər
   if(countWrap){
     countWrap.style.display = 'flex';
     var numEl = document.getElementById('bkCountNum');
@@ -2858,18 +2823,14 @@ function bkOnCarrierChange(){
     if(badge){ badge.classList.remove('active','empty'); badge.classList.add(matches.length===0?'empty':'active'); }
   }
 
-  // Toggle - başlanğıcda checked (hamısı seçili)
   if(toggle){ toggle.classList.add('checked'); }
 
-  // Search - başlanğıcda solğun
   if(searchWrap) searchWrap.style.display = matches.length>0?'block':'none';
   var searchBox = document.getElementById('bkDqnSearchBox');
   if(searchBox){ searchBox.classList.remove('active'); }
 
-  // Notice
   if(noticeEl) noticeEl.style.display = matches.length>0?'flex':'none';
 
-  // DQN input sıfırla
   var inp = document.getElementById('bkDqnInput'); if(inp) inp.value='';
   var sugg = document.getElementById('bkDqnSuggestions'); if(sugg){ sugg.classList.remove('open'); sugg.innerHTML=''; }
   if(typeof bkRenderDqnChips==='function') bkRenderDqnChips();
@@ -2881,7 +2842,7 @@ function bkOnCarrierChange(){
 function bkUpdateSnFieldsState(){
   var oldSn = document.getElementById('bk_old_sn');
   var newSn = document.getElementById('bk_new_sn');
-  var active = (typeof bkAllMode !== 'undefined') && !bkAllMode; // yalnız spesifik DQN seçimi aktivdirsə
+  var active = (typeof bkAllMode !== 'undefined') && !bkAllMode;
   [oldSn, newSn].forEach(function(el){
     if(!el) return;
     el.disabled = !active;
@@ -2900,14 +2861,12 @@ function bkToggleAllMode(){
   var searchBox = document.getElementById('bkDqnSearchBox');
 
   if(bkAllMode){
-    // Checked - hamısı
     if(toggle) toggle.classList.add('checked');
     if(badge) badge.classList.add('active');
     if(searchBox) searchBox.classList.remove('active');
     if(typeof bkSelectedDqns!=='undefined') bkSelectedDqns=[];
     if(typeof bkRenderDqnChips==='function') bkRenderDqnChips();
   } else {
-    // Unchecked - DQN seçim rejimi
     if(toggle) toggle.classList.remove('checked');
     if(badge) badge.classList.remove('active');
     if(searchBox) searchBox.classList.add('active');
@@ -2978,7 +2937,7 @@ document.addEventListener('click',function(e){
 var tvmFormData = null;
 var tvmNextTicketId = '';
 var tvmFormDataLoaded = false;
-var tvmSelectedSn = null; // reyestrdən seçilmiş {sn, fullSn, location}
+var tvmSelectedSn = null;
 var tvmFormDirty = false;
 var tvmEditMode = false, tvmEditTicketId = null, tvmReturnTarget = 'dashboard';
 
@@ -2986,7 +2945,6 @@ function openTvmService(){
   if(currentUser){
     var lvl = getAccessLevel(currentUser.role);
     if(lvl === 'technician'){
-      // Texniklər də TVM servisi doldura bilər — məhdudiyyət yalnız BUS Bulk üçündür
     }
   }
   tvmEditMode = false; tvmEditTicketId = null; tvmReturnTarget = 'dashboard';
@@ -3004,7 +2962,6 @@ function openTvmService(){
       ? '<span style="display:inline-flex;align-items:center;background:#2F6FED;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">'+tvmNextTicketId+'</span>'
       : '<span style="display:inline-flex;align-items:center;background:#B0C4E0;border-radius:10px;padding:6px 16px;font-family:IBM Plex Mono,monospace;font-weight:700;font-size:14px;color:#FFFFFF;letter-spacing:1px;">yüklənir...</span>';
   }
-  // Ticket ID-ni həmişə sürətli sorğu ilə təzələ, ağır siyahı yüklənməsini gözləmədən
   loadFastTicketIds();
   if(!tvmFormData || !tvmFormData.tvmLeaders){ loadTvmFormData(); }
 }
@@ -3135,13 +3092,11 @@ function resetTvmFormFields(){
 
 function tvmFormatTime(el){ formatTimeInput(el); tvmFormDirty = true; }
 
-// ── TVM İD axtarışı (TVM_SN_AND_LOC sheeti üzrə) ──
 function tvmSnInputHandler(el){
   var digits = el.value.replace(/[^0-9]/g,'');
   el.value = digits;
   tvmFormDirty = true;
 
-  // Əvvəlki seçim İD dəyişdirildikdə etibarsızdır
   if(tvmSelectedSn && tvmSelectedSn.id.replace(/[^0-9]/g,'') !== digits){
     tvmSelectedSn = null;
     var locWrap = document.getElementById('tvm_location_wrap'); if(locWrap) locWrap.style.display = 'none';
@@ -3213,7 +3168,6 @@ document.addEventListener('click', function(e){
   if(!e.target.closest('#tvm_sn') && !e.target.closest('#tvm_sn_dd')){ closeTvmSnDD(); }
 });
 
-// ── TVM Göndər ──
 function submitTvmService(){
   if(!document.getElementById('tvm_date').value){ alert('Tarix daxil edin'); return; }
   if(!document.getElementById('tvm_fault_time').value.trim()){ alert('Nasazlığın yaranma vaxtını daxil edin'); return; }
@@ -3289,5 +3243,279 @@ function submitTvmService(){
     sp.style.display = 'none';
     tx.textContent = '❌ Şəbəkə xətası: ' + e.message;
     setTimeout(function(){ ov.style.display = 'none'; }, 1800);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// BUS MANAGEMENT — Admin Panel üçün tam frontend (YENİ)
+// ═══════════════════════════════════════════════════
+
+var admBusRegistryAll=[], admBusProblems=[], admBusSolutions=[], admBusEquipment=[], admBusLocations=[];
+var admBusRegCurrentPage=1, admBusRegPageSize=8, admBusRegEditingId=null;
+var admBusListEditingSheet=null, admBusListEditingValue=null;
+var admBusRegSearchDebounceTimer=null;
+var ADM_BUS_SHEET_LABEL={ 'BUS_PROBLEMS':'Nasazlıq', 'BUS_SOLUTIONS':'Həll', 'BUS_EQUIPMENT':'Avadanlıq', 'BUS_LOCATIONS':'Lokasiya' };
+var ADM_BUS_LIST_MAP={ 'BUS_PROBLEMS':'admBusProblemsList', 'BUS_SOLUTIONS':'admBusSolutionsList', 'BUS_EQUIPMENT':'admBusEquipmentList', 'BUS_LOCATIONS':'admBusLocationsList' };
+var ADM_BUS_COUNT_MAP={ 'BUS_PROBLEMS':'admBusProblemsCount', 'BUS_SOLUTIONS':'admBusSolutionsCount', 'BUS_EQUIPMENT':'admBusEquipmentCount', 'BUS_LOCATIONS':'admBusLocationsCount' };
+
+function switchBusSubtab(key, btn){
+  document.querySelectorAll('#admSection-bus .adm-subtab').forEach(function(el){ el.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.adm-bus-sub').forEach(function(el){ el.style.display='none'; });
+  var target=document.getElementById('admBusSub-'+key);
+  if(target) target.style.display='block';
+}
+
+function loadBusManagementData(){
+  var body=document.getElementById('admBusRegTableBody');
+  if(body) body.innerHTML='<tr><td colspan="4"><div class="adm-empty">Yüklənir...</div></td></tr>';
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getBusManagementData', requesterEmail: currentUser?currentUser.email:''})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status!=='OK'){
+      if(body) body.innerHTML='<tr><td colspan="4"><div class="adm-empty">Xəta: '+escapeHtml(d.message||'')+'</div></td></tr>';
+      return;
+    }
+    admBusRegistryAll=d.registry||[];
+    admBusProblems=d.problems||[];
+    admBusSolutions=d.solutions||[];
+    admBusEquipment=d.equipment||[];
+    admBusLocations=d.locations||[];
+    admBusRegCurrentPage=1;
+    admRenderBusRegistryTable();
+    admRenderBusSimpleList('BUS_PROBLEMS', admBusProblems);
+    admRenderBusSimpleList('BUS_SOLUTIONS', admBusSolutions);
+    admRenderBusSimpleList('BUS_EQUIPMENT', admBusEquipment);
+    admRenderBusSimpleList('BUS_LOCATIONS', admBusLocations);
+  })
+  .catch(function(e){
+    if(body) body.innerHTML='<tr><td colspan="4"><div class="adm-empty">Şəbəkə xətası: '+escapeHtml(e.message)+'</div></td></tr>';
+  });
+}
+
+function admBusRegDebouncedRender(){ clearTimeout(admBusRegSearchDebounceTimer); admBusRegSearchDebounceTimer=setTimeout(function(){ admBusRegCurrentPage=1; admRenderBusRegistryTable(); },180); }
+function admGetFilteredBusRegistry(){
+  var q=(document.getElementById('admBusRegSearch').value||'').toLowerCase().trim();
+  if(!q) return admBusRegistryAll;
+  return admBusRegistryAll.filter(function(r){
+    return r.id.toLowerCase().indexOf(q)!==-1 || r.dqn.toLowerCase().indexOf(q)!==-1 || r.carrier.toLowerCase().indexOf(q)!==-1;
+  });
+}
+function admRenderBusRegistryTable(){
+  var filtered=admGetFilteredBusRegistry();
+  var totalPages=Math.max(1, Math.ceil(filtered.length/admBusRegPageSize));
+  if(admBusRegCurrentPage>totalPages) admBusRegCurrentPage=totalPages;
+  var startIdx=(admBusRegCurrentPage-1)*admBusRegPageSize;
+  var visible=filtered.slice(startIdx, startIdx+admBusRegPageSize);
+
+  var body=document.getElementById('admBusRegTableBody');
+  if(visible.length===0){
+    body.innerHTML='<tr><td colspan="4"><div class="adm-empty">Avtobus tapılmadı</div></td></tr>';
+  } else {
+    body.innerHTML=visible.map(function(r){
+      var safeId=r.id.replace(/'/g,'');
+      return '<tr>'
+        +'<td class="adm-mono">'+escapeHtml(r.id)+'</td>'
+        +'<td class="adm-mono">'+escapeHtml(r.dqn||'—')+'</td>'
+        +'<td>'+escapeHtml(r.carrier||'—')+'</td>'
+        +'<td>'+escapeHtml(r.model||'—')+'</td>'
+        +'<td class="adm-th-act">'
+        +'<button class="adm-icon-btn" onclick="openBusRegistryModal(\''+safeId+'\')" aria-label="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>'
+        +'<button class="adm-icon-btn adm-icon-btn-danger" onclick="admDeleteBusRegistry(\''+safeId+'\')" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
+        +'</td></tr>';
+    }).join('');
+  }
+
+  var infoEl=document.getElementById('admBusRegPageInfo');
+  if(filtered.length===0){ infoEl.textContent='Showing 0 entries'; }
+  else { infoEl.textContent='Showing '+(startIdx+1)+' to '+Math.min(startIdx+admBusRegPageSize,filtered.length)+' of '+filtered.length+' entries'; }
+
+  var btnsEl=document.getElementById('admBusRegPageBtns');
+  var html='';
+  html+='<button class="adm-page-btn" '+(admBusRegCurrentPage<=1?'disabled':'')+' onclick="admBusRegGoPage('+(admBusRegCurrentPage-1)+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>';
+  var startPage=Math.max(1, admBusRegCurrentPage-1), endPage=Math.min(totalPages, startPage+3);
+  startPage=Math.max(1, endPage-3);
+  for(var p=startPage; p<=endPage; p++){
+    html+='<button class="adm-page-btn'+(p===admBusRegCurrentPage?' adm-page-btn-active':'')+'" onclick="admBusRegGoPage('+p+')">'+p+'</button>';
+  }
+  html+='<button class="adm-page-btn" '+(admBusRegCurrentPage>=totalPages?'disabled':'')+' onclick="admBusRegGoPage('+(admBusRegCurrentPage+1)+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>';
+  btnsEl.innerHTML=html;
+}
+function admBusRegGoPage(p){ if(p<1) return; admBusRegCurrentPage=p; admRenderBusRegistryTable(); }
+
+function openBusRegistryModal(id){
+  admBusRegEditingId=id||null;
+  document.getElementById('admBusRegFormError').style.display='none';
+  document.getElementById('admBusRegId').value='';
+  document.getElementById('admBusRegCarrier').value='';
+  document.getElementById('admBusRegDqn').value='';
+  document.getElementById('admBusRegModel').value='';
+  if(id){
+    var r=admBusRegistryAll.find(function(x){ return x.id===id; });
+    document.getElementById('admBusRegModalTitle').textContent='Edit Bus';
+    document.getElementById('admBusRegSaveBtn').textContent='Save Changes';
+    if(r){
+      document.getElementById('admBusRegId').value=r.id;
+      document.getElementById('admBusRegCarrier').value=r.carrier;
+      document.getElementById('admBusRegDqn').value=r.dqn;
+      document.getElementById('admBusRegModel').value=r.model;
+    }
+  } else {
+    document.getElementById('admBusRegModalTitle').textContent='Add Bus';
+    document.getElementById('admBusRegSaveBtn').textContent='Save';
+  }
+  var ov=document.getElementById('admBusRegModal');
+  ov.style.display='flex'; ov.classList.add('open');
+}
+function closeBusRegistryModal(){
+  var ov=document.getElementById('admBusRegModal');
+  ov.classList.remove('open'); ov.style.display='none';
+  admBusRegEditingId=null;
+}
+function submitBusRegistryModal(){
+  var id=document.getElementById('admBusRegId').value.trim();
+  var carrier=document.getElementById('admBusRegCarrier').value.trim();
+  var dqn=document.getElementById('admBusRegDqn').value.trim();
+  var model=document.getElementById('admBusRegModel').value.trim();
+  var errEl=document.getElementById('admBusRegFormError');
+  errEl.style.display='none';
+  if(!id && !dqn){ errEl.textContent='BUS ID və ya D.Q.N. daxil edin.'; errEl.style.display='block'; return; }
+
+  var btn=document.getElementById('admBusRegSaveBtn');
+  btn.disabled=true; var origText=btn.textContent; btn.textContent='Yadda saxlanılır...';
+
+  var payload = admBusRegEditingId
+    ? { action:'updateBusRegistryEntry', originalId:admBusRegEditingId, data:{id:id, carrier:carrier, dqn:dqn, model:model}, requesterEmail: currentUser?currentUser.email:'' }
+    : { action:'addBusRegistryEntry', data:{id:id, carrier:carrier, dqn:dqn, model:model}, requesterEmail: currentUser?currentUser.email:'' };
+
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    btn.disabled=false; btn.textContent=origText;
+    if(d.status!=='OK'){ errEl.textContent=d.message||'Xəta baş verdi'; errEl.style.display='block'; return; }
+    closeBusRegistryModal();
+    loadBusManagementData();
+  })
+  .catch(function(e){
+    btn.disabled=false; btn.textContent=origText;
+    errEl.textContent='Şəbəkə xətası: '+e.message; errEl.style.display='block';
+  });
+}
+function admDeleteBusRegistry(id){
+  admOpenDeleteConfirm('"'+id+'" avtobusunu silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.', function(){
+    return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteBusRegistryEntry', id:id, requesterEmail: currentUser?currentUser.email:''})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
+      loadBusManagementData();
+    });
+  });
+}
+function admExportBusRegistry(){
+  var filtered=admGetFilteredBusRegistry();
+  if(filtered.length===0){ alert('Export üçün məlumat yoxdur'); return; }
+  if(typeof XLSX==='undefined'){ alert('Excel kitabxanası yüklənməyib'); return; }
+  var wsData=[['BUS ID','D.Q.N.','Daşıyıcı','Model']];
+  filtered.forEach(function(r){ wsData.push([r.id, r.dqn, r.carrier, r.model]); });
+  var ws=XLSX.utils.aoa_to_sheet(wsData);
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'BUS Registry');
+  var today=new Date();
+  XLSX.writeFile(wb, 'BUS_Registry_'+String(today.getDate()).padStart(2,'0')+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+today.getFullYear()+'.xlsx');
+}
+
+function admGetBusListArray(sheetName){
+  if(sheetName==='BUS_PROBLEMS') return admBusProblems;
+  if(sheetName==='BUS_SOLUTIONS') return admBusSolutions;
+  if(sheetName==='BUS_EQUIPMENT') return admBusEquipment;
+  if(sheetName==='BUS_LOCATIONS') return admBusLocations;
+  return [];
+}
+function admRenderBusSimpleList(sheetName, arr){
+  var listEl=document.getElementById(ADM_BUS_LIST_MAP[sheetName]);
+  var countEl=document.getElementById(ADM_BUS_COUNT_MAP[sheetName]);
+  var label=ADM_BUS_SHEET_LABEL[sheetName]||'Element';
+  if(countEl) countEl.textContent=arr.length+' '+label;
+  if(!listEl) return;
+  if(arr.length===0){ listEl.innerHTML='<div class="adm-empty">Siyahı boşdur</div>'; return; }
+  listEl.innerHTML=arr.map(function(val, idx){
+    var safeVal=val.replace(/'/g,'');
+    return '<div class="adm-reorder-row">'
+      +'<span class="adm-reorder-num">'+(idx+1)+'</span>'
+      +'<span class="adm-reorder-text">'+escapeHtml(val)+'</span>'
+      +'<div class="adm-reorder-arrows">'
+      +'<button class="adm-reorder-arrow" '+(idx===0?'disabled':'')+' onclick="admMoveBusListItem(\''+sheetName+'\',\''+safeVal+'\',\'up\')" aria-label="Yuxarı"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg></button>'
+      +'<button class="adm-reorder-arrow" '+(idx===arr.length-1?'disabled':'')+' onclick="admMoveBusListItem(\''+sheetName+'\',\''+safeVal+'\',\'down\')" aria-label="Aşağı"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></button>'
+      +'</div>'
+      +'<button class="adm-icon-btn" onclick="openBusListModal(\''+sheetName+'\',\''+safeVal+'\')" aria-label="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>'
+      +'<button class="adm-icon-btn adm-icon-btn-danger" onclick="admDeleteBusListItem(\''+sheetName+'\',\''+safeVal+'\')" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
+      +'</div>';
+  }).join('');
+}
+function admReloadBusListSource(sheetName){
+  if(typeof loadBusManagementData==='function') loadBusManagementData();
+}
+function admMoveBusListItem(sheetName, value, direction){
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'moveBusListItem', sheetName:sheetName, value:value, direction:direction, requesterEmail: currentUser?currentUser.email:''})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
+    admReloadBusListSource(sheetName);
+  })
+  .catch(function(e){ alert('Şəbəkə xətası: '+e.message); });
+}
+function openBusListModal(sheetName, oldValue){
+  admBusListEditingSheet=sheetName;
+  admBusListEditingValue=oldValue||null;
+  document.getElementById('admBusListFormError').style.display='none';
+  var label=ADM_BUS_SHEET_LABEL[sheetName]||'Dəyər';
+  document.getElementById('admBusListModalTitle').textContent=(oldValue?'Edit ':'Add ')+label;
+  document.getElementById('admBusListFieldLabel').textContent=label+' *';
+  document.getElementById('admBusListValue').placeholder=label+' daxil edin';
+  document.getElementById('admBusListValue').value=oldValue||'';
+  document.getElementById('admBusListSaveBtn').textContent=oldValue?'Save Changes':'Save';
+  var ov=document.getElementById('admBusListModal');
+  ov.style.display='flex'; ov.classList.add('open');
+}
+function closeBusListModal(){
+  var ov=document.getElementById('admBusListModal');
+  ov.classList.remove('open'); ov.style.display='none';
+  admBusListEditingSheet=null; admBusListEditingValue=null;
+}
+function submitBusListModal(){
+  var value=document.getElementById('admBusListValue').value.trim();
+  var errEl=document.getElementById('admBusListFormError');
+  errEl.style.display='none';
+  if(!value){ errEl.textContent='Boş dəyər saxlanıla bilməz.'; errEl.style.display='block'; return; }
+
+  var btn=document.getElementById('admBusListSaveBtn');
+  btn.disabled=true; var origText=btn.textContent; btn.textContent='Yadda saxlanılır...';
+
+  var payload = admBusListEditingValue
+    ? { action:'updateBusListItem', sheetName:admBusListEditingSheet, oldValue:admBusListEditingValue, newValue:value, requesterEmail: currentUser?currentUser.email:'' }
+    : { action:'addBusListItem', sheetName:admBusListEditingSheet, value:value, requesterEmail: currentUser?currentUser.email:'' };
+
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    btn.disabled=false; btn.textContent=origText;
+    if(d.status!=='OK'){ errEl.textContent=d.message||'Xəta baş verdi'; errEl.style.display='block'; return; }
+    closeBusListModal();
+    admReloadBusListSource(admBusListEditingSheet);
+  })
+  .catch(function(e){
+    btn.disabled=false; btn.textContent=origText;
+    errEl.textContent='Şəbəkə xətası: '+e.message; errEl.style.display='block';
+  });
+}
+function admDeleteBusListItem(sheetName, value){
+  var label=ADM_BUS_SHEET_LABEL[sheetName]||'dəyəri';
+  admOpenDeleteConfirm('"'+value+'" '+label+'ni silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.', function(){
+    return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteBusListItem', sheetName:sheetName, value:value, requesterEmail: currentUser?currentUser.email:''})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
+      admReloadBusListSource(sheetName);
+    });
   });
 }
