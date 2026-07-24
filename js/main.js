@@ -47,6 +47,7 @@ function showDashboard(){
   document.getElementById('profileName').textContent=currentUser.name;
   document.getElementById('profileRole').textContent=currentUser.role;
   applyAccessLevel();
+  if(typeof updateCollectivesBtnVisibility==='function') updateCollectivesBtnVisibility();
   if(!clockStarted){ clockStarted=true; updateClock(); setInterval(updateClock,1000); }
 }
 
@@ -662,13 +663,17 @@ function applyTheme(isDark){
   icons.forEach(function(icon){ if(!icon)return; icon.innerHTML=isDark?SUN_PATH:MOON_PATH; });
   if(isDark){document.body.classList.add('dark-mode');}else{document.body.classList.remove('dark-mode');}
 
-  // Kollektiv düyməsini gecə/gündüz rejiminə uyğun rəngləndir
+  // Kollektiv düyməsinin rəngini gecə/gündüz rejiminə uyğunlaşdır (görünmə deyil — o ayrıca idarə olunur)
   var collBtn = document.getElementById('collectivesBtn');
   if(collBtn) {
-    collBtn.style.display = (window.innerWidth >= 901) ? 'flex' : 'none';
     collBtn.style.color = isDark ? '#E8EEF5' : '#12233B';
   }
 }
+function updateCollectivesBtnVisibility(){
+  var collBtn = document.getElementById('collectivesBtn');
+  if(collBtn) collBtn.style.display = (window.innerWidth >= 901) ? 'flex' : 'none';
+}
+window.addEventListener('resize', updateCollectivesBtnVisibility);
 function toggleTheme(){ var isDark=!document.body.classList.contains('dark-mode'); applyTheme(isDark); try{localStorage.setItem('ctech_theme',isDark?'dark':'light');}catch(e){} }
 
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js'); }
@@ -3535,19 +3540,26 @@ function admDeleteBusListItem(sheetName, value){
 function openCollectives() {
   // Yalnız web (masaüstü) versiyada
   if (window.innerWidth < 901) {
-    alert("Bu bölmə yalnız masaüstü versiyada mövcuddur.");
     return;
   }
 
-  // Loading animasiyasını göstər
-  var overlay = document.getElementById('collectivesOverlay');
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('collectivesView').style.display = 'block';
+  closeMenu();
+
+  if (currentUser) {
+    var nameEl = document.getElementById('clProfileName');
+    var roleEl = document.getElementById('clProfileRole');
+    if (nameEl) nameEl.textContent = currentUser.name || '—';
+    if (roleEl) roleEl.textContent = currentUser.role || '—';
+  }
+  var clIcon = document.getElementById('clThemeIcon');
+  if (clIcon) clIcon.innerHTML = document.body.classList.contains('dark-mode') ? SUN_PATH : MOON_PATH;
+
   var loader = document.getElementById('collectivesLoader');
   var content = document.getElementById('collectivesContent');
-  
-  overlay.style.display = 'flex';
   loader.style.display = 'flex';
   content.style.display = 'none';
-  overlay.classList.add('open');
 
   // Məlumatları yüklə
   fetch(API_URL, {
@@ -3577,7 +3589,9 @@ function openCollectives() {
 }
 
 function renderCollectives(employees, groupOrder, groupIcons) {
+  var directorBox = document.getElementById('collectivesDirector');
   var container = document.getElementById('collectivesGrid');
+  directorBox.innerHTML = '';
   container.innerHTML = '';
 
   // Hər qrup üçün işçiləri qruplaşdır
@@ -3588,8 +3602,37 @@ function renderCollectives(employees, groupOrder, groupIcons) {
     groups[g].push(emp);
   });
 
-  // Qrup sırasına uyğun olaraq render et
+  // ── Direktor ayrıca, xüsusi kart kimi yuxarıda ──
+  var directors = groups['Direktor'] || [];
+  if (directors.length) {
+    var dInfo = groupIcons['Direktor'] || { icon: '', color: '#2F6FED' };
+    var dCard = document.createElement('div');
+    dCard.className = 'cl-director-card';
+    directors.forEach(function(emp) {
+      var row = document.createElement('div');
+      row.className = 'cl-director-row';
+      var avatar = document.createElement('div');
+      avatar.className = 'cl-director-avatar';
+      avatar.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+      var info = document.createElement('div');
+      var label = document.createElement('div');
+      label.className = 'cl-director-label';
+      label.textContent = emp.title || 'Direktor';
+      var name = document.createElement('div');
+      name.className = 'cl-director-name';
+      name.textContent = emp.name;
+      info.appendChild(label);
+      info.appendChild(name);
+      row.appendChild(avatar);
+      row.appendChild(info);
+      dCard.appendChild(row);
+    });
+    directorBox.appendChild(dCard);
+  }
+
+  // ── Qalan qruplar 4 sütunlu grid-də ──
   groupOrder.forEach(function(groupName) {
+    if (groupName === 'Direktor') return;
     var members = groups[groupName] || [];
     var iconInfo = groupIcons[groupName] || { icon: 'M12 2a6 6 0 0 0-6 6c0 2.2 1.2 4.1 3 5.1-3.8 1-6 4.4-6 8 0 1.1 1 2 2 2h14c1.1 0 2-.9 2-2 0-3.6-2.2-7-6-8 1.8-1 3-2.9 3-5.1a6 6 0 0 0-6-6z', color: '#2F6FED' };
     var color = iconInfo.color || '#2F6FED';
@@ -3661,9 +3704,8 @@ function renderCollectives(employees, groupOrder, groupIcons) {
 }
 
 function closeCollectives() {
-  var overlay = document.getElementById('collectivesOverlay');
-  overlay.classList.remove('open');
-  overlay.style.display = 'none';
+  document.getElementById('collectivesView').style.display = 'none';
+  document.getElementById('dashboardView').style.display = 'block';
 }
 
 // ═══════════════════════════════════════════════════════════════
