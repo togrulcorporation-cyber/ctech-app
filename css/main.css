@@ -701,6 +701,18 @@ body.dark-mode #busOpenOverlay div[style*="color:#8CA0BC"] { color:#5C7089 !impo
 
 .rpt-search-wrap { position:relative; flex:0 1 300px; min-width:160px; }
 .rpt-search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:.5; pointer-events:none; }
+
+.rpt-type-filter{ display:flex; gap:4px; background:#F0F4FB; border-radius:10px; padding:3px; flex-shrink:0; }
+.rpt-type-btn{
+  border:none; background:none; padding:7px 13px; border-radius:8px;
+  font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700; color:#5C7089;
+  cursor:pointer; white-space:nowrap;
+}
+.rpt-type-btn:hover{ color:#12233B; }
+.rpt-type-btn-active{ background:#FFFFFF; color:#2F6FED; box-shadow:0 2px 6px rgba(30,68,130,.1); }
+body.dark-mode .rpt-type-filter{ background:#0F1826; }
+body.dark-mode .rpt-type-btn{ color:#8CA0BC; }
+body.dark-mode .rpt-type-btn-active{ background:#1C2A3D; color:#8FB4EA; }
 .rpt-search {
   width:100%;
   padding:9px 10px 9px 36px;
@@ -950,6 +962,8 @@ body.dark-mode .dash-header { background:#141F30; border-color:#4A6182; }
 body.dark-mode .dash-title { color:#E8EEF5; }
 .dash-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .dash-tabs { display:flex; gap:4px; background:#F0F5FC; border-radius:10px; padding:3px; }
+.dash-type-filter-row{ padding:12px 16px 0; display:flex; justify-content:center; }
+body.dark-mode .dash-type-filter-row{ background:transparent; }
 body.dark-mode .dash-tabs { background:#1C2A3D; }
 .dash-tab { padding:6px 13px; border-radius:8px; font-size:12px; font-weight:700; color:#5C7089; cursor:pointer; }
 body.dark-mode .dash-tab { color:#8FA0B8; }
@@ -2655,3 +2669,85 @@ td.adm-th-act{ display:flex; justify-content:flex-end; gap:8px; }
 .adm-reorder-arrow:hover{ background:#F7F9FE; color:#2F6FED; }
 .adm-reorder-arrow:disabled{ opacity:.35; cursor:default; }
 .adm-reorder-arrow:disabled:hover{ background:#FFFFFF; color:#8CA0BC; }
+
+/* ═══════════════════════════════════════════════════════════════
+   LOGİN — YALNIZ MOBİL VERSİYA ÜÇÜN YENİDƏN DİZAYN
+   Bu blok yalnız #loginView-a təsir edir, funksionallıq (login(),
+   togglePassword(), rememberMe) toxunulmayıb — sırf vizualdır.
+   Masaüstü (>900px) tamamilə köhnə kimi qalır.
+   ═══════════════════════════════════════════════════════════════ */
+.login-banner{ display:none; }
+
+@media(max-width:900px){
+  #loginView{
+    min-height:100vh; padding:0;
+    display:block;
+    align-items:normal; justify-content:normal;
+  }
+  .login-banner{
+    display:block; width:100%; height:auto; max-height:34vh; object-fit:cover;
+    -webkit-mask-image:linear-gradient(to bottom, black 82%, transparent);
+    mask-image:linear-gradient(to bottom, black 82%, transparent);
+  }
+  .route-line{ display:none; }
+
+  .wrap{
+    max-width:100%;
+    display:flex; flex-direction:column;
+    padding:0 20px calc(24px + env(safe-area-inset-bottom));
+    margin-top:-6vh;
+  }
+
+  .card{ order:1; border-radius:28px; box-shadow:0 24px 60px rgba(30,68,130,.14); }
+  .card-top{ padding:34px 26px 30px; }
+  h1{ font-size:22px; white-space:normal; letter-spacing:.1px; }
+
+  .field-label{ font-size:13.5px; }
+  #email, #password{
+    padding:16px 16px 16px 48px; border-radius:14px; font-size:15.5px;
+    background:#F8FAFD; border:1.5px solid #E1EAF6;
+  }
+  .input-row>svg{ left:17px; opacity:.55; }
+  .toggle-eye{ width:36px; height:36px; border-radius:10px; }
+
+  button.primary{
+    padding:18px; border-radius:14px; font-size:16px;
+    box-shadow:0 14px 30px rgba(47,111,237,.32);
+  }
+  .remember{ justify-content:center; margin-top:22px; }
+  .remember input{
+    appearance:none; -webkit-appearance:none; width:22px; height:22px; border-radius:6px;
+    background:#2F6FED; position:relative; margin:0;
+  }
+  .remember input::after{
+    content:""; position:absolute; left:6px; top:2px; width:6px; height:11px;
+    border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg);
+  }
+
+  /* Alt marka bloku: nöqtəli xətlərlə "CTECH SOLUTIONS MMC" + copyright,
+     bir bütöv kart kimi görünsün deyə brand + footer-note birləşdirilir */
+  .brand{
+    order:2; margin:22px 0 0; text-align:center;
+    display:flex; align-items:center; gap:10px;
+    background:#FFFFFF; border:1px solid #E7ECF6; border-bottom:none;
+    border-radius:16px 16px 0 0; padding:16px 18px 6px;
+  }
+  .brand::before, .brand::after{
+    content:""; flex:1 1 auto; height:1px;
+    background-image:linear-gradient(to right,#C7D6F0 45%,transparent 0%);
+    background-size:5px 1px; background-repeat:repeat-x;
+  }
+  .brand-name{ font-size:15px; letter-spacing:1.5px; white-space:nowrap; }
+
+  .footer-note{
+    order:3; margin:0 0 20px; padding:2px 18px 16px;
+    background:#FFFFFF; border:1px solid #E7ECF6; border-top:none;
+    border-radius:0 0 16px 16px;
+  }
+
+  body.dark-mode .brand,
+  body.dark-mode .footer-note{ background:#141F30; border-color:#2A3B52; }
+  body.dark-mode .brand::before, body.dark-mode .brand::after{
+    background-image:linear-gradient(to right,#3E5578 45%,transparent 0%);
+  }
+}

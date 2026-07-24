@@ -99,6 +99,8 @@ function switchAdminSection(key, btn){
   if(target) target.style.display='block';
   if(key==='users' && typeof loadAdminUsers==='function') loadAdminUsers();
   if(key==='tvm' && typeof loadTvmManagementData==='function') loadTvmManagementData();
+  if(key==='tech' && typeof loadAdminTechnicians==='function') loadAdminTechnicians();
+  if(key==='leaders' && typeof loadAdminLeaders==='function') loadAdminLeaders();
 }
 document.addEventListener('click',function(e){ var panel=document.getElementById('menuPanel'); if(!panel)return; if(!panel.contains(e.target)&&!e.target.closest('.icon-btn'))closeMenu(); });
 
@@ -344,9 +346,10 @@ var admTvmRegistryAll=[], admTvmProblems=[], admTvmSolutions=[], admTvmLeaders=[
 var admTvmRegCurrentPage=1, admTvmRegPageSize=8, admTvmRegEditingId=null;
 var admTvmListEditingSheet=null, admTvmListEditingValue=null;
 var admTvmRegSearchDebounceTimer=null;
-var ADM_TVM_SHEET_LABEL={ 'TVM_PROBLEMS':'Nasazlıq', 'TVM_SOLUTIONS':'Həll', 'TVM_TeamLeaders':'Qrup Rəhbəri' };
-var ADM_TVM_LIST_MAP={ 'TVM_PROBLEMS':'admTvmProblemsList', 'TVM_SOLUTIONS':'admTvmSolutionsList', 'TVM_TeamLeaders':'admTvmLeadersList' };
-var ADM_TVM_COUNT_MAP={ 'TVM_PROBLEMS':'admTvmProblemsCount', 'TVM_SOLUTIONS':'admTvmSolutionsCount', 'TVM_TeamLeaders':'admTvmLeadersCount' };
+var ADM_TVM_SHEET_LABEL={ 'TVM_PROBLEMS':'Nasazlıq', 'TVM_SOLUTIONS':'Həll', 'TVM_TeamLeaders':'Qrup Rəhbəri', 'TECHNICALS':'Texnik', 'TEAM_LEADERS':'Qrup Rəhbəri' };
+var ADM_TVM_LIST_MAP={ 'TVM_PROBLEMS':'admTvmProblemsList', 'TVM_SOLUTIONS':'admTvmSolutionsList', 'TVM_TeamLeaders':'admTvmLeadersList', 'TECHNICALS':'admTechList', 'TEAM_LEADERS':'admLeadersList' };
+var ADM_TVM_COUNT_MAP={ 'TVM_PROBLEMS':'admTvmProblemsCount', 'TVM_SOLUTIONS':'admTvmSolutionsCount', 'TVM_TeamLeaders':'admTvmLeadersCount', 'TECHNICALS':'admTechCount', 'TEAM_LEADERS':'admLeadersCount' };
+var admTechAll=[], admLeadersAll=[];
 
 function switchTvmSubtab(key, btn){
   document.querySelectorAll('#admSection-tvm .adm-subtab').forEach(function(el){ el.classList.remove('active'); });
@@ -523,7 +526,8 @@ function admGetListArray(sheetName){
 function admRenderTvmSimpleList(sheetName, arr){
   var listEl=document.getElementById(ADM_TVM_LIST_MAP[sheetName]);
   var countEl=document.getElementById(ADM_TVM_COUNT_MAP[sheetName]);
-  if(countEl) countEl.textContent=arr.length+' element';
+  var label=ADM_TVM_SHEET_LABEL[sheetName]||'Element';
+  if(countEl) countEl.textContent=arr.length+' '+label;
   if(!listEl) return;
   if(arr.length===0){ listEl.innerHTML='<div class="adm-empty">Siyahı boşdur</div>'; return; }
   listEl.innerHTML=arr.map(function(val, idx){
@@ -540,12 +544,17 @@ function admRenderTvmSimpleList(sheetName, arr){
       +'</div>';
   }).join('');
 }
+function admReloadListSource(sheetName){
+  if(sheetName==='TECHNICALS'){ if(typeof loadAdminTechnicians==='function') loadAdminTechnicians(); }
+  else if(sheetName==='TEAM_LEADERS'){ if(typeof loadAdminLeaders==='function') loadAdminLeaders(); }
+  else { if(typeof loadTvmManagementData==='function') loadTvmManagementData(); }
+}
 function admMoveTvmListItem(sheetName, value, direction){
   fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'moveTvmListItem', sheetName:sheetName, value:value, direction:direction, requesterEmail: currentUser?currentUser.email:''})})
   .then(function(r){ return r.json(); })
   .then(function(d){
     if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
-    loadTvmManagementData();
+    admReloadListSource(sheetName);
   })
   .catch(function(e){ alert('Şəbəkə xətası: '+e.message); });
 }
@@ -586,7 +595,7 @@ function submitTvmListModal(){
     btn.disabled=false; btn.textContent=origText;
     if(d.status!=='OK'){ errEl.textContent=d.message||'Xəta baş verdi'; errEl.style.display='block'; return; }
     closeTvmListModal();
-    loadTvmManagementData();
+    admReloadListSource(admTvmListEditingSheet);
   })
   .catch(function(e){
     btn.disabled=false; btn.textContent=origText;
@@ -600,11 +609,37 @@ function admDeleteTvmListItem(sheetName, value){
     .then(function(r){ return r.json(); })
     .then(function(d){
       if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
-      loadTvmManagementData();
+      admReloadListSource(sheetName);
     });
   });
 }
 function showAbout(){ closeMenu(); document.getElementById('aboutModal').classList.add('open'); }
+
+// ── TECHNICIANS / GROUP LEADERS (əsas admin bölmələri) ──
+function loadAdminTechnicians(){
+  var listEl=document.getElementById('admTechList');
+  if(listEl) listEl.innerHTML='<div class="adm-empty">Yüklənir...</div>';
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getAdminListData', sheetName:'TECHNICALS', requesterEmail: currentUser?currentUser.email:''})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status!=='OK'){ if(listEl) listEl.innerHTML='<div class="adm-empty">Xəta: '+escapeHtml(d.message||'')+'</div>'; return; }
+    admTechAll=d.items||[];
+    admRenderTvmSimpleList('TECHNICALS', admTechAll);
+  })
+  .catch(function(e){ if(listEl) listEl.innerHTML='<div class="adm-empty">Şəbəkə xətası: '+escapeHtml(e.message)+'</div>'; });
+}
+function loadAdminLeaders(){
+  var listEl=document.getElementById('admLeadersList');
+  if(listEl) listEl.innerHTML='<div class="adm-empty">Yüklənir...</div>';
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getAdminListData', sheetName:'TEAM_LEADERS', requesterEmail: currentUser?currentUser.email:''})})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.status!=='OK'){ if(listEl) listEl.innerHTML='<div class="adm-empty">Xəta: '+escapeHtml(d.message||'')+'</div>'; return; }
+    admLeadersAll=d.items||[];
+    admRenderTvmSimpleList('TEAM_LEADERS', admLeadersAll);
+  })
+  .catch(function(e){ if(listEl) listEl.innerHTML='<div class="adm-empty">Şəbəkə xətası: '+escapeHtml(e.message)+'</div>'; });
+}
 function hideAbout(){ document.getElementById('aboutModal').classList.remove('open'); }
 function signOut(){ closeMenu(); clearSession(); currentUser=null; document.getElementById('email').value=''; document.getElementById('password').value=''; var btn=document.getElementById('loginBtn'); btn.disabled=false; btn.innerHTML='Daxil ol'; document.getElementById('dashboardView').style.display='none'; document.getElementById('busServiceView').style.display='none'; document.getElementById('loginView').style.display='flex'; }
 function moduleAlert(n){ alert(n+' modulu tezliklə hazır olacaq'); }
@@ -1396,6 +1431,21 @@ document.addEventListener('DOMContentLoaded', function(){
 // ═══════════════════════════════════════════════════
 var rptAllRows=[], rptColumns=[], rptFiltered=[], rptShownCount=20, rptPageSize=20, rptAutoRefresh=null;
 var RPT_SEARCH_FIELDS=['Ticket ID','Tarix','D.Q.N.','BUS ID','Daşıyıcı'];
+var rptServiceTypeFilter='all';
+function setRptServiceTypeFilter(type, btn){
+  rptServiceTypeFilter=type;
+  document.querySelectorAll('#rptTypeFilter .rpt-type-btn').forEach(function(b){ b.classList.remove('rpt-type-btn-active'); });
+  if(btn) btn.classList.add('rpt-type-btn-active');
+  rptShownCount=rptPageSize;
+  applyFilters();
+}
+function rptMatchesServiceType(row){
+  if(rptServiceTypeFilter==='all') return true;
+  var t=(row['Xidmət Növü']||'').toLowerCase();
+  if(rptServiceTypeFilter==='individual') return t.indexOf('fərdi')!==-1;
+  if(rptServiceTypeFilter==='bulk') return t.indexOf('toplu')!==-1;
+  return true;
+}
 
 function updateRptDate(){
   var dEl=document.getElementById('rptDateBox');
@@ -1414,6 +1464,9 @@ function openBusReport(){
   var view=document.getElementById('busReportView');
   view.style.display='flex';
   document.getElementById('rptGlobalSearch').value='';
+  rptServiceTypeFilter='all';
+  document.querySelectorAll('#rptTypeFilter .rpt-type-btn').forEach(function(b){ b.classList.remove('rpt-type-btn-active'); });
+  var allBtn=document.querySelector('#rptTypeFilter [data-type="all"]'); if(allBtn) allBtn.classList.add('rpt-type-btn-active');
   document.getElementById('rptExcelBtn').style.display=(getAccessLevel(currentUser.role)==='technician')?'none':'flex';
   rptShownCount=rptPageSize;
   updateRptDate();
@@ -1459,13 +1512,15 @@ function applyFiltersDebounced(){ clearTimeout(rptSearchDebounceTimer); rptSearc
 function applyFilters(){
   var q=(document.getElementById('rptGlobalSearch').value||'').toLowerCase().trim();
   rptShownCount=rptPageSize;
-  rptFiltered=q?rptAllRows.filter(function(row){
+  rptFiltered=rptAllRows.filter(function(row){
+    if(!rptMatchesServiceType(row)) return false;
+    if(!q) return true;
     for(var i=0;i<RPT_SEARCH_FIELDS.length;i++){
       var f=RPT_SEARCH_FIELDS[i];
       if((row[f]||'').toLowerCase().indexOf(q)!==-1) return true;
     }
     return false;
-  }):rptAllRows;
+  });
   renderTable();
 }
 function canEditTicket(row){
@@ -1752,9 +1807,15 @@ function dashHasActiveOptions(key){ return dashSelectedOptions(key).length>0; }
 function dashMatchMulti(val,key){ if(!val) return false; return dashSelectedOptions(key).indexOf(val)!==-1; }
 function dashMatchSolution(val,key){ if(!val) return false; var sel=dashSelectedOptions(key); return val.split('|').some(function(p){ return sel.indexOf(p.trim())!==-1; }); }
 function dashMatchLocation(val,key){ if(!val) return false; var base=val.replace(/\s*\(.*\)$|\.$/,'').trim(); return dashSelectedOptions(key).indexOf(base)!==-1; }
+var dashServiceTypeFilter='all';
 function dashGetFilteredRows(){
   var range=dashCustomRange||dashComputeRange(dashPeriod);
   return dashAllRows.filter(function(row){
+    if(dashServiceTypeFilter!=='all'){
+      var t=(row['Xidmət Növü']||'').toLowerCase();
+      if(dashServiceTypeFilter==='individual'&&t.indexOf('fərdi')===-1) return false;
+      if(dashServiceTypeFilter==='bulk'&&t.indexOf('toplu')===-1) return false;
+    }
     if(range.start&&range.end){ var rd=rowDate(row); if(!rd||rd<range.start||rd>range.end) return false; }
     if(dashHasActiveOptions('Problem')&&!dashMatchMulti(row['Problem'],'Problem')) return false;
     if(dashHasActiveOptions('Həll')&&!dashMatchSolution(row['Həll'],'Həll')) return false;
@@ -1767,6 +1828,12 @@ function dashGetFilteredRows(){
     if(dashHasActiveOptions('Servis Kateqoriyaları')&&!dashMatchMulti(row['Servis Kat.'],'Servis Kateqoriyaları')) return false;
     return true;
   });
+}
+function setDashServiceTypeFilter(type, btn){
+  dashServiceTypeFilter=type;
+  document.querySelectorAll('#dashTypeFilter .rpt-type-btn').forEach(function(b){ b.classList.remove('rpt-type-btn-active'); });
+  if(btn) btn.classList.add('rpt-type-btn-active');
+  dashComputeAndRender();
 }
 function dashCount(rows,field,splitMulti){
   var map={};
@@ -1953,6 +2020,9 @@ function openBusDashboard(){
   document.getElementById('busDashboardView').style.display='flex';
   dashCustomRange=null;
   dashPeriod='24h';
+  dashServiceTypeFilter='all';
+  document.querySelectorAll('#dashTypeFilter .rpt-type-btn').forEach(function(b){ b.classList.remove('rpt-type-btn-active'); });
+  var allBtn=document.querySelector('#dashTypeFilter [data-type="all"]'); if(allBtn) allBtn.classList.add('rpt-type-btn-active');
   updateDashTabsUI();
   loadDashData();
 }
