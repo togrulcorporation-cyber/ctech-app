@@ -95,11 +95,10 @@
           </button>
         </div>
       </div>
-    </div>
-          <!-- YENİ: Kollektiv düyməsi (yalnız web) -->
-      <button class="icon-btn" id="collectivesBtn" onclick="openCollectives()" aria-label="Kollektiv" style="display:none;margin-left:8px;">
+      <button class="icon-btn" id="collectivesBtn" onclick="openCollectives()" aria-label="Kollektiv haqqında" style="display:none;margin-left:10px;">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </button>
+    </div>
 
     <div class="brand-mini">CTECH <span>SOLUTIONS</span> MMC</div>
     <div class="header-right">
@@ -201,33 +200,48 @@
   <div class="footer-note-dash">© 2026 Ctech Solutions MMC</div>
 </div>
 
-<!-- ===== COLLECTIVES MODAL ===== -->
-<div id="collectivesOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(18,35,59,0.6);z-index:200;align-items:center;justify-content:center;padding:40px;backdrop-filter:blur(4px);">
-  <div style="background:#FFFFFF;border-radius:24px;max-width:1400px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,0.3);position:relative;padding:24px 28px 40px;">
-    
-    <!-- Başlıq və yuxarı hissə -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-shrink:0;">
-      <div>
-        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:26px;color:#12233B;letter-spacing:0.5px;display:flex;align-items:center;gap:10px;">
-          <span>CTECH <span style="color:#2F6FED;">SOLUTIONS</span> MMC</span>
+<!-- ===== COLLECTIVES (Kollektiv haqqında) — yalnız veb versiya, tam səhifə ===== -->
+<div id="collectivesView" style="display:none;">
+
+  <div class="adm-header">
+    <button class="adm-home-btn" onclick="closeCollectives()" aria-label="Ana səhifəyə qayıt">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    </button>
+    <div class="adm-logo">CTECH <span>SOLUTIONS</span> MMC</div>
+    <div style="justify-self:end;display:flex;align-items:center;gap:12px;">
+      <button class="icon-btn" id="clThemeToggleBtn" onclick="toggleTheme()" aria-label="Gecə rejimi">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="clThemeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="adm-profile-chip">
+        <div class="adm-profile-avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="adm-profile-text">
+          <div class="adm-profile-name" id="clProfileName">Toğrul Əliyev</div>
+          <div class="adm-profile-role" id="clProfileRole">Admin</div>
         </div>
-        <div style="font-size:14px;color:#5C7089;">Kollektiv haqqında məlumat</div>
       </div>
-      <button onclick="closeCollectives()" style="width:40px;height:40px;border-radius:12px;border:none;background:#F0F5FC;color:#12233B;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:700;">✕</button>
+    </div>
+  </div>
+
+  <div class="cl-body">
+    <div class="cl-page-title">
+      <div class="cl-page-title-main">Kollektiv haqqında</div>
+      <div class="cl-page-title-sub">Texniki heyət və şöbə məlumatları</div>
     </div>
 
     <!-- Loading -->
     <div id="collectivesLoader" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 0;gap:20px;">
-      <div style="width:60px;height:60px;border:5px solid #DCE6F5;border-top-color:#2F6FED;border-radius:50%;animation:spin .8s linear infinite;"></div>
-      <div style="font-size:16px;font-weight:600;color:#5C7089;">Kollektiv məlumatları hazırlanır...</div>
+      <div style="width:50px;height:50px;border:5px solid #DCE6F5;border-top-color:#2F6FED;border-radius:50%;animation:spin .8s linear infinite;"></div>
+      <div style="font-size:15px;font-weight:600;color:#5C7089;">Kollektiv məlumatları hazırlanır...</div>
     </div>
 
     <!-- Məzmun -->
     <div id="collectivesContent" style="display:none;">
-      <div id="collectivesGrid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:20px;"></div>
+      <div id="collectivesDirector"></div>
+      <div id="collectivesGrid" class="cl-grid"></div>
     </div>
-
   </div>
+
+  <div class="cl-footer-note">© 2026 CTECH SOLUTIONS MMC. Bütün hüquqlar qorunur.</div>
 </div>
 
 <!-- ===== ADMIN PANEL (yalnız veb versiya) ===== -->
