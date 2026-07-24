@@ -240,6 +240,7 @@ input[type="date"].bs-input {
   color:#5C7089;
   margin-bottom:7px;
 }
+.bs-label-hint{ font-size:11px; font-weight:500; color:#9AACC4; }
 
 .bs-input {
   width:100%;
@@ -1726,6 +1727,8 @@ body.dark-mode .bk-loading-text { color:#E8EEF5; }
   color:#1B4A8A; font-size:9px; transition:background .12s;
 }
 .bs-chip-x:hover { background:#2F6FED; color:#fff; }
+.bs-chip-warn{ background:#FDF1E3; border-color:#F0B84D; color:#B45309; }
+body.dark-mode .bs-chip-warn{ background:#2A2214; border-color:#7A5A1E; color:#F0B84D; }
 body.dark-mode .bs-chip { background:#1C2A3D; border-color:#3E6FCB; color:#8FB4EA; }
 body.dark-mode .bs-chip-x { background:#3E6FCB; color:#E8EEF5; }
 
