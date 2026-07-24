@@ -376,6 +376,7 @@
           <button class="adm-subtab" data-sub="solutions" onclick="switchBusSubtab('solutions',this)">Həllər</button>
           <button class="adm-subtab" data-sub="equipment" onclick="switchBusSubtab('equipment',this)">Avadanlıq</button>
           <button class="adm-subtab" data-sub="locations" onclick="switchBusSubtab('locations',this)">Lokasiyalar</button>
+          <button class="adm-subtab" data-sub="validatorsn" onclick="switchBusSubtab('validatorsn',this)">Validator SN</button>
         </div>
 
         <!-- ── Alt-bölmə: BUS Reyestri ── -->
@@ -434,7 +435,50 @@
           </div>
           <div class="adm-reorder-list" id="admBusLocationsList"><div class="adm-empty">Yüklənir...</div></div>
         </div>
+
+        <!-- ── Alt-bölmə: Validator SN (~2600 sətir — axtarış-əsaslı, çox-seçimli) ── -->
+        <div class="adm-bus-sub" id="admBusSub-validatorsn" style="display:none;">
+          <div class="adm-toolbar">
+            <div class="adm-search-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="text" id="admValSnSearch" placeholder="Validator SN axtar (məs: IKB19310078)..." oninput="admValSnDebouncedSearch()">
+            </div>
+            <button class="adm-add-btn" onclick="openValidatorSNModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add Validator SN</button>
+          </div>
+
+          <div class="adm-valsn-bulkbar" id="admValSnBulkBar" style="display:none;">
+            <span id="admValSnSelectedCount">0 seçildi</span>
+            <button class="adm-modal-save adm-modal-save-danger" onclick="admBulkDeleteValidatorSN()">Seçilənləri sil</button>
+            <button class="adm-modal-cancel" onclick="admValSnClearSelection()">Ləğv et</button>
+          </div>
+
+          <div class="adm-reorder-list" id="admValSnResults">
+            <div class="adm-empty">Axtarış edin (məs: SN-in son rəqəmləri) — nəticələr aşağıda görünəcək</div>
+          </div>
+        </div>
       </div>
+
+      <!-- Add/Edit Validator SN modal -->
+      <div class="adm-modal-overlay" id="admValSnModal" style="display:none;">
+        <div class="adm-modal adm-modal-sm">
+          <div class="adm-modal-head">
+            <div class="adm-modal-title" id="admValSnModalTitle">Add Validator SN</div>
+            <button class="adm-modal-close" onclick="closeValidatorSNModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+          <div class="adm-modal-body">
+            <div class="adm-form-field">
+              <label id="admValSnFieldLabel">Validator SN *</label>
+              <input type="text" id="admValSnValue" placeholder="Məs: IKB19310078" style="font-family:'IBM Plex Mono',monospace;">
+            </div>
+            <div class="adm-form-error" id="admValSnFormError" style="display:none;"></div>
+          </div>
+          <div class="adm-modal-foot">
+            <button class="adm-modal-cancel" onclick="closeValidatorSNModal()">Cancel</button>
+            <button class="adm-modal-save" id="admValSnSaveBtn" onclick="submitValidatorSNModal()">Save</button>
+          </div>
+        </div>
+      </div>
+
 
       <!-- ═══ TVM MANAGEMENT ═══ -->
       <div class="adm-section" id="admSection-tvm" style="display:none;">
@@ -1247,15 +1291,20 @@
         </div>
       </div>
       <div class="bs-row">
-        <div class="bs-field">
+        <div class="bs-field" style="position:relative;">
           <label class="bs-label">Köhnə cihaz SN</label>
-          <input type="text" id="bs_old_sn" class="bs-input" placeholder="SN">
+          <input type="text" id="bs_old_sn" class="bs-input" placeholder="SN" autocomplete="off" oninput="busSnInputHandler(this,'bs_old_sn_dd','bs_old_sn_warn')" onfocus="busSnInputHandler(this,'bs_old_sn_dd','bs_old_sn_warn')">
+          <div class="bs-registry-dd" id="bs_old_sn_dd" style="display:none;"></div>
+          <div class="bs-sn-warn" id="bs_old_sn_warn" style="display:none;"></div>
         </div>
-        <div class="bs-field">
+        <div class="bs-field" style="position:relative;">
           <label class="bs-label">Yeni cihaz SN</label>
-          <input type="text" id="bs_new_sn" class="bs-input" placeholder="SN">
+          <input type="text" id="bs_new_sn" class="bs-input" placeholder="SN" autocomplete="off" oninput="busSnInputHandler(this,'bs_new_sn_dd','bs_new_sn_warn')" onfocus="busSnInputHandler(this,'bs_new_sn_dd','bs_new_sn_warn')">
+          <div class="bs-registry-dd" id="bs_new_sn_dd" style="display:none;"></div>
+          <div class="bs-sn-warn" id="bs_new_sn_warn" style="display:none;"></div>
         </div>
       </div>
+      <div class="bs-sn-conflict-err" id="bs_sn_conflict_err" style="display:none;">✕ Köhnə və Yeni cihaz SN eyni ola bilməz</div>
     </div>
 
     <!-- Servis vaxtı / yeri -->
