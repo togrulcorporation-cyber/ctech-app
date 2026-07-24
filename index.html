@@ -377,6 +377,7 @@
           <button class="adm-subtab" data-sub="equipment" onclick="switchBusSubtab('equipment',this)">Avadanlıq</button>
           <button class="adm-subtab" data-sub="locations" onclick="switchBusSubtab('locations',this)">Lokasiyalar</button>
           <button class="adm-subtab" data-sub="validatorsn" onclick="switchBusSubtab('validatorsn',this)">Validator SN</button>
+          <button class="adm-subtab" data-sub="samcardsn" onclick="switchBusSubtab('samcardsn',this)">SAM Card SN</button>
         </div>
 
         <!-- ── Alt-bölmə: BUS Reyestri ── -->
@@ -454,6 +455,48 @@
 
           <div class="adm-reorder-list" id="admValSnResults">
             <div class="adm-empty">Axtarış edin (məs: SN-in son rəqəmləri) — nəticələr aşağıda görünəcək</div>
+          </div>
+        </div>
+
+        <!-- ── Alt-bölmə: SAM Card SN (~4000 sətir — axtarış-əsaslı, çox-seçimli) ── -->
+        <div class="adm-bus-sub" id="admBusSub-samcardsn" style="display:none;">
+          <div class="adm-toolbar">
+            <div class="adm-search-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="text" id="admSamSnSearch" placeholder="SAM Card SN axtar (məs: 615100113)..." oninput="admSamSnDebouncedSearch()">
+            </div>
+            <button class="adm-add-btn" onclick="openSamCardSNModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add SAM Card SN</button>
+          </div>
+
+          <div class="adm-valsn-bulkbar" id="admSamSnBulkBar" style="display:none;">
+            <span id="admSamSnSelectedCount">0 seçildi</span>
+            <button class="adm-modal-save adm-modal-save-danger" onclick="admBulkDeleteSamCardSN()">Seçilənləri sil</button>
+            <button class="adm-modal-cancel" onclick="admSamSnClearSelection()">Ləğv et</button>
+          </div>
+
+          <div class="adm-reorder-list" id="admSamSnResults">
+            <div class="adm-empty">Axtarış edin (məs: SN-in son rəqəmləri) — nəticələr aşağıda görünəcək</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add/Edit SAM Card SN modal -->
+      <div class="adm-modal-overlay" id="admSamSnModal" style="display:none;">
+        <div class="adm-modal adm-modal-sm">
+          <div class="adm-modal-head">
+            <div class="adm-modal-title" id="admSamSnModalTitle">Add SAM Card SN</div>
+            <button class="adm-modal-close" onclick="closeSamCardSNModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+          <div class="adm-modal-body">
+            <div class="adm-form-field">
+              <label id="admSamSnFieldLabel">SAM Card SN *</label>
+              <input type="text" id="admSamSnValue" placeholder="Məs: 615100113" style="font-family:'IBM Plex Mono',monospace;">
+            </div>
+            <div class="adm-form-error" id="admSamSnFormError" style="display:none;"></div>
+          </div>
+          <div class="adm-modal-foot">
+            <button class="adm-modal-cancel" onclick="closeSamCardSNModal()">Cancel</button>
+            <button class="adm-modal-save" id="admSamSnSaveBtn" onclick="submitSamCardSNModal()">Save</button>
           </div>
         </div>
       </div>
@@ -1292,19 +1335,21 @@
       </div>
       <div class="bs-row">
         <div class="bs-field" style="position:relative;">
-          <label class="bs-label">Köhnə cihaz SN</label>
-          <input type="text" id="bs_old_sn" class="bs-input" placeholder="SN" autocomplete="off" oninput="busSnInputHandler(this,'bs_old_sn_dd','bs_old_sn_warn')" onfocus="busSnInputHandler(this,'bs_old_sn_dd','bs_old_sn_warn')">
+          <label class="bs-label">Köhnə cihaz SN <span class="bs-label-hint">(Validator və ya SAM Card, birdən çox əlavə edilə bilər)</span></label>
+          <input type="text" id="bs_old_sn" class="bs-input" placeholder="SN axtar və seç..." autocomplete="off" oninput="busSnInputHandler(this,'bs_old_sn_dd','bs_old_sn_warn')" onfocus="busSnInputHandler(this,'bs_old_sn_dd','bs_old_sn_warn')" onkeydown="busSnInputKeydown(event,this,'old')">
           <div class="bs-registry-dd" id="bs_old_sn_dd" style="display:none;"></div>
+          <div class="bs-chips" id="bs_old_sn_chips"></div>
           <div class="bs-sn-warn" id="bs_old_sn_warn" style="display:none;"></div>
         </div>
         <div class="bs-field" style="position:relative;">
-          <label class="bs-label">Yeni cihaz SN</label>
-          <input type="text" id="bs_new_sn" class="bs-input" placeholder="SN" autocomplete="off" oninput="busSnInputHandler(this,'bs_new_sn_dd','bs_new_sn_warn')" onfocus="busSnInputHandler(this,'bs_new_sn_dd','bs_new_sn_warn')">
+          <label class="bs-label">Yeni cihaz SN <span class="bs-label-hint">(Validator və ya SAM Card, birdən çox əlavə edilə bilər)</span></label>
+          <input type="text" id="bs_new_sn" class="bs-input" placeholder="SN axtar və seç..." autocomplete="off" oninput="busSnInputHandler(this,'bs_new_sn_dd','bs_new_sn_warn')" onfocus="busSnInputHandler(this,'bs_new_sn_dd','bs_new_sn_warn')" onkeydown="busSnInputKeydown(event,this,'new')">
           <div class="bs-registry-dd" id="bs_new_sn_dd" style="display:none;"></div>
+          <div class="bs-chips" id="bs_new_sn_chips"></div>
           <div class="bs-sn-warn" id="bs_new_sn_warn" style="display:none;"></div>
         </div>
       </div>
-      <div class="bs-sn-conflict-err" id="bs_sn_conflict_err" style="display:none;">✕ Köhnə və Yeni cihaz SN eyni ola bilməz</div>
+      <div class="bs-sn-conflict-err" id="bs_sn_conflict_err" style="display:none;">✕ Eyni SN həm Köhnə, həm Yeni xanada ola bilməz</div>
     </div>
 
     <!-- Servis vaxtı / yeri -->
