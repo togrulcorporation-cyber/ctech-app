@@ -107,7 +107,8 @@ function switchAdminSection(key, btn){
   if(key==='tvm' && typeof loadTvmManagementData==='function') loadTvmManagementData();
   if(key==='tech' && typeof loadAdminTechnicians==='function') loadAdminTechnicians();
   if(key==='leaders' && typeof loadAdminLeaders==='function') loadAdminLeaders();
-  
+  if(key==='collectives' && typeof loadAdminCollectives==='function') loadAdminCollectives();
+
   // BUS Management
   if(key==='bus' && typeof loadBusManagementData==='function') loadBusManagementData();
 }
@@ -660,6 +661,13 @@ function applyTheme(isDark){
   var icons=[document.getElementById('themeIcon'),document.getElementById('rptThemeIcon'),document.getElementById('dashThemeIcon'),document.getElementById('bkThemeIcon'),document.getElementById('tvmRptThemeIcon')];
   icons.forEach(function(icon){ if(!icon)return; icon.innerHTML=isDark?SUN_PATH:MOON_PATH; });
   if(isDark){document.body.classList.add('dark-mode');}else{document.body.classList.remove('dark-mode');}
+
+  // Kollektiv düyməsini gecə/gündüz rejiminə uyğun rəngləndir
+  var collBtn = document.getElementById('collectivesBtn');
+  if(collBtn) {
+    collBtn.style.display = (window.innerWidth >= 901) ? 'flex' : 'none';
+    collBtn.style.color = isDark ? '#E8EEF5' : '#12233B';
+  }
 }
 function toggleTheme(){ var isDark=!document.body.classList.contains('dark-mode'); applyTheme(isDark); try{localStorage.setItem('ctech_theme',isDark?'dark':'light');}catch(e){} }
 
@@ -3516,6 +3524,324 @@ function admDeleteBusListItem(sheetName, value){
     .then(function(d){
       if(d.status!=='OK'){ alert(d.message||'Xəta baş verdi'); return; }
       admReloadBusListSource(sheetName);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// COLLECTIVES — Kollektiv haqqında məlumat
+// ═══════════════════════════════════════════════════════════════
+
+function openCollectives() {
+  // Yalnız web (masaüstü) versiyada
+  if (window.innerWidth < 901) {
+    alert("Bu bölmə yalnız masaüstü versiyada mövcuddur.");
+    return;
+  }
+
+  // Loading animasiyasını göstər
+  var overlay = document.getElementById('collectivesOverlay');
+  var loader = document.getElementById('collectivesLoader');
+  var content = document.getElementById('collectivesContent');
+  
+  overlay.style.display = 'flex';
+  loader.style.display = 'flex';
+  content.style.display = 'none';
+  overlay.classList.add('open');
+
+  // Məlumatları yüklə
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'getCollectivesData' })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.status !== 'OK') {
+      alert('Xəta: ' + (d.message || 'Məlumat yüklənə bilmədi'));
+      closeCollectives();
+      return;
+    }
+
+    // 2 saniyə gözlə (yükləmə animasiyası üçün)
+    setTimeout(function() {
+      loader.style.display = 'none';
+      content.style.display = 'block';
+      renderCollectives(d.employees, d.groupOrder, d.groupIcons);
+    }, 2000);
+  })
+  .catch(function(e) {
+    alert('Şəbəkə xətası: ' + e.message);
+    closeCollectives();
+  });
+}
+
+function renderCollectives(employees, groupOrder, groupIcons) {
+  var container = document.getElementById('collectivesGrid');
+  container.innerHTML = '';
+
+  // Hər qrup üçün işçiləri qruplaşdır
+  var groups = {};
+  employees.forEach(function(emp) {
+    var g = emp.group || 'Digər';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(emp);
+  });
+
+  // Qrup sırasına uyğun olaraq render et
+  groupOrder.forEach(function(groupName) {
+    var members = groups[groupName] || [];
+    var iconInfo = groupIcons[groupName] || { icon: 'M12 2a6 6 0 0 0-6 6c0 2.2 1.2 4.1 3 5.1-3.8 1-6 4.4-6 8 0 1.1 1 2 2 2h14c1.1 0 2-.9 2-2 0-3.6-2.2-7-6-8 1.8-1 3-2.9 3-5.1a6 6 0 0 0-6-6z', color: '#2F6FED' };
+    var color = iconInfo.color || '#2F6FED';
+    var icon = iconInfo.icon || 'M12 2a6 6 0 0 0-6 6c0 2.2 1.2 4.1 3 5.1-3.8 1-6 4.4-6 8 0 1.1 1 2 2 2h14c1.1 0 2-.9 2-2 0-3.6-2.2-7-6-8 1.8-1 3-2.9 3-5.1a6 6 0 0 0-6-6z';
+
+    var card = document.createElement('div');
+    card.className = 'cl-card';
+
+    // Header: İkona + Başlıq + Say
+    var header = document.createElement('div');
+    header.className = 'cl-header';
+    header.style.borderBottomColor = color;
+
+    var iconDiv = document.createElement('div');
+    iconDiv.className = 'cl-icon';
+    iconDiv.style.background = color + '20';
+    iconDiv.style.color = color;
+    iconDiv.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="' + icon + '"/></svg>';
+
+    var titleDiv = document.createElement('div');
+    titleDiv.className = 'cl-title';
+    titleDiv.textContent = groupName;
+
+    var badge = document.createElement('div');
+    badge.className = 'cl-badge';
+    badge.textContent = members.length + ' nəfər';
+
+    header.appendChild(iconDiv);
+    header.appendChild(titleDiv);
+    header.appendChild(badge);
+    card.appendChild(header);
+
+    // İşçilər siyahısı
+    var list = document.createElement('div');
+    list.className = 'cl-list';
+
+    members.forEach(function(emp) {
+      var row = document.createElement('div');
+      row.className = 'cl-row';
+
+      var avatar = document.createElement('div');
+      avatar.className = 'cl-avatar';
+      avatar.style.background = color + '20';
+      avatar.style.color = color;
+      avatar.textContent = emp.name.charAt(0).toUpperCase();
+
+      var info = document.createElement('div');
+      info.className = 'cl-info';
+
+      var nameEl = document.createElement('div');
+      nameEl.className = 'cl-name';
+      nameEl.textContent = emp.name;
+
+      var titleEl = document.createElement('div');
+      titleEl.className = 'cl-title-text';
+      titleEl.textContent = emp.title;
+
+      info.appendChild(nameEl);
+      info.appendChild(titleEl);
+
+      row.appendChild(avatar);
+      row.appendChild(info);
+      list.appendChild(row);
+    });
+
+    card.appendChild(list);
+    container.appendChild(card);
+  });
+}
+
+function closeCollectives() {
+  var overlay = document.getElementById('collectivesOverlay');
+  overlay.classList.remove('open');
+  overlay.style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN PANEL: COLLECTIVES MANAGEMENT
+// ═══════════════════════════════════════════════════════════════
+
+var admCollectivesAll = [];
+var admCollectivesEditingName = null;
+var admCollectivesSearchDebounceTimer = null;
+
+function loadAdminCollectives() {
+  var listEl = document.getElementById('admCollectivesList');
+  if (listEl) listEl.innerHTML = '<div class="adm-empty">Yüklənir...</div>';
+
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'getCollectivesAdminData', requesterEmail: currentUser ? currentUser.email : '' })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.status !== 'OK') {
+      if (listEl) listEl.innerHTML = '<div class="adm-empty">Xəta: ' + escapeHtml(d.message || '') + '</div>';
+      return;
+    }
+    admCollectivesAll = d.employees || [];
+    renderAdminCollectives();
+  })
+  .catch(function(e) {
+    if (listEl) listEl.innerHTML = '<div class="adm-empty">Şəbəkə xətası: ' + escapeHtml(e.message) + '</div>';
+  });
+}
+
+function renderAdminCollectives() {
+  var listEl = document.getElementById('admCollectivesList');
+  if (!listEl) return;
+
+  // Qruplara görə sırala
+  var GROUP_ORDER = [
+    "Direktor",
+    "Texniki dəstək üzrə qrup rəhbərləri",
+    "Texniki heyət",
+    "Kiçik texniki heyət",
+    "Sürücülər",
+    "Təmir şöbəsi",
+    "Monitorinq şöbəsi",
+    "Anbar",
+    "Xadimə"
+  ];
+
+  var groups = {};
+  admCollectivesAll.forEach(function(emp) {
+    var g = emp.group || 'Digər';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(emp);
+  });
+
+  var html = '';
+  GROUP_ORDER.forEach(function(groupName) {
+    var members = groups[groupName] || [];
+    if (members.length === 0) return;
+
+    html += '<div style="margin-bottom:16px;">';
+    html += '<div style="font-size:13px;font-weight:700;color:#5C7089;margin-bottom:8px;">' + escapeHtml(groupName) + ' (' + members.length + ')</div>';
+
+    members.forEach(function(emp) {
+      var safeName = emp.name.replace(/'/g, "\\'");
+      html += '<div class="adm-reorder-row">'
+        + '<span class="adm-reorder-num"></span>'
+        + '<span class="adm-reorder-text">' + escapeHtml(emp.name) + ' — ' + escapeHtml(emp.title) + '</span>'
+        + '<div style="display:flex;gap:6px;">'
+        + '<button class="adm-icon-btn" onclick="openCollectiveEditModal(\'' + safeName + '\')" aria-label="Redaktə et"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>'
+        + '<button class="adm-icon-btn adm-icon-btn-danger" onclick="admDeleteCollectiveMember(\'' + safeName + '\')" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
+        + '</div></div>';
+    });
+
+    html += '</div>';
+  });
+
+  listEl.innerHTML = html || '<div class="adm-empty">Əməkdaş tapılmadı</div>';
+  document.getElementById('admCollectivesCount').textContent = admCollectivesAll.length + ' əməkdaş';
+}
+
+function openCollectiveAddModal() {
+  document.getElementById('admCollectiveFormError').style.display = 'none';
+  document.getElementById('admCollectiveName').value = '';
+  document.getElementById('admCollectiveTitle').value = '';
+  document.getElementById('admCollectiveGroup').value = '';
+  document.getElementById('admCollectiveModalTitle').textContent = 'Add Member';
+  document.getElementById('admCollectiveSaveBtn').textContent = 'Save';
+  admCollectivesEditingName = null;
+  document.getElementById('admCollectiveModal').style.display = 'flex';
+  document.getElementById('admCollectiveModal').classList.add('open');
+}
+
+function openCollectiveEditModal(name) {
+  var emp = admCollectivesAll.find(function(e) { return e.name === name; });
+  if (!emp) return;
+
+  document.getElementById('admCollectiveFormError').style.display = 'none';
+  document.getElementById('admCollectiveName').value = emp.name;
+  document.getElementById('admCollectiveTitle').value = emp.title;
+  document.getElementById('admCollectiveGroup').value = emp.group;
+  document.getElementById('admCollectiveModalTitle').textContent = 'Edit Member';
+  document.getElementById('admCollectiveSaveBtn').textContent = 'Save Changes';
+  admCollectivesEditingName = name;
+  document.getElementById('admCollectiveModal').style.display = 'flex';
+  document.getElementById('admCollectiveModal').classList.add('open');
+}
+
+function closeCollectiveModal() {
+  var ov = document.getElementById('admCollectiveModal');
+  ov.classList.remove('open');
+  ov.style.display = 'none';
+  admCollectivesEditingName = null;
+}
+
+function submitCollectiveModal() {
+  var name = document.getElementById('admCollectiveName').value.trim();
+  var title = document.getElementById('admCollectiveTitle').value.trim();
+  var group = document.getElementById('admCollectiveGroup').value;
+  var errEl = document.getElementById('admCollectiveFormError');
+  errEl.style.display = 'none';
+
+  if (!name || !title || !group) {
+    errEl.textContent = 'Ad, Vəzifə və Qrup sahələrini doldurun.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  var btn = document.getElementById('admCollectiveSaveBtn');
+  btn.disabled = true;
+  var origText = btn.textContent;
+  btn.textContent = 'Saving...';
+
+  var payload = admCollectivesEditingName
+    ? { action: 'updateCollectiveMember', oldName: admCollectivesEditingName, data: { name: name, title: title, group: group }, requesterEmail: currentUser ? currentUser.email : '' }
+    : { action: 'addCollectiveMember', data: { name: name, title: title, group: group }, requesterEmail: currentUser ? currentUser.email : '' };
+
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    btn.disabled = false;
+    btn.textContent = origText;
+    if (d.status !== 'OK') {
+      errEl.textContent = d.message || 'Xəta baş verdi';
+      errEl.style.display = 'block';
+      return;
+    }
+    closeCollectiveModal();
+    loadAdminCollectives();
+  })
+  .catch(function(e) {
+    btn.disabled = false;
+    btn.textContent = origText;
+    errEl.textContent = 'Şəbəkə xətası: ' + e.message;
+    errEl.style.display = 'block';
+  });
+}
+
+function admDeleteCollectiveMember(name) {
+  admOpenDeleteConfirm('"' + name + '" əməkdaşını silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.', function() {
+    return fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'deleteCollectiveMember', name: name, requesterEmail: currentUser ? currentUser.email : '' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.status !== 'OK') {
+        alert(d.message || 'Xəta baş verdi');
+        return;
+      }
+      loadAdminCollectives();
     });
   });
 }

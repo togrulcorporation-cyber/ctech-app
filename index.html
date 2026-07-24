@@ -96,6 +96,11 @@
         </div>
       </div>
     </div>
+          <!-- YENİ: Kollektiv düyməsi (yalnız web) -->
+      <button class="icon-btn" id="collectivesBtn" onclick="openCollectives()" aria-label="Kollektiv" style="display:none;margin-left:8px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </button>
+
     <div class="brand-mini">CTECH <span>SOLUTIONS</span> MMC</div>
     <div class="header-right">
       <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Gecə rejimi">
@@ -196,6 +201,35 @@
   <div class="footer-note-dash">© 2026 Ctech Solutions MMC</div>
 </div>
 
+<!-- ===== COLLECTIVES MODAL ===== -->
+<div id="collectivesOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(18,35,59,0.6);z-index:200;align-items:center;justify-content:center;padding:40px;backdrop-filter:blur(4px);">
+  <div style="background:#FFFFFF;border-radius:24px;max-width:1400px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,0.3);position:relative;padding:24px 28px 40px;">
+    
+    <!-- Başlıq və yuxarı hissə -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-shrink:0;">
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:26px;color:#12233B;letter-spacing:0.5px;display:flex;align-items:center;gap:10px;">
+          <span>CTECH <span style="color:#2F6FED;">SOLUTIONS</span> MMC</span>
+        </div>
+        <div style="font-size:14px;color:#5C7089;">Kollektiv haqqında məlumat</div>
+      </div>
+      <button onclick="closeCollectives()" style="width:40px;height:40px;border-radius:12px;border:none;background:#F0F5FC;color:#12233B;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:700;">✕</button>
+    </div>
+
+    <!-- Loading -->
+    <div id="collectivesLoader" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 0;gap:20px;">
+      <div style="width:60px;height:60px;border:5px solid #DCE6F5;border-top-color:#2F6FED;border-radius:50%;animation:spin .8s linear infinite;"></div>
+      <div style="font-size:16px;font-weight:600;color:#5C7089;">Kollektiv məlumatları hazırlanır...</div>
+    </div>
+
+    <!-- Məzmun -->
+    <div id="collectivesContent" style="display:none;">
+      <div id="collectivesGrid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:20px;"></div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ===== ADMIN PANEL (yalnız veb versiya) ===== -->
 <div id="adminPanelView">
 
@@ -236,6 +270,10 @@
       <button class="adm-nav-item" data-section="leaders" onclick="switchAdminSection('leaders',this)">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span>Group Leaders</span>
+      </button>
+        <button class="adm-nav-item" data-section="collectives" onclick="switchAdminSection('collectives',this)">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Collectives</span>
       </button>
     </div>
 
@@ -493,6 +531,23 @@
           <button class="adm-add-btn" onclick="openTvmListModal('TEAM_LEADERS')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add Leader</button>
         </div>
         <div class="adm-reorder-list" id="admLeadersList"><div class="adm-empty">Yüklənir...</div></div>
+      </div>
+
+      <!-- ═══ COLLECTIVES ═══ -->
+      <div class="adm-section" id="admSection-collectives" style="display:none;">
+        <div class="adm-section-head">
+          <div>
+            <div class="adm-breadcrumb">Admin Panel <span>›</span> Collectives</div>
+            <div class="adm-title">Kollektiv İdarəetmə</div>
+          </div>
+          <button class="adm-add-btn" onclick="openCollectiveAddModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add Member</button>
+        </div>
+
+        <div class="adm-list-head">
+          <div class="adm-list-count" id="admCollectivesCount">— əməkdaş</div>
+        </div>
+
+        <div class="adm-reorder-list" id="admCollectivesList"><div class="adm-empty">Yüklənir...</div></div>
       </div>
 
     </div>
@@ -1686,6 +1741,46 @@
   </div>
   <div class="loading-text" id="tvmLoadingText">Göndərilir...</div>
 </div>
+
+  <!-- Collective Add/Edit modal -->
+  <div class="adm-modal-overlay" id="admCollectiveModal" style="display:none;">
+    <div class="adm-modal">
+      <div class="adm-modal-head">
+        <div class="adm-modal-title" id="admCollectiveModalTitle">Add Member</div>
+        <button class="adm-modal-close" onclick="closeCollectiveModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-form-field">
+          <label>Ad Soyad *</label>
+          <input type="text" id="admCollectiveName" placeholder="Məs: Renat Bayramov">
+        </div>
+        <div class="adm-form-field">
+          <label>Vəzifə *</label>
+          <input type="text" id="admCollectiveTitle" placeholder="Məs: Direktor">
+        </div>
+        <div class="adm-form-field">
+          <label>Qrup *</label>
+          <select id="admCollectiveGroup">
+            <option value="">Seçin</option>
+            <option value="Direktor">Direktor</option>
+            <option value="Texniki dəstək üzrə qrup rəhbərləri">Texniki dəstək üzrə qrup rəhbərləri</option>
+            <option value="Texniki heyət">Texniki heyət</option>
+            <option value="Kiçik texniki heyət">Kiçik texniki heyət</option>
+            <option value="Sürücülər">Sürücülər</option>
+            <option value="Təmir şöbəsi">Təmir şöbəsi</option>
+            <option value="Monitorinq şöbəsi">Monitorinq şöbəsi</option>
+            <option value="Anbar">Anbar</option>
+            <option value="Xadimə">Xadimə</option>
+          </select>
+        </div>
+        <div class="adm-form-error" id="admCollectiveFormError" style="display:none;"></div>
+      </div>
+      <div class="adm-modal-foot">
+        <button class="adm-modal-cancel" onclick="closeCollectiveModal()">Cancel</button>
+        <button class="adm-modal-save" id="admCollectiveSaveBtn" onclick="submitCollectiveModal()">Save</button>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>
