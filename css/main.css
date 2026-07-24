@@ -2758,13 +2758,61 @@ td.adm-th-act{ display:flex; justify-content:flex-end; gap:8px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   COLLECTIVES — Kollektiv modal və kartlar
+   COLLECTIVES — Kollektiv haqqında (tam səhifə, yalnız veb)
    ═══════════════════════════════════════════════════════════════ */
+
+#collectivesView{
+  display:none;
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:#F7F9FE;
+  z-index:70;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+body.dark-mode #collectivesView{ background:#0F1826; }
 
 /* Mobil və kiçik ekranlarda gizlət */
 @media (max-width:900px) {
   #collectivesBtn { display:none !important; }
-  #collectivesOverlay { display:none !important; }
+  #collectivesView { display:none !important; }
+}
+
+.cl-body{ max-width:1400px; margin:0 auto; padding:32px 32px 20px; }
+
+.cl-page-title{ margin-bottom:24px; }
+.cl-page-title-main{ font-size:26px; font-weight:800; color:#12233B; letter-spacing:.2px; }
+.cl-page-title-sub{ font-size:14px; color:#8CA0BC; font-weight:600; margin-top:2px; }
+body.dark-mode .cl-page-title-main{ color:#E8EEF5; }
+body.dark-mode .cl-page-title-sub{ color:#8CA0BC; }
+
+.cl-footer-note{ text-align:center; padding:20px 0 32px; font-size:12.5px; color:#8CA0BC; }
+
+/* Direktor — xüsusi, mərkəzləşdirilmiş kart */
+.cl-director-card{ display:flex; justify-content:center; margin-bottom:24px; }
+.cl-director-row{
+  display:flex; align-items:center; gap:16px;
+  background:#FFFFFF; border:1px solid #E1EAF6; border-radius:16px;
+  padding:16px 32px; box-shadow:0 12px 28px rgba(30,68,130,0.06);
+  min-width:340px;
+}
+body.dark-mode .cl-director-row{ background:#16212E; border-color:#4A6182; }
+.cl-director-avatar{
+  width:54px; height:54px; border-radius:12px; flex-shrink:0;
+  background:#E6F1FB; color:#2F6FED;
+  display:flex; align-items:center; justify-content:center;
+}
+body.dark-mode .cl-director-avatar{ background:#1C2A3D; color:#8FB4EA; }
+.cl-director-label{ font-size:13px; font-weight:700; color:#2F6FED; }
+.cl-director-name{ font-size:19px; font-weight:800; color:#12233B; margin-top:1px; }
+body.dark-mode .cl-director-name{ color:#E8EEF5; }
+
+/* 4 sütunlu grid (masaüstü üçün sabit) */
+.cl-grid{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:20px;
+}
+@media (max-width:1300px){
+  .cl-grid{ grid-template-columns:repeat(2, 1fr); }
 }
 
 /* İşçi kartı */
@@ -2806,7 +2854,6 @@ body.dark-mode .cl-header {
 
 .cl-title {
   flex:1;
-  font-family:'Rajdhani',sans-serif;
   font-weight:700;
   font-size:15px;
   color:#12233B;
@@ -2824,6 +2871,7 @@ body.dark-mode .cl-title {
   font-weight:700;
   color:#1B4A8A;
   background:#E6F1FB;
+  white-space:nowrap;
 }
 
 body.dark-mode .cl-badge {
@@ -2886,20 +2934,6 @@ body.dark-mode .cl-name {
 
 body.dark-mode .cl-title-text {
   color:#8CA0BC;
-}
-
-/* Collectives modal overlay – dark mode */
-body.dark-mode #collectivesOverlay {
-  background:rgba(15,24,38,0.85);
-}
-
-body.dark-mode #collectivesOverlay > div {
-  background:#16212E;
-}
-
-body.dark-mode #collectivesOverlay button {
-  background:#1C2A3D;
-  color:#E8EEF5;
 }
 
 /* Admin panel Collectives siyahısı */
