@@ -2679,23 +2679,25 @@ td.adm-th-act{ display:flex; justify-content:flex-end; gap:8px; }
 .login-banner{ display:none; }
 
 @media(max-width:900px){
+  html, body{ overflow-x:hidden; max-width:100vw; }
   #loginView{
     min-height:100vh; padding:0;
-    display:block;
+    display:block; overflow-x:hidden;
     align-items:normal; justify-content:normal;
+    width:100%; max-width:100vw;
   }
   .login-banner{
-    display:block; width:100%; height:auto; max-height:34vh; object-fit:cover;
+    display:block; width:100%; max-width:100%; height:auto; max-height:34vh; object-fit:cover;
     -webkit-mask-image:linear-gradient(to bottom, black 82%, transparent);
     mask-image:linear-gradient(to bottom, black 82%, transparent);
   }
   .route-line{ display:none; }
 
   .wrap{
-    max-width:100%;
+    width:100%; max-width:100%; box-sizing:border-box;
     display:flex; flex-direction:column;
     padding:0 20px calc(24px + env(safe-area-inset-bottom));
-    margin-top:18px;
+    margin-top:26px;
   }
 
   .card{ order:1; border-radius:28px; box-shadow:0 24px 60px rgba(30,68,130,.14); }
