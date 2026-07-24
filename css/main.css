@@ -2679,17 +2679,16 @@ td.adm-th-act{ display:flex; justify-content:flex-end; gap:8px; }
 .login-banner{ display:none; }
 
 @media(max-width:900px){
-  html, body{ overflow-x:hidden; max-width:100vw; }
   #loginView{
-    min-height:100vh; padding:0;
-    display:block; overflow-x:hidden;
+    min-height:100vh;
+    min-height:100dvh; /* Safari-də ünvan zolağı açılıb-bağlananda 100vh səhv hesablanır — dvh bunu düzəldir */
+    padding:0;
+    display:block;
     align-items:normal; justify-content:normal;
-    width:100%; max-width:100vw;
+    width:100%;
   }
   .login-banner{
     display:block; width:100%; max-width:100%; height:auto; max-height:34vh; object-fit:cover;
-    -webkit-mask-image:linear-gradient(to bottom, black 82%, transparent);
-    mask-image:linear-gradient(to bottom, black 82%, transparent);
   }
   .route-line{ display:none; }
 
