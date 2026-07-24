@@ -552,19 +552,61 @@
         <div class="adm-section-head">
           <div>
             <div class="adm-breadcrumb">Admin Panel <span>›</span> Collectives</div>
-            <div class="adm-title">Kollektiv İdarəetmə</div>
+            <div class="adm-title">Collectives</div>
           </div>
           <button class="adm-add-btn" onclick="openCollectiveAddModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add Member</button>
         </div>
 
-        <div class="adm-list-head">
-          <div class="adm-list-count" id="admCollectivesCount">— əməkdaş</div>
+        <div class="adm-stats-row adm-stats-row-3">
+          <div class="adm-stat-card">
+            <div class="adm-stat-icon adm-c-blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div><div class="adm-stat-label">Total Members</div><div class="adm-stat-value" id="admClStatTotal">—</div><div class="adm-stat-sub">Bütün əməkdaşlar</div></div>
+          </div>
+          <div class="adm-stat-card">
+            <div class="adm-stat-icon adm-c-purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+            <div><div class="adm-stat-label">Categories</div><div class="adm-stat-value" id="admClStatCategories">—</div><div class="adm-stat-sub">Qrup sayı</div></div>
+          </div>
+          <div class="adm-stat-card">
+            <div class="adm-stat-icon adm-c-teal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div><div class="adm-stat-label">Largest Group</div><div class="adm-stat-value" id="admClStatLargest">—</div><div class="adm-stat-sub" id="admClStatLargestName">—</div></div>
+          </div>
         </div>
 
-        <div class="adm-reorder-list" id="admCollectivesList"><div class="adm-empty">Yüklənir...</div></div>
+        <div class="adm-toolbar">
+          <div class="adm-search-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="admClSearch" placeholder="Ad və ya vəzifə axtar..." oninput="admClDebouncedRender()">
+          </div>
+          <select class="adm-filter-select" id="admClGroupFilter" onchange="admRenderCollectivesTable()">
+            <option value="">All Groups</option>
+            <option value="Direktor">Direktor</option>
+            <option value="Texniki dəstək üzrə qrup rəhbərləri">Texniki dəstək üzrə qrup rəhbərləri</option>
+            <option value="Texniki heyət">Texniki heyət</option>
+            <option value="Kiçik texniki heyət">Kiçik texniki heyət</option>
+            <option value="Sürücülər">Sürücülər</option>
+            <option value="Təmir şöbəsi">Təmir şöbəsi</option>
+            <option value="Monitorinq şöbəsi">Monitorinq şöbəsi</option>
+            <option value="Anbar">Anbar</option>
+            <option value="Xadimə">Xadimə</option>
+          </select>
+          <button class="adm-export-btn" onclick="admExportCollectives()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+        </div>
+
+        <div class="adm-table-wrap">
+          <table class="adm-table">
+            <thead><tr><th>Full Name</th><th>Vəzifə</th><th>Qrup</th><th class="adm-th-act">Actions</th></tr></thead>
+            <tbody id="admClTableBody"><tr><td colspan="4"><div class="adm-empty">Yüklənir...</div></td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="adm-pagination">
+          <div class="adm-page-info" id="admClPageInfo">—</div>
+          <div class="adm-page-btns" id="admClPageBtns"></div>
+        </div>
       </div>
 
     </div>
+
   </div>
 
   <!-- Add/Edit User modal -->
